@@ -1,0 +1,7 @@
+# stock-portfolio/.gitignore
+/node_modules
+/client/node_modules
+/server/node_modules
+/server/.env   # CRITICAL: DO NOT commit environment variables
+/dist
+.DS_Store
