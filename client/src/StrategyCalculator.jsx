@@ -1,6 +1,5 @@
 // client/src/StrategyCalculator.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import api from './api';
 
 const LOT_VALUE = 5000;
 const GROSS_PROFIT_TARGET = 180;
@@ -12,44 +11,6 @@ const StrategyCalculator = ({ currentABP, unitsHeld, selectedTicker }) => {
         low: '',
         yesterdaySalePrice: '' // Used for Re-entry Buy Condition
     });
-    const [loadingData, setLoadingData] = useState(false);
-    const [dataError, setDataError] = useState(null);
-
-    // --- NEW: Data Fetching Hook ---
-    const fetchLatestPrices = useCallback(async (ticker) => {
-        setLoadingData(true);
-        setDataError(null);
-        // Reset prices when ticker changes
-        setPrices({ open: '', high: '', low: '', yesterdaySalePrice: '' }); 
-
-        if (!ticker || ticker === 'N/A') { 
-            setLoadingData(false);
-            return;
-        }
-
-        try {
-            // Call the new backend data route
-            const response = await api.get(`/api/data/latest/${ticker}`);
-            const { open, high, low } = response.data;
-
-            setPrices(prev => ({ 
-                ...prev, 
-                open: open, 
-                high: high, 
-                low: low 
-            }));
-            setLoadingData(false);
-
-        } catch (error) {
-            console.error('Price Fetch Error:', error);
-            setDataError(`Failed to fetch live prices for ${ticker}. Check Console.`);
-            setLoadingData(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchLatestPrices(selectedTicker);
-    }, [selectedTicker, fetchLatestPrices]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -60,17 +21,8 @@ const StrategyCalculator = ({ currentABP, unitsHeld, selectedTicker }) => {
     const currentABPNum = parseFloat(currentABP);
     const unitsHeldNum = parseFloat(unitsHeld);
     const hasInventory = unitsHeldNum > 0;
-    
-    // --- CALCULATIONS ---
-
-    // 1. SELL DECISION (Simplified, since full LIFO profit calc is complex)
-    // We check if the current High Price *exceeds* the ABP by enough margin to hit the target.
-    // We approximate the required profit per unit based on the lot value.
-    const profitMarginRequired = GROSS_PROFIT_TARGET / unitsHeldNum;
-    const requiredSalePrice = hasInventory ? currentABPNum + profitMarginRequired : 0;
-    
-    // The actual check is much simpler: check if the most recent lots can hit ₹180 profit.
-    // Since we don't have LIFO lot data here, we'll use a pragmatic proxy:
+        
+    // 1. SELL DECISION (Approximation)
     const potentialGrossProfit = hasInventory 
         ? unitsHeldNum * (high - currentABPNum) 
         : 0;
@@ -83,8 +35,13 @@ const StrategyCalculator = ({ currentABP, unitsHeld, selectedTicker }) => {
     // 3. BUY DECISION - Immediate Re-entry
     const shouldBuyReEntry = !hasInventory && yesterdaySalePrice && low < yesterdaySalePrice;
     
-    // Units to buy based on Lot Value / Low Price
-    const unitsToBuy = low > 0 ? Math.floor(LOT_VALUE / low) : 0;
+    // Units to buy
+    let unitsToBuy = 0;
+    if (low > 0) {
+        unitsToBuy = Math.floor(LOT_VALUE / low);
+    } else if (open > 0 && !hasInventory) {
+        unitsToBuy = Math.floor(LOT_VALUE / open);
+    }
     
     // Final Buy Recommendation
     let buyRecommendation = { action: false, reason: '' };
@@ -92,21 +49,17 @@ const StrategyCalculator = ({ currentABP, unitsHeld, selectedTicker }) => {
         buyRecommendation = { action: true, reason: `Averaging Down (Low ₹${low} < ABP ₹${currentABPNum.toFixed(2)})` };
     } else if (shouldBuyReEntry) {
         buyRecommendation = { action: true, reason: `Immediate Re-entry (Low ₹${low} < Yesterday's Sale Price ₹${yesterdaySalePrice.toFixed(2)})` };
-    } else if (!hasInventory) {
-        // Initial Buy condition (at Market Open) - Assume market is open when checking
+    } else if (!hasInventory && open > 0) {
+        // Initial Buy condition
         buyRecommendation = { action: true, reason: `Initial Buy (Execute at Open Price ₹${open})` };
-        unitsToBuy = open > 0 ? Math.floor(LOT_VALUE / open) : 0; // Units based on OPEN price for initial buy
+        unitsToBuy = Math.floor(LOT_VALUE / open); 
     }
-    
     // --- DISPLAY RENDER ---
 
     return (
         <div style={containerStyle}>
             <h4>Strategy Decision Calculator</h4>
-            
-            {loadingData && <p style={{ color: '#007bff' }}>Fetching latest prices...</p>}
-            {dataError && <p style={{ color: 'red' }}>{dataError}</p>}
-            
+                        
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
                 {/* Inputs now have pre-filled values */}
                 <InputField label="Today's Open" name="open" value={open} onChange={handleChange} />
