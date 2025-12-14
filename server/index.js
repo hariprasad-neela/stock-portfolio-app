@@ -5,6 +5,7 @@ require('dotenv').config();
 const pool = require('./db');
 const transactionRoutes = require('./transactionRoutes'); // <-- 1. Import the router
 const strategyRoutes = require('./strategyRoutes');
+const dataRoutes = require('./dataRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,6 +35,8 @@ app.use(express.json());
 // 2. Use the Transaction Router
 app.use('/api/transactions', transactionRoutes); 
 app.use('/api/strategy', strategyRoutes);
+app.use('/api/data', dataRoutes);
+
 // -----------------------------------------------------------------
 
 // Root Route
