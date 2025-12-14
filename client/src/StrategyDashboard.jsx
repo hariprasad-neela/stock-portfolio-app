@@ -113,6 +113,25 @@ const StrategyDashboard = () => {
     );
 };
 
-// ... (cardStyle, labelStyle, valueStyle remain the same) ...
+// Simple inline styles for dashboard clarity
+const cardStyle = {
+    padding: '15px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    textAlign: 'center',
+    backgroundColor: 'white'
+};
+
+const labelStyle = {
+    margin: 0,
+    fontSize: '0.9em',
+    color: '#555'
+};
+
+const valueStyle = {
+    margin: '5px 0 0 0',
+    fontSize: '1.5em',
+    fontWeight: 'bold'
+};
 
 export default StrategyDashboard;
