@@ -2,24 +2,47 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const pool = require('./db'); // Import the database connection
+const pool = require('./db');
+const transactionRoutes = require('./transactionRoutes'); // <-- 1. Import the router
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:5173', // Local frontend URL
+    process.env.FRONTEND_URL // Will be added for production (Vercel URL)
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow if origin is in the list or if the origin is undefined (e.g., direct API request)
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      // NOTE: Temporarily allowing all origins to avoid CORS issues during Render troubleshooting.
+      // In production, tighten this up.
+      callback(null, true); // Temporarily allow all for testing
+    }
+  }
+};
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// -----------------------------------------------------------------
+// 2. Use the Transaction Router
+app.use('/api/transactions', transactionRoutes); 
+// -----------------------------------------------------------------
 
 // Root Route
 app.get('/', (req, res) => {
     res.send('Stock Portfolio Backend is Running!');
 });
 
-// TEST ROUTE: Check Database Connection
+// Test Route (Keep this for debugging)
 app.get('/test-db', async (req, res) => {
     try {
-        const result = await pool.query('SELECT NOW()'); // Simple query to get current time
+        const result = await pool.query('SELECT NOW()'); 
         res.json({ success: true, time: result.rows[0].now });
     } catch (err) {
         console.error(err);
