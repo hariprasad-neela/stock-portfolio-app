@@ -1,17 +1,18 @@
-// client/src/App.jsx
+// client/src/App.jsx (Updated)
 import { useState, useEffect } from 'react';
 import api from './api'; 
-import TransactionForm from './TransactionForm'; // <-- Import the new component
+import TransactionForm from './TransactionForm';
+import StrategyDashboard from './StrategyDashboard'; // <-- Import the new dashboard
 import './App.css';
 
 function App() {
   const [dbStatus, setDbStatus] = useState('Checking connection...');
 
+  // ... (rest of the useEffect and checkConnection function remain the same) ...
   useEffect(() => {
     // This logic ensures the status check runs only once on load
     const checkConnection = async () => {
       try {
-        // Now calling the LIVE Render endpoint
         const response = await api.get('/test-db');
         if (response.data.success) {
           setDbStatus(`✅ LIVE Connection to Supabase! Server Time: ${new Date(response.data.time).toLocaleString()}`);
@@ -30,21 +31,27 @@ function App() {
   return (
     <div className="app-container">
       <header style={{ padding: '20px', backgroundColor: '#282c34', color: 'white' }}>
-        <h1>My Indian Stock Portfolio 📈</h1>
+        <h1>Multi-Asset Strategy Manager 📈</h1>
       </header>
 
-      <main style={{ padding: '20px', display: 'flex', gap: '30px' }}>
-        {/* Left Column: System Status */}
-        <div style={{ flex: 1, minWidth: '300px' }}>
-          <div style={{ padding: '15px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#e9e9f4' }}>
-            <h3>System Status:</h3>
-            <p style={{ fontWeight: 'bold' }}>{dbStatus}</p>
-          </div>
+      <main style={{ padding: '20px' }}>
+        {/* System Status Row */}
+        <div style={{ marginBottom: '25px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#e9e9f4' }}>
+          <h3>System Status: <span style={{ fontWeight: 'normal', fontSize: '0.9em' }}>{dbStatus}</span></h3>
         </div>
 
-        {/* Right Column: Transaction Form */}
-        <div style={{ flex: 2, minWidth: '400px' }}>
-          <TransactionForm /> {/* <-- Render the Form */}
+        {/* Dashboard and Form Row */}
+        <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
+            
+            {/* Left Column: Dashboard (Takes up more space) */}
+            <div style={{ flex: 3 }}>
+                <StrategyDashboard />
+            </div>
+
+            {/* Right Column: Transaction Form (Needs less space) */}
+            <div style={{ flex: 1, minWidth: '350px' }}>
+                <TransactionForm />
+            </div>
         </div>
       </main>
     </div>

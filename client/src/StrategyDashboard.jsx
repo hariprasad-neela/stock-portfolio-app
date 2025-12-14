@@ -1,0 +1,126 @@
+// client/src/StrategyDashboard.jsx
+import React, { useState, useEffect, useCallback } from 'react';
+import api from './api';
+
+// List of ETFs you are tracking with this strategy
+const SUPPORTED_ETFS = ['SILVERBEES', 'GOLDETFS', 'NIFTYBEES'];
+
+const StrategyDashboard = () => {
+    const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_ETFS[0]);
+    const [statusData, setStatusData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchStatus = useCallback(async (ticker) => {
+        setLoading(true);
+        setError(null);
+        try {
+            // Call the new parameterized route
+            const response = await api.get(`/api/strategy/status/${ticker}`);
+            setStatusData(response.data);
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching status:', err);
+            setError(`Could not load data for ${ticker}. Check backend logs.`);
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (selectedTicker) {
+            fetchStatus(selectedTicker);
+        }
+    }, [selectedTicker, fetchStatus]);
+
+    if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
+    if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
+    if (!statusData) return <p>Select an ETF to view status.</p>;
+
+    // Destructure data for easy use
+    const { units_held, average_buy_price, capital_deployed, realized_profit } = statusData;
+
+    // Use a function to format currency (INR)
+    const formatCurrency = (value) => {
+        const num = parseFloat(value);
+        if (isNaN(num)) return '₹0.00';
+        return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(num);
+    };
+
+    const isPositive = parseFloat(realized_profit) >= 0;
+
+    return (
+        <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '10px' }}>
+            <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <label style={{ fontWeight: 'bold' }}>Select Strategy Asset:</label>
+                <select
+                    value={selectedTicker}
+                    onChange={(e) => setSelectedTicker(e.target.value)}
+                    style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
+                >
+                    {SUPPORTED_ETFS.map(ticker => (
+                        <option key={ticker} value={ticker}>{ticker}</option>
+                    ))}
+                </select>
+            </div>
+
+            <h3>Strategy Status: {selectedTicker}</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginTop: '15px' }}>
+                
+                {/* 1. UNITS HELD */}
+                <div style={cardStyle}>
+                    <p style={labelStyle}>Inventory Units</p>
+                    <p style={valueStyle}>{units_held}</p>
+                </div>
+
+                {/* 2. AVERAGE BUYING PRICE (ABP) */}
+                <div style={cardStyle}>
+                    <p style={labelStyle}>Avg. Buy Price (ABP)</p>
+                    <p style={valueStyle}>{formatCurrency(average_buy_price)}</p>
+                </div>
+
+                {/* 3. CAPITAL DEPLOYED (Drawdown) */}
+                <div style={cardStyle}>
+                    <p style={labelStyle}>Capital Deployed</p>
+                    <p style={valueStyle}>{formatCurrency(capital_deployed)}</p>
+                    <small>Max: ₹1,00,000</small>
+                </div>
+                
+                {/* 4. REALIZED P/L */}
+                <div style={cardStyle}>
+                    <p style={labelStyle}>Realized Profit</p>
+                    <p style={{ ...valueStyle, color: isPositive ? '#16a085' : '#c0392b' }}>
+                        {formatCurrency(realized_profit)}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Simple inline styles for dashboard clarity
+const cardStyle = {
+    padding: '15px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    textAlign: 'center',
+    backgroundColor: 'white'
+};
+
+const labelStyle = {
+    margin: 0,
+    fontSize: '0.9em',
+    color: '#555'
+};
+
+const valueStyle = {
+    margin: '5px 0 0 0',
+    fontSize: '1.5em',
+    fontWeight: 'bold'
+};
+
+export default StrategyDashboard;
