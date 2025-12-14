@@ -63,3 +63,5 @@ router.get('/open-inventory/:ticker', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch open inventory.' });
     }
 });
+
+module.exports = router;
