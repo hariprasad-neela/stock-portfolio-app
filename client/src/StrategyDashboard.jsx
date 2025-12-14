@@ -1,21 +1,24 @@
-// client/src/StrategyDashboard.jsx
+// client/src/StrategyDashboard.jsx (MODIFIED)
 import React, { useState, useEffect, useCallback } from 'react';
 import api from './api';
+import StrategyCalculator from './StrategyCalculator'; // <-- Import the calculator
 
 // List of ETFs you are tracking with this strategy
 const SUPPORTED_ETFS = ['SILVERBEES', 'GOLDETFS', 'NIFTYBEES'];
 
 const StrategyDashboard = () => {
+    // ... (State variables remain the same) ...
     const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_ETFS[0]);
     const [statusData, setStatusData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const fetchStatus = useCallback(async (ticker) => {
+        // ... (fetchStatus function remains the same) ...
+        // [Existing fetchStatus code here]
         setLoading(true);
         setError(null);
         try {
-            // Call the new parameterized route
             const response = await api.get(`/api/strategy/status/${ticker}`);
             setStatusData(response.data);
             setLoading(false);
@@ -31,15 +34,13 @@ const StrategyDashboard = () => {
             fetchStatus(selectedTicker);
         }
     }, [selectedTicker, fetchStatus]);
-
+    // ... (Loading/Error handling remains the same) ...
     if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
     if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
     if (!statusData) return <p>Select an ETF to view status.</p>;
 
-    // Destructure data for easy use
     const { units_held, average_buy_price, capital_deployed, realized_profit } = statusData;
-
-    // Use a function to format currency (INR)
+    // ... (formatCurrency and isPositive helpers remain the same) ...
     const formatCurrency = (value) => {
         const num = parseFloat(value);
         if (isNaN(num)) return '₹0.00';
@@ -56,6 +57,7 @@ const StrategyDashboard = () => {
     return (
         <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '10px' }}>
             <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                {/* Ticker Selection Dropdown */}
                 <label style={{ fontWeight: 'bold' }}>Select Strategy Asset:</label>
                 <select
                     value={selectedTicker}
@@ -69,6 +71,8 @@ const StrategyDashboard = () => {
             </div>
 
             <h3>Strategy Status: {selectedTicker}</h3>
+            
+            {/* Strategy Metric Cards (Same as before) */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginTop: '15px' }}>
                 
                 {/* 1. UNITS HELD */}
@@ -98,29 +102,17 @@ const StrategyDashboard = () => {
                     </p>
                 </div>
             </div>
+            
+            {/* ⬇️ NEW: Embed the Strategy Calculator ⬇️ */}
+            <StrategyCalculator 
+                currentABP={average_buy_price} 
+                unitsHeld={units_held} 
+            />
+
         </div>
     );
 };
 
-// Simple inline styles for dashboard clarity
-const cardStyle = {
-    padding: '15px',
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    textAlign: 'center',
-    backgroundColor: 'white'
-};
-
-const labelStyle = {
-    margin: 0,
-    fontSize: '0.9em',
-    color: '#555'
-};
-
-const valueStyle = {
-    margin: '5px 0 0 0',
-    fontSize: '1.5em',
-    fontWeight: 'bold'
-};
+// ... (cardStyle, labelStyle, valueStyle remain the same) ...
 
 export default StrategyDashboard;
