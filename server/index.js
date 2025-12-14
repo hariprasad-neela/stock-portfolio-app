@@ -35,7 +35,7 @@ app.use(express.json());
 // 2. Use the Transaction Router
 app.use('/api/transactions', transactionRoutes); 
 app.use('/api/strategy', strategyRoutes);
-app.use('/api/data', dataRoutes);
+// app.use('/api/data', dataRoutes);
 
 // -----------------------------------------------------------------
 
