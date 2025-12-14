@@ -106,7 +106,8 @@ const StrategyDashboard = () => {
             {/* ⬇️ NEW: Embed the Strategy Calculator ⬇️ */}
             <StrategyCalculator 
                 currentABP={average_buy_price} 
-                unitsHeld={units_held} 
+                unitsHeld={units_held}
+                selectedTicker={selectedTicker} 
             />
 
         </div>

@@ -1,16 +1,55 @@
 // client/src/StrategyCalculator.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import api from './api';
 
 const LOT_VALUE = 5000;
 const GROSS_PROFIT_TARGET = 180;
 
-const StrategyCalculator = ({ currentABP, unitsHeld }) => {
+const StrategyCalculator = ({ currentABP, unitsHeld, selectedTicker }) => {
     const [prices, setPrices] = useState({
         open: '',
         high: '',
         low: '',
         yesterdaySalePrice: '' // Used for Re-entry Buy Condition
     });
+    const [loadingData, setLoadingData] = useState(false);
+    const [dataError, setDataError] = useState(null);
+
+    // --- NEW: Data Fetching Hook ---
+    const fetchLatestPrices = useCallback(async (ticker) => {
+        setLoadingData(true);
+        setDataError(null);
+        // Reset prices when ticker changes
+        setPrices({ open: '', high: '', low: '', yesterdaySalePrice: '' }); 
+
+        if (!ticker || ticker === 'N/A') { 
+            setLoadingData(false);
+            return;
+        }
+
+        try {
+            // Call the new backend data route
+            const response = await api.get(`/api/data/latest/${ticker}`);
+            const { open, high, low } = response.data;
+
+            setPrices(prev => ({ 
+                ...prev, 
+                open: open, 
+                high: high, 
+                low: low 
+            }));
+            setLoadingData(false);
+
+        } catch (error) {
+            console.error('Price Fetch Error:', error);
+            setDataError(`Failed to fetch live prices for ${ticker}. Check Console.`);
+            setLoadingData(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchLatestPrices(selectedTicker);
+    }, [selectedTicker, fetchLatestPrices]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -64,7 +103,12 @@ const StrategyCalculator = ({ currentABP, unitsHeld }) => {
     return (
         <div style={containerStyle}>
             <h4>Strategy Decision Calculator</h4>
+            
+            {loadingData && <p style={{ color: '#007bff' }}>Fetching latest prices...</p>}
+            {dataError && <p style={{ color: 'red' }}>{dataError}</p>}
+            
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
+                {/* Inputs now have pre-filled values */}
                 <InputField label="Today's Open" name="open" value={open} onChange={handleChange} />
                 <InputField label="Today's High" name="high" value={high} onChange={handleChange} />
                 <InputField label="Today's Low" name="low" value={low} onChange={handleChange} />
