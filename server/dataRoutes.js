@@ -4,51 +4,50 @@ const axios = require('axios');
 require('dotenv').config();
 const router = express.Router();
 
-const API_KEY = process.env.ALPHA_VANTAGE_KEY;
-const BASE_URL = 'https://www.alphavantage.co/query';
+const API_KEY = process.env.FMP_API_KEY;
+const BASE_URL = 'https://financialmodelingprep.com/api/v3';
 
-// Helper function to fetch Time Series (Daily Adjusted) data
+// Helper function to fetch the latest EOD data
 async function fetchDailyData(ticker) {
-    // NOTE: Alpha Vantage uses global symbols. You may need to find a proxy 
-    // or use a more India-specific API later. For demo, we use MSFT as proxy.
-    const symbol = ticker === 'SILVERBEES' ? 'MSFT' : ticker; // Placeholder mapping
+    if (!API_KEY) {
+        throw new Error("FMP_API_KEY is missing from environment variables.");
+    }
+
+    // FMP often requires the exchange suffix for non-US stocks. 
+    // We assume SILVERBEES is SILVERBEES.NSE or similar for accuracy.
+    // For this demonstration, we'll try the bare ticker first.
     
     try {
-        const response = await axios.get(BASE_URL, {
+        // Fetch the latest quote data (includes OHL for the last trading day)
+        const response = await axios.get(`${BASE_URL}/quote/${ticker}`, {
             params: {
-                function: 'TIME_SERIES_DAILY_ADJUSTED',
-                symbol: symbol,
-                apikey: API_KEY,
-                outputsize: 'compact' // Get the last 100 data points
+                apikey: API_KEY
             }
         });
 
-        const timeSeries = response.data['Time Series (Daily)'];
-        if (!timeSeries) {
-            console.error('Alpha Vantage Error:', response.data['Note'] || response.data['Error Message']);
-            throw new Error(`Could not fetch data for ${ticker}. API returned an error.`);
+        // FMP returns an array of quotes
+        if (!response.data || response.data.length === 0) {
+            throw new Error(`FMP Error: Ticker '${ticker}' not found or no data returned.`);
         }
-
-        // --- Extract latest day's data ---
-        const latestDate = Object.keys(timeSeries)[0];
-        const latestData = timeSeries[latestDate];
         
-        // Map Alpha Vantage keys to required OHL format
+        const latestData = response.data[0];
+        
+        // Map FMP keys to required OHL format
         const dailyPrices = {
-            date: latestDate,
-            open: parseFloat(latestData['1. open']),
-            high: parseFloat(latestData['2. high']),
-            low: parseFloat(latestData['3. low']),
-            close: parseFloat(latestData['4. close']),
-            // Adjusted close is useful for historical backtesting
-            adjusted_close: parseFloat(latestData['5. adjusted close']) 
+            date: new Date().toISOString().split('T')[0], // Use current date as placeholder if EOD date is not clear
+            open: parseFloat(latestData.open),
+            high: parseFloat(latestData.dayHigh),
+            low: parseFloat(latestData.dayLow),
+            close: parseFloat(latestData.price), // Current price
+            // The FMP quote API provides the necessary OHL data for decision making
         };
         
         return dailyPrices;
 
     } catch (error) {
-        console.error('Data Fetch Error:', error.message);
-        throw new Error('Failed to communicate with external API.');
+        console.error('FMP Data Fetch Error:', error.message);
+        // This gives a more specific error message back to the frontend
+        throw new Error(`Failed to fetch FMP data: ${error.message}`);
     }
 }
 
