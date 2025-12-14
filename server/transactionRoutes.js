@@ -40,17 +40,26 @@ const findOrCreateStock = async (ticker) => {
 // POST /api/transactions
 // Adds a new stock transaction (BUY or SELL)
 // -------------------------------------------------------------
+// Placeholder IDs
+const USER_ID = 'c122115f-d2f6-43c3-8f0a-7f66a7b213b2';
+const PORTFOLIO_ID = '75d19a27-a0e2-4f19-b223-9c86b16e133e'; 
+
+
+// -------------------------------------------------------------
+// POST /api/transactions
+// Adds a new stock transaction (BUY or SELL)
+// -------------------------------------------------------------
 router.post('/', async (req, res) => {
-    // NOTE: This assumes you will manually input the user_id for now.
-    // In the future, this will be retrieved from the session/JWT.
+    // closed_lots_ids will be an array of UUIDs passed ONLY for a SELL transaction
     const {
-        user_id = 'c122115f-d2f6-43c3-8f0a-7f66a7b213b2', // Placeholder User ID
-        portfolio_id = '75d19a27-a0e2-4f19-b223-9c86b16e133e', // Placeholder Portfolio ID
+        user_id = USER_ID, 
+        portfolio_id = PORTFOLIO_ID, 
         ticker,
         type, // 'BUY' or 'SELL'
         date,
         quantity,
-        price
+        price,
+        closed_lots_ids = [] // NEW: Array of IDs of BUY lots being closed
     } = req.body;
 
     if (!ticker || !type || !date || !quantity || !price) {
@@ -61,25 +70,54 @@ router.post('/', async (req, res) => {
     const numQuantity = parseFloat(quantity);
     const numPrice = parseFloat(price);
 
+// --- START TRANSACTION FOR ATOMICITY ---
+    const client = await pool.connect();
     try {
+        await client.query('BEGIN');
+
         // 1. Ensure the stock exists and get its ID
         const stock_id = await findOrCreateStock(ticker.toUpperCase());
-
-        // 2. Save the transaction to the database
-        const result = await pool.query(
-            `INSERT INTO transactions (portfolio_id, stock_id, type, date, quantity, price) 
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-            [portfolio_id, stock_id, type, date, numQuantity, numPrice]
+        
+        // Determine initial is_open status for the new transaction
+        // BUYs are always open (TRUE), SELLs are not (FALSE/NULL)
+        const is_open = (type === 'BUY');
+        
+        // 2. Save the new transaction (BUY or SELL)
+        const result = await client.query(
+            `INSERT INTO transactions (portfolio_id, stock_id, type, date, quantity, price, is_open, closed_lots_ids) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+            [portfolio_id, stock_id, type, date, numQuantity, numPrice, is_open, closed_lots_ids]
         );
+        const newTransaction = result.rows[0];
+        
+        // 3. If this is a SELL, update the 'is_open' status of the selected BUY lots (closed_lots_ids)
+        if (type === 'SELL' && closed_lots_ids.length > 0) {
+            // NOTE: Since we are not doing partial closes, we assume the user selected 
+            // lots that total the SELL quantity, and we mark them as fully closed (is_open = FALSE).
+            
+            // In a real application, you would need complex logic to check partial closes here.
+            // For now, we simplify: mark the selected BUY lots as fully closed.
+            await client.query(
+                `UPDATE transactions 
+                 SET is_open = FALSE
+                 WHERE transaction_id = ANY($1::uuid[])`, // Update all selected IDs
+                [closed_lots_ids]
+            );
+        }
+
+        await client.query('COMMIT'); // All steps succeeded
 
         res.status(201).json({ 
             message: 'Transaction saved successfully!', 
-            transaction: result.rows[0] 
+            transaction: newTransaction
         });
 
     } catch (error) {
+        await client.query('ROLLBACK'); // Roll back changes if any step failed
         console.error('Error saving transaction:', error.message);
         res.status(500).json({ error: 'Failed to save transaction due to a server error.' });
+    } finally {
+        client.release();
     }
 });
 
