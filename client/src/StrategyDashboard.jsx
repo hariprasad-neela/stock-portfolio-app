@@ -29,11 +29,11 @@ const StrategyDashboard = () => {
         }
     }, []);
 
-    useEffect(() => {
-        if (selectedTicker) {
-            fetchStatus(selectedTicker);
-        }
-    }, [selectedTicker, fetchStatus]);
+    // useEffect(() => {
+    //     if (selectedTicker) {
+    //         fetchStatus(selectedTicker);
+    //     }
+    // }, [selectedTicker, fetchStatus]);
     // ... (Loading/Error handling remains the same) ...
     if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
     if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
@@ -106,8 +106,7 @@ const StrategyDashboard = () => {
             {/* ⬇️ NEW: Embed the Strategy Calculator ⬇️ */}
             <StrategyCalculator 
                 currentABP={average_buy_price} 
-                unitsHeld={units_held}
-                selectedTicker={selectedTicker} 
+                unitsHeld={units_held} 
             />
 
         </div>
