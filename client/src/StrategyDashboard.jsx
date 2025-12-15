@@ -10,21 +10,49 @@ const SUPPORTED_ETFS = ['SILVERBEES', 'GOLDETFS', 'NIFTYBEES'];
 const StrategyDashboard = () => {
     // ... (State variables remain the same) ...
     const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_ETFS[0]);
-    const [statusData, setStatusData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const fetchStatus = useCallback(async (ticker) => {
-        // ... (fetchStatus function remains the same) ...
-        // [Existing fetchStatus code here]
+    const fetchInventoryAndCalculateMetrics = useCallback(async (ticker) => {
+        if (!ticker) return;
         setLoading(true);
         setError(null);
         try {
-            const response = await api.get(`/api/strategy/status/${ticker}`);
-            setStatusData(response.data);
+            // CALL THE OPEN INVENTORY ROUTE
+            const response = await api.get(`/api/strategy/open-inventory/${ticker}`);
+            const lots = response.data;
+            setOpenLots(lots);
+            
+            // --- NEW FRONTEND CALCULATION ---
+            let totalUnits = 0;
+            let totalCost = 0;
+            
+            lots.forEach(lot => {
+                totalUnits += lot.open_quantity;
+                totalCost += (lot.open_quantity * lot.buy_price);
+            });
+            
+            const calculatedABP = totalUnits > 0 ? totalCost / totalUnits : 0;
+            
+            // We need a way to pass these calculated values down.
+            // We'll calculate the final metrics object here:
+            const metrics = {
+                units_held: totalUnits,
+                average_buy_price: calculatedABP,
+                capital_deployed: totalCost,
+                // Realized profit calculation is complex, let's skip for now
+                realized_profit: 0 // Placeholder
+            };
+            
+            // Now, we pass the metrics directly to the component render.
+            // We'll use a new state variable or local variable for this.
+            // For simplicity, let's use a local variable (or pass it through context later)
+            // For now, let's use a combined state object for the calculated metrics.
+            setCalculatedMetrics(metrics);
+            
             setLoading(false);
         } catch (err) {
-            console.error('Error fetching status:', err);
+            console.error('Error fetching inventory:', err);
             setError(`Could not load data for ${ticker}. Check backend logs.`);
             setLoading(false);
         }
@@ -32,9 +60,23 @@ const StrategyDashboard = () => {
 
     useEffect(() => {
         if (selectedTicker) {
-            fetchStatus(selectedTicker);
+            fetchInventoryAndCalculateMetrics(selectedTicker);
         }
-    }, [selectedTicker, fetchStatus]);
+    }, [selectedTicker, fetchInventoryAndCalculateMetrics]);
+
+    // We need a state variable to hold these calculated values
+    const [calculatedMetrics, setCalculatedMetrics] = useState({
+        units_held: 0, average_buy_price: 0, capital_deployed: 0, realized_profit: 0
+    });
+
+    // Destructure from the new state
+    const { 
+        units_held, 
+        average_buy_price, 
+        capital_deployed, 
+        realized_profit 
+    } = calculatedMetrics;
+
     // ... (Loading/Error handling remains the same) ...
     if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
     if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
@@ -53,14 +95,6 @@ const StrategyDashboard = () => {
     };
 
     const isPositive = parseFloat(realized_profit) >= 0;
-
-    // De-structure variables (handle null statusData with defaults)
-    const {
-        units_held = 0,
-        average_buy_price = 0,
-        capital_deployed = 0,
-        realized_profit = 0
-    } = statusData || {};
 
     return (
         <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '10px' }}>
@@ -120,7 +154,7 @@ const StrategyDashboard = () => {
                     />
 
                     {/* Open Inventory Tracker */}
-                    <OpenInventoryTracker ticker={selectedTicker} />
+                    <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
                 </>
             )}
 

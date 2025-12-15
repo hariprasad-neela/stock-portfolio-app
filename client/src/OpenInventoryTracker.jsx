@@ -1,33 +1,48 @@
 // client/src/OpenInventoryTracker.jsx
-import React, { useState, useEffect, useCallback } from 'react';
-import api from './api';
+import React, { useState, useMemo } from 'react';
 import SellTransactionForm from './SellTransactionForm';
 
 const MIN_PROFIT_PERCENTAGE = 3; // Feature 5: 3% threshold
 
-const OpenInventoryTracker = ({ ticker }) => {
+const OpenInventoryTracker = ({ ticker, openLots }) => {
     const [openLots, setOpenLots] = useState([]);
     const [currentPrice, setCurrentPrice] = useState(''); // Feature 2: Single price input
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
     const [selectedLots, setSelectedLots] = useState([]); // Feature 6: Selected lots
 
     // Helper for INR formatting
     const formatCurrency = (value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2, }).format(value);
 
-const fetchOpenLots = useCallback(async (currentTicker) => {
-        // ... (existing fetch logic remains) ...
-        try {
-            // ... (existing fetch logic) ...
-            const response = await api.get(`/api/strategy/open-inventory/${currentTicker}`);
-            setOpenLots(response.data);
-            setSelectedLots([]); 
-        } catch (err) {
-            // ...
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    // Use useMemo to calculate lots only when openLots or currentPrice changes
+    const calculatedLots = useMemo(() => {
+        const currentPriceNum = parseFloat(currentPrice);
+        if (openLots.length === 0) return [];
+        
+        let cumulativeUnits = 0;
+        let cumulativeCost = 0;
+        
+        return openLots.map(lot => {
+            const openQuantity = lot.open_quantity;
+            const buyPrice = lot.buy_price;
+            
+            // Calculate Running ABP (Feature 4 part 2)
+            cumulativeUnits += openQuantity;
+            cumulativeCost += (openQuantity * buyPrice);
+            const runningABP = cumulativeUnits > 0 ? cumulativeCost / cumulativeUnits : 0;
+            
+            // Calculate P/L
+            const unrealizedPL = currentPriceNum > 0 ? (currentPriceNum - buyPrice) * openQuantity : 0;
+            const profitPercentage = (currentPriceNum - buyPrice) / buyPrice * 100;
+            const shouldSell = profitPercentage >= 3;
+
+            return {
+                ...lot,
+                running_abp: runningABP,
+                unrealizedPL: unrealizedPL,
+                profitPercentage: profitPercentage,
+                shouldSell: shouldSell,
+            };
+        });
+    }, [openLots, currentPrice]);
     
     // Function to refresh all data after a successful sale
     const handleSellSuccess = (newTransaction) => {
@@ -81,8 +96,7 @@ const fetchOpenLots = useCallback(async (currentTicker) => {
         .filter(lot => selectedLots.includes(lot.transaction_id))
         .reduce((sum, lot) => sum + lot.unrealizedPL, 0);
 
-    if (loading) return <p>Loading open inventory...</p>;
-    if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
+if (openLots.length === 0) return <p>No open buy transactions recorded for {ticker} yet.</p>;
 
 return (
         <div style={containerStyle}>
