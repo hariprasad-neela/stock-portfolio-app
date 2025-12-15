@@ -35,7 +35,7 @@ const StrategyDashboard = () => {
     //     }
     // }, [selectedTicker, fetchStatus]);
     // ... (Loading/Error handling remains the same) ...
-    if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
+    //if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
     if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
     if (!statusData) return <p>Select an ETF to view status.</p>;
 

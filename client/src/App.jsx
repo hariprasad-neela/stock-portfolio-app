@@ -54,6 +54,10 @@ function App() {
             </div>
         </div>
       </main>
+      {/* Optional: Simple Navigation Area for future expansion */}
+      <footer style={{ padding: '10px 20px', backgroundColor: '#343a40', color: '#ccc', textAlign: 'center' }}>
+          Navigation: Dashboard | Quarterly Review (Coming Soon)
+      </footer>
     </div>
   );
 }
