@@ -5,7 +5,6 @@ import SellTransactionForm from './SellTransactionForm';
 const MIN_PROFIT_PERCENTAGE = 3; // Feature 5: 3% threshold
 
 const OpenInventoryTracker = ({ ticker, openLots }) => {
-    const [openLots, setOpenLots] = useState([]);
     const [currentPrice, setCurrentPrice] = useState(''); // Feature 2: Single price input
     const [selectedLots, setSelectedLots] = useState([]); // Feature 6: Selected lots
 
@@ -61,22 +60,6 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
     // --- Price/Profit Calculation ---
     const currentPriceNum = parseFloat(currentPrice);
     
-    // Recalculate lots whenever the price changes
-    const calculatedLots = openLots.map(lot => {
-        const unrealizedPL = currentPriceNum > 0 ? (currentPriceNum - lot.buy_price) * lot.open_quantity : 0;
-        const profitPercentage = (currentPriceNum - lot.buy_price) / lot.buy_price * 100;
-        
-        // Feature 5: Check 3% profit condition
-        const shouldSell = profitPercentage >= MIN_PROFIT_PERCENTAGE;
-
-        return {
-            ...lot,
-            unrealizedPL: unrealizedPL,
-            profitPercentage: profitPercentage,
-            shouldSell: shouldSell,
-        };
-    });
-
     // Calculate cumulative quantity of selected lots
     const cumulativeQuantity = calculatedLots
         .filter(lot => selectedLots.includes(lot.transaction_id))
