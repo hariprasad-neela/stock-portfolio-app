@@ -1,7 +1,6 @@
 // client/src/StrategyDashboard.jsx (MODIFIED)
 import React, { useState, useEffect, useCallback } from 'react';
 import api from './api';
-import StrategyCalculator from './StrategyCalculator'; // <-- Import the calculator
 import OpenInventoryTracker from './OpenInventoryTracker';
 
 // List of ETFs you are tracking with this strategy
@@ -139,13 +138,6 @@ const StrategyDashboard = () => {
                             </p>
                         </div>
                     </div>
-
-                    {/* ⬇️ NEW: Embed the Strategy Calculator ⬇️ */}
-                    <StrategyCalculator
-                        currentABP={average_buy_price}
-                        unitsHeld={units_held}
-                        selectedTicker={selectedTicker}
-                    />
 
                     {/* Open Inventory Tracker */}
                     <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
