@@ -8,15 +8,11 @@ const TransactionManager = () => {
     const [loading, setLoading] = useState(false);
 
     const fetchAllTransactions = async () => {
-        setLoading(true);
         try {
-            // Fetching all for the specific portfolio
-            const response = await api.get('/api/transactions'); 
+            const response = await api.get('/api/transactions'); // This matches app.use + router.get('/')
             setTransactions(response.data);
         } catch (err) {
-            console.error("Failed to fetch transactions");
-        } finally {
-            setLoading(false);
+            console.error("404 Error: Check if backend is deployed with the new GET route.");
         }
     };
 

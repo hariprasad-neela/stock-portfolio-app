@@ -149,4 +149,29 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+// GET all transactions for the ledger
+router.get('/', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                t.transaction_id, 
+                t.date, 
+                t.type, 
+                t.quantity, 
+                t.price, 
+                t.is_open,
+                s.ticker 
+            FROM transactions t
+            JOIN stocks s ON t.stock_id = s.stock_id
+            WHERE t.portfolio_id = $1
+            ORDER BY t.date DESC
+        `, [PORTFOLIO_ID]); // Use your constant PORTFOLIO_ID
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching ledger:', error.message);
+        res.status(500).json({ error: 'Failed to fetch transaction history' });
+    }
+});
+
 module.exports = router;
