@@ -6,60 +6,22 @@ import StrategyDashboard from './StrategyDashboard'; // <-- Import the new dashb
 import './App.css';
 
 function App() {
-  const [dbStatus, setDbStatus] = useState('Checking connection...');
-
-  // ... (rest of the useEffect and checkConnection function remain the same) ...
-  useEffect(() => {
-    // This logic ensures the status check runs only once on load
-    const checkConnection = async () => {
-      try {
-        const response = await api.get('/test-db');
-        if (response.data.success) {
-          setDbStatus(`✅ LIVE Connection to Supabase! Server Time: ${new Date(response.data.time).toLocaleString()}`);
-        } else {
-          setDbStatus('❌ Database Connected but returned error.');
-        }
-      } catch (error) {
-        console.error("Connection failed:", error);
-        setDbStatus('❌ Cannot connect to Backend. Is Render running?');
-      }
-    };
-
-    checkConnection();
-  }, []);
+  const [activeTab, setActiveTab] = useState('DASHBOARD');
 
   return (
     <div className="app-container">
-      <header style={{ padding: '20px', backgroundColor: '#282c34', color: 'white' }}>
-        <h1>Multi-Asset Strategy Manager 📈</h1>
-      </header>
+      <nav style={navStyle}>
+        <button onClick={() => setActiveTab('DASHBOARD')}>Dashboard</button>
+        <button onClick={() => setActiveTab('TRANSACTIONS')}>History & Edit</button>
+      </nav>
 
       <main style={{ padding: '20px' }}>
-        {/* System Status Row */}
-        <div style={{ marginBottom: '25px', padding: '15px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#e9e9f4' }}>
-          <h3>System Status: <span style={{ fontWeight: 'normal', fontSize: '0.9em' }}>{dbStatus}</span></h3>
-        </div>
-
-        {/* Dashboard and Form Row */}
-        <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
-            
-            {/* Left Column: Dashboard (Takes up more space) */}
-            <div style={{ flex: 3 }}>
-                <StrategyDashboard />
-            </div>
-
-            {/* Right Column: Transaction Form (Needs less space) */}
-            <div style={{ flex: 1, minWidth: '350px' }}>
-                <TransactionForm />
-            </div>
-        </div>
+        {activeTab === 'DASHBOARD' ? <StrategyDashboard /> : <TransactionManager />}
       </main>
-      {/* Optional: Simple Navigation Area for future expansion */}
-      <footer style={{ padding: '10px 20px', backgroundColor: '#343a40', color: '#ccc', textAlign: 'center' }}>
-          Navigation: Dashboard | Quarterly Review (Coming Soon)
-      </footer>
     </div>
   );
 }
+
+const navStyle = { display: 'flex', gap: '20px', padding: '10px 20px', background: '#2c3e50', color: 'white' };
 
 export default App;

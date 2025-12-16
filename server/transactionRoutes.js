@@ -121,5 +121,32 @@ router.post('/', async (req, res) => {
     }
 });
 
+// DELETE a transaction
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await pool.query('DELETE FROM transactions WHERE transaction_id = $1', [id]);
+        res.json({ message: 'Transaction deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// UPDATE a transaction (Edit)
+router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { date, quantity, price, type, is_open } = req.body;
+    try {
+        await pool.query(
+            `UPDATE transactions 
+             SET date = $1, quantity = $2, price = $3, type = $4, is_open = $5 
+             WHERE transaction_id = $6`,
+            [date, quantity, price, type, is_open, id]
+        );
+        res.json({ message: 'Transaction updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 module.exports = router;
