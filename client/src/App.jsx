@@ -1,7 +1,7 @@
 // client/src/App.jsx (Updated)
 import { useState, useEffect } from 'react';
 import api from './api'; 
-import TransactionForm from './TransactionForm';
+import TransactionManager from './TransactionManager';
 import StrategyDashboard from './StrategyDashboard'; // <-- Import the new dashboard
 import './App.css';
 
