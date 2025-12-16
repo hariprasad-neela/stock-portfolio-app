@@ -79,7 +79,14 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
         .filter(lot => selectedLots.includes(lot.transaction_id))
         .reduce((sum, lot) => sum + lot.unrealizedPL, 0);
 
-if (openLots.length === 0) return <p>No open buy transactions recorded for {ticker} yet.</p>;
+    // Conditional render check
+    if (openLots.length === 0) {
+        return (
+            <div style={{ marginTop: '30px', padding: '15px', borderTop: '1px solid #ddd' }}>
+                <p>No open buy transactions recorded for **{ticker}** yet. Add a transaction to start tracking!</p>
+            </div>
+        );
+    }
 
 return (
         <div style={containerStyle}>

@@ -10,50 +10,55 @@ const SUPPORTED_ETFS = ['SILVERBEES', 'GOLDETFS', 'NIFTYBEES'];
 const StrategyDashboard = () => {
     // ... (State variables remain the same) ...
     const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_ETFS[0]);
+    const [openLots, setOpenLots] = useState([]); // Array state for the response data
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // NEW State to hold the metrics derived from the openLots array
+    const [calculatedMetrics, setCalculatedMetrics] = useState({
+        units_held: 0, average_buy_price: 0, capital_deployed: 0, realized_profit: 0
+    });
+
+    const { units_held, average_buy_price, capital_deployed, realized_profit } = calculatedMetrics;
+    const isPositive = realized_profit >= 0;
 
     const fetchInventoryAndCalculateMetrics = useCallback(async (ticker) => {
         if (!ticker) return;
         setLoading(true);
         setError(null);
         try {
-            // CALL THE OPEN INVENTORY ROUTE
+            // 1. Fetch the Array of open lots
             const response = await api.get(`/api/strategy/open-inventory/${ticker}`);
-            const lots = response.data;
-            setOpenLots(lots);
+            const lots = response.data; // This is the Array: [ { transaction_id: "...", ... } ]
             
-            // --- NEW FRONTEND CALCULATION ---
+            // 2. Calculate Metrics from the Array (as per the new requirements)
             let totalUnits = 0;
             let totalCost = 0;
             
             lots.forEach(lot => {
-                totalUnits += lot.open_quantity;
-                totalCost += (lot.open_quantity * lot.buy_price);
+                // Ensure numerical safety
+                const quantity = parseFloat(lot.open_quantity) || 0;
+                const price = parseFloat(lot.buy_price) || 0;
+                totalUnits += quantity;
+                totalCost += (quantity * price);
             });
             
             const calculatedABP = totalUnits > 0 ? totalCost / totalUnits : 0;
             
-            // We need a way to pass these calculated values down.
-            // We'll calculate the final metrics object here:
-            const metrics = {
+            // 3. Update all states
+            setOpenLots(lots);
+            setCalculatedMetrics({
                 units_held: totalUnits,
                 average_buy_price: calculatedABP,
                 capital_deployed: totalCost,
-                // Realized profit calculation is complex, let's skip for now
-                realized_profit: 0 // Placeholder
-            };
-            
-            // Now, we pass the metrics directly to the component render.
-            // We'll use a new state variable or local variable for this.
-            // For simplicity, let's use a local variable (or pass it through context later)
-            // For now, let's use a combined state object for the calculated metrics.
-            setCalculatedMetrics(metrics);
+                realized_profit: 0 // Placeholder until LIFO is implemented
+            });
             
             setLoading(false);
         } catch (err) {
             console.error('Error fetching inventory:', err);
-            setError(`Could not load data for ${ticker}. Check backend logs.`);
+            // The catch block executes if anything inside try fails, including a JavaScript crash
+            setError(`Could not load data for ${ticker}. Check backend logs.`); 
             setLoading(false);
         }
     }, []);
@@ -63,19 +68,6 @@ const StrategyDashboard = () => {
             fetchInventoryAndCalculateMetrics(selectedTicker);
         }
     }, [selectedTicker, fetchInventoryAndCalculateMetrics]);
-
-    // We need a state variable to hold these calculated values
-    const [calculatedMetrics, setCalculatedMetrics] = useState({
-        units_held: 0, average_buy_price: 0, capital_deployed: 0, realized_profit: 0
-    });
-
-    // Destructure from the new state
-    const { 
-        units_held, 
-        average_buy_price, 
-        capital_deployed, 
-        realized_profit 
-    } = calculatedMetrics;
 
     // ... (Loading/Error handling remains the same) ...
     if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
@@ -94,8 +86,6 @@ const StrategyDashboard = () => {
         }).format(num);
     };
 
-    const isPositive = parseFloat(realized_profit) >= 0;
-
     return (
         <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '10px' }}>
             <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -111,7 +101,12 @@ const StrategyDashboard = () => {
                     ))}
                 </select>
             </div>
-            {!loading && !error && statusData && (
+            {/* 2. Loading and Error Handling (CONDITIONAL) */}
+            {loading && <p>Loading strategy status for {selectedTicker}...</p>}
+            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+            {/* 3. Main Dashboard Content (CONDITIONAL: Render only if not loading and no error) */}
+            {/* Use calculatedMetrics.units_held > 0 or a similar check */}
+            {!loading && !error && units_held >= 0 && ( // units_held is 0 or > 0 on success
                 <>
                     <h3>Strategy Status: {selectedTicker}</h3>
 
