@@ -43,19 +43,19 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
         });
     }, [openLots, currentPrice]);
     
-    // Function to refresh all data after a successful sale
+    // // Function to refresh all data after a successful sale
     const handleSellSuccess = (newTransaction) => {
-        // 1. Refresh the open lots list
-        fetchOpenLots(ticker); 
+    //     // 1. Refresh the open lots list
+    //     fetchOpenLots(ticker); 
         
-        // 2. You may also want to trigger a refresh of the StrategyDashboard
-        // (This would require passing a callback from App.jsx down to StrategyDashboard)
-        // For now, we only refresh the inventory.
+    //     // 2. You may also want to trigger a refresh of the StrategyDashboard
+    //     // (This would require passing a callback from App.jsx down to StrategyDashboard)
+    //     // For now, we only refresh the inventory.
     };
 
-    useEffect(() => {
-        fetchOpenLots(ticker);
-    }, [ticker, fetchOpenLots]);
+    // useEffect(() => {
+    //     fetchOpenLots(ticker);
+    // }, [ticker, fetchOpenLots]);
 
     // --- Price/Profit Calculation ---
     const currentPriceNum = parseFloat(currentPrice);
