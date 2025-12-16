@@ -72,7 +72,6 @@ const StrategyDashboard = () => {
     // ... (Loading/Error handling remains the same) ...
     if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
     if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
-    if (!statusData) return <p>Select an ETF to view status.</p>;
 
     // ... (formatCurrency and isPositive helpers remain the same) ...
     const formatCurrency = (value) => {
@@ -154,7 +153,7 @@ const StrategyDashboard = () => {
             )}
 
             {/* If statusData is NULL but not loading/error (i.e., initial load success) */}
-            {!loading && !error && !statusData && (
+            {!loading && !error && units_held===0 && (
                 <p>No strategy metrics found for {selectedTicker}. Start by adding a BUY transaction.</p>
             )}
 
