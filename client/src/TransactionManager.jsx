@@ -1,16 +1,14 @@
-// client/src/TransactionManager.jsx (ENHANCED)
+// client/src/TransactionManager.jsx
 import React, { useState, useEffect } from 'react';
 import api from './api';
 import { SUPPORTED_STOCKS, APP_CONFIG } from './constants';
 
-const TransactionManager = ({onEditTriggered}) => {
+const TransactionManager = ({ onEditTriggered }) => {
     const [transactions, setTransactions] = useState([]);
+    const [filterTicker, setFilterTicker] = useState('ALL');
     const [filterType, setFilterType] = useState('ALL');
     const [currentPage, setCurrentPage] = useState(1);
-    const [filterTicker, setFilterTicker] = useState('ALL');
-    const itemsPerPage = APP_CONFIG.ITEMS_PER_PAGE;
-
-    useEffect(() => { fetchAllTransactions(); }, []);
+    const itemsPerPage = APP_CONFIG.ITEMS_PER_PAGE || 10;
 
     const fetchAllTransactions = async () => {
         try {
@@ -19,109 +17,119 @@ const TransactionManager = ({onEditTriggered}) => {
         } catch (err) { console.error("Fetch failed", err); }
     };
 
-    // ... updated filter logic ...
+    useEffect(() => { fetchAllTransactions(); }, []);
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Permanent delete? This cannot be undone.")) {
+            try {
+                await api.delete(`/api/transactions/${id}`);
+                fetchAllTransactions();
+            } catch (err) { alert("Delete failed"); }
+        }
+    };
+
     const filteredData = transactions.filter(t => {
         const typeMatch = filterType === 'ALL' || t.type === filterType;
         const tickerMatch = filterTicker === 'ALL' || t.ticker === filterTicker;
         return typeMatch && tickerMatch;
     });
 
-    // Pagination Logic
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-    const handleEdit = (transaction) => {
-        const newPrice = prompt("Enter new price:", transaction.price);
-        if (newPrice) {
-            api.put(`/api/transactions/${transaction.transaction_id}`, { ...transaction, price: newPrice })
-               .then(() => fetchAllTransactions());
-        }
-    };
+    const currentItems = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <h2>Transaction Ledger</h2>
-                <div style={filterBar}>
-                    <span style={{ fontWeight: 'bold', color: '#495057' }}>Filters:</span>
-                    
-                    <select style={selectStyle} onChange={(e) => setFilterTicker(e.target.value)}>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            {/* Filter Header */}
+            <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex flex-wrap gap-4 items-center justify-between">
+                <h2 className="text-lg font-bold text-slate-800">Transaction History</h2>
+                <div className="flex gap-2">
+                    <select 
+                        className="rounded-lg border-slate-300 text-sm focus:ring-brand"
+                        onChange={(e) => setFilterTicker(e.target.value)}
+                    >
                         <option value="ALL">All Assets</option>
-                        {SUPPORTED_STOCKS.map(s => (
-                            <option key={s.ticker} value={s.ticker}>{s.ticker}</option>
-                        ))}
+                        {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
                     </select>
-
-                    <select style={selectStyle} onChange={(e) => setFilterType(e.target.value)}>
+                    <select 
+                        className="rounded-lg border-slate-300 text-sm focus:ring-brand"
+                        onChange={(e) => setFilterType(e.target.value)}
+                    >
                         <option value="ALL">All Types</option>
                         <option value="BUY">Buy</option>
                         <option value="SELL">Sell</option>
                     </select>
-                    
-                    {/* You could also add a status filter here */}
                 </div>
             </div>
 
-            <table style={tableStyle}>
-                <thead>
-                    <tr style={{ background: '#f4f4f4' }}>
-                        <th>Date</th>
-                        <th>Ticker</th>
-                        <th>Type</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentItems.map(t => (
-                        <tr key={t.transaction_id} style={{ borderBottom: '1px solid #eee' }}>
-                            <td>{new Date(t.date).toLocaleDateString()}</td>
-                            <td>{t.ticker}</td>
-                            <td>{t.type}</td>
-                            <td>{t.quantity}</td>
-                            <td>₹{t.price}</td>
-                            <td>
-                                <button onClick={() => onEditTriggered(t)}>Edit</button>
-                                <button onClick={() => handleDelete(t.transaction_id)}>Delete</button>
-                            </td>
+            {/* Responsive Table Container */}
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-widest">
+                            <th className="px-6 py-4 font-semibold">Date</th>
+                            <th className="px-6 py-4 font-semibold">Asset</th>
+                            <th className="px-6 py-4 font-semibold">Type</th>
+                            <th className="px-6 py-4 font-semibold">Qty</th>
+                            <th className="px-6 py-4 font-semibold">Price</th>
+                            <th className="px-6 py-4 font-semibold text-right">Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                        {currentItems.map(t => (
+                            <tr key={t.transaction_id} className="hover:bg-slate-50/80 transition-colors">
+                                <td className="px-6 py-4 text-sm whitespace-nowrap">{new Date(t.date).toLocaleDateString('en-IN')}</td>
+                                <td className="px-6 py-4 font-medium text-slate-900">{t.ticker}</td>
+                                <td className="px-6 py-4">
+                                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${t.type === 'BUY' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                                        {t.type}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 text-sm">{t.quantity}</td>
+                                <td className="px-6 py-4 text-sm font-mono font-medium">₹{t.price}</td>
+                                <td className="px-6 py-4 text-right whitespace-nowrap">
+                                    <button 
+                                        onClick={() => onEditTriggered(t)}
+                                        className="text-brand hover:text-blue-800 font-semibold text-sm mr-4"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDelete(t.transaction_id)}
+                                        className="text-danger hover:text-red-800 font-semibold text-sm"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-            {/* Pagination Controls */}
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Prev</button>
-                <span style={{ margin: '0 15px' }}>Page {currentPage} of {totalPages}</span>
-                <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Next</button>
+            {/* Pagination Footer */}
+            <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/30">
+                <p className="text-sm text-slate-500">
+                    Showing {currentItems.length} of {filteredData.length} entries
+                </p>
+                <div className="flex gap-2">
+                    <button 
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(p => p - 1)}
+                        className="px-3 py-1 border rounded-md disabled:opacity-30 bg-white"
+                    >
+                        Previous
+                    </button>
+                    <button 
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(p => p + 1)}
+                        className="px-3 py-1 border rounded-md disabled:opacity-30 bg-white"
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
     );
-};
-
-const editBtn = { marginRight: '5px', backgroundColor: '#3498db', color: '#fff', border: 'none', padding: '5px 10px', cursor: 'pointer' };
-const delBtn = { backgroundColor: '#e74c3c', color: '#fff', border: 'none', padding: '5px 10px', cursor: 'pointer' };
-const tableStyle = { width: '100%', borderCollapse: 'collapse', textAlign: 'left' };
-const filterBar = {
-    display: 'flex',
-    gap: '15px',
-    marginBottom: '20px',
-    padding: '10px',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '8px',
-    border: '1px solid #dee2e6',
-    alignItems: 'center'
-};
-
-const selectStyle = {
-    padding: '8px 12px',
-    borderRadius: '4px',
-    border: '1px solid #ced4da',
-    backgroundColor: '#fff',
-    cursor: 'pointer'
 };
 
 export default TransactionManager;

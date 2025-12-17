@@ -1,176 +1,107 @@
-// client/src/StrategyDashboard.jsx (MODIFIED)
+// client/src/StrategyDashboard.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import api from './api';
-import OpenInventoryTracker from './OpenInventoryTracker';
 import { SUPPORTED_STOCKS } from './constants';
-
-// List of ETFs you are tracking with this strategy
-const SUPPORTED_ETFS = ['SILVERBEES', 'GOLDETFS', 'NIFTYBEES'];
+import OpenInventoryTracker from './OpenInventoryTracker';
 
 const StrategyDashboard = () => {
     const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_STOCKS[0].ticker);
-    const [openLots, setOpenLots] = useState([]); // Array state for the response data
+    const [openLots, setOpenLots] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    // NEW State to hold the metrics derived from the openLots array
     const [calculatedMetrics, setCalculatedMetrics] = useState({
-        units_held: 0, average_buy_price: 0, capital_deployed: 0, realized_profit: 0
+        units_held: 0, average_buy_price: 0, capital_deployed: 0
     });
 
-    const { units_held, average_buy_price, capital_deployed, realized_profit } = calculatedMetrics;
-    const isPositive = realized_profit >= 0;
-
-    const fetchInventoryAndCalculateMetrics = useCallback(async (ticker) => {
-        if (!ticker) return;
+    const fetchInventory = useCallback(async (ticker) => {
         setLoading(true);
-        setError(null);
         try {
-            // 1. Fetch the Array of open lots
             const response = await api.get(`/api/strategy/open-inventory/${ticker}`);
-            const lots = response.data; // This is the Array: [ { transaction_id: "...", ... } ]
+            const lots = response.data;
             
-            // 2. Calculate Metrics from the Array (as per the new requirements)
             let totalUnits = 0;
             let totalCost = 0;
-            
             lots.forEach(lot => {
-                // Ensure numerical safety
-                const quantity = parseFloat(lot.open_quantity) || 0;
-                const price = parseFloat(lot.buy_price) || 0;
-                totalUnits += quantity;
-                totalCost += (quantity * price);
+                totalUnits += parseFloat(lot.open_quantity);
+                totalCost += (parseFloat(lot.open_quantity) * parseFloat(lot.buy_price));
             });
-            
-            const calculatedABP = totalUnits > 0 ? totalCost / totalUnits : 0;
-            
-            // 3. Update all states
+
             setOpenLots(lots);
             setCalculatedMetrics({
                 units_held: totalUnits,
-                average_buy_price: calculatedABP,
-                capital_deployed: totalCost,
-                realized_profit: 0 // Placeholder until LIFO is implemented
+                average_buy_price: totalUnits > 0 ? totalCost / totalUnits : 0,
+                capital_deployed: totalCost
             });
-            
-            setLoading(false);
         } catch (err) {
-            console.error('Error fetching inventory:', err);
-            // The catch block executes if anything inside try fails, including a JavaScript crash
-            setError(`Could not load data for ${ticker}. Check backend logs.`); 
+            console.error("Error:", err);
+        } finally {
             setLoading(false);
         }
     }, []);
 
-    useEffect(() => {
-        if (selectedTicker) {
-            fetchInventoryAndCalculateMetrics(selectedTicker);
-        }
-    }, [selectedTicker, fetchInventoryAndCalculateMetrics]);
+    useEffect(() => { fetchInventory(selectedTicker); }, [selectedTicker, fetchInventory]);
 
-    // ... (Loading/Error handling remains the same) ...
-    if (loading) return <p>Loading strategy status for {selectedTicker}...</p>;
-    if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
-
-    // ... (formatCurrency and isPositive helpers remain the same) ...
-    const formatCurrency = (value) => {
-        const num = parseFloat(value);
-        if (isNaN(num)) return '₹0.00';
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(num);
-    };
+    const { units_held, average_buy_price, capital_deployed } = calculatedMetrics;
 
     return (
-        <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '10px' }}>
-            <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                {/* Ticker Selection Dropdown */}
-                <label style={{ fontWeight: 'bold' }}>Select Strategy Asset:</label>
-                <select value={selectedTicker} onChange={(e) => setSelectedTicker(e.target.value)}>
-                    {SUPPORTED_STOCKS.map(stock => (
-                        <option key={stock.ticker} value={stock.ticker}>
-                            {stock.ticker} - {stock.name}
-                        </option>
-                    ))}
-                </select>
+        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Investment Strategy</h1>
+                    <p className="text-slate-500">Track your open positions and performance</p>
+                </div>
+                
+                <div className="bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 flex items-center">
+                    <span className="px-3 text-sm font-semibold text-slate-500">Asset:</span>
+                    <select 
+                        className="bg-transparent border-none focus:ring-0 font-bold text-brand cursor-pointer"
+                        value={selectedTicker}
+                        onChange={(e) => setSelectedTicker(e.target.value)}
+                    >
+                        {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
+                    </select>
+                </div>
             </div>
-            {/* 2. Loading and Error Handling (CONDITIONAL) */}
-            {loading && <p>Loading strategy status for {selectedTicker}...</p>}
-            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-            {/* 3. Main Dashboard Content (CONDITIONAL: Render only if not loading and no error) */}
-            {/* Use calculatedMetrics.units_held > 0 or a similar check */}
-            {!loading && !error && units_held >= 0 && ( // units_held is 0 or > 0 on success
-                <>
-                    <h3>Strategy Status: {selectedTicker}</h3>
 
-                    {/* Strategy Metric Cards (Same as before) */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginTop: '15px' }}>
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <MetricCard title="Units Held" value={units_held.toFixed(2)} icon="📦" color="text-slate-900" />
+                <MetricCard 
+                    title="Avg. Buy Price" 
+                    value={`₹${average_buy_price.toFixed(2)}`} 
+                    icon="🏷️" 
+                    color="text-brand" 
+                />
+                <MetricCard 
+                    title="Capital Deployed" 
+                    value={`₹${capital_deployed.toLocaleString('en-IN')}`} 
+                    icon="💰" 
+                    color="text-slate-900" 
+                />
+            </div>
 
-                        {/* 1. UNITS HELD */}
-                        <div style={cardStyle}>
-                            <p style={labelStyle}>Inventory Units</p>
-                            <p style={valueStyle}>{units_held}</p>
-                        </div>
-
-                        {/* 2. AVERAGE BUYING PRICE (ABP) */}
-                        <div style={cardStyle}>
-                            <p style={labelStyle}>Avg. Buy Price (ABP)</p>
-                            <p style={valueStyle}>{formatCurrency(average_buy_price)}</p>
-                        </div>
-
-                        {/* 3. CAPITAL DEPLOYED (Drawdown) */}
-                        <div style={cardStyle}>
-                            <p style={labelStyle}>Capital Deployed</p>
-                            <p style={valueStyle}>{formatCurrency(capital_deployed)}</p>
-                            <small>Max: ₹1,00,000</small>
-                        </div>
-
-                        {/* 4. REALIZED P/L */}
-                        <div style={cardStyle}>
-                            <p style={labelStyle}>Realized Profit</p>
-                            <p style={{ ...valueStyle, color: isPositive ? '#16a085' : '#c0392b' }}>
-                                {formatCurrency(realized_profit)}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Open Inventory Tracker */}
+            {/* Main Content Area */}
+            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-50">
+                    <h3 className="text-lg font-bold text-slate-800">Open Inventory Lots</h3>
+                </div>
+                <div className="p-0">
                     <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
-                </>
-            )}
-
-            {/* If statusData is NULL but not loading/error (i.e., initial load success) */}
-            {!loading && !error && units_held===0 && (
-                <p>No strategy metrics found for {selectedTicker}. Start by adding a BUY transaction.</p>
-            )}
-
-
+                </div>
+            </div>
         </div>
     );
 };
 
-// Simple inline styles for dashboard clarity
-const cardStyle = {
-    padding: '15px',
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    textAlign: 'center',
-    backgroundColor: 'white'
-};
-
-const labelStyle = {
-    margin: 0,
-    fontSize: '0.9em',
-    color: '#555'
-};
-
-const valueStyle = {
-    margin: '5px 0 0 0',
-    fontSize: '1.5em',
-    fontWeight: 'bold'
-};
+// Reusable Metric Card Component
+const MetricCard = ({ title, value, icon, color }) => (
+    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group">
+        <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</span>
+            <span className="text-xl group-hover:scale-110 transition-transform">{icon}</span>
+        </div>
+        <div className={`text-3xl font-black ${color}`}>{value}</div>
+    </div>
+);
 
 export default StrategyDashboard;

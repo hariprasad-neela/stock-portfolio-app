@@ -2,9 +2,9 @@
 
 export const SUPPORTED_STOCKS = [
     { ticker: 'SILVERBEES', name: 'Silver ETF' },
-    { ticker: 'GOLDETFS', name: 'Gold ETF' },
-    { ticker: 'NIFTYBEES', name: 'Nifty 50 ETF' },
-    { ticker: 'LIQUIDBEES', name: 'Liquid ETF' }
+    { ticker: 'GOLDBEES', name: 'Gold ETF' },
+    { ticker: 'FMCGIETF', name: 'Nifty 50 ETF' },
+    { ticker: 'CBSEETF', name: 'Liquid ETF' }
 ];
 
 export const APP_CONFIG = {
