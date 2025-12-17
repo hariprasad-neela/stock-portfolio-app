@@ -1,7 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* Ensure this is here to give the page the right base background */
 body {
-  @apply bg-[#F8FAFC] antialiased;
+  background-color: #F8FAFC;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }

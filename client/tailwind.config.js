@@ -2,16 +2,10 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}", // This tells Tailwind to look at your components
   ],
   theme: {
-    extend: {
-      colors: {
-        brand: '#2563eb',
-        success: '#10b981',
-        danger: '#ef4444',
-      }
-    },
+    extend: {},
   },
   plugins: [],
 }
