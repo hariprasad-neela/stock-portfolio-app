@@ -59,12 +59,25 @@ function App() {
       </main>
 
       {showForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={handleFormClose} />
-          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-8 py-6">
-              <h2 className="text-2xl font-bold text-slate-900">{transactionToEdit ? 'Edit Position' : 'New Position'}</h2>
-              <p className="text-slate-500 text-sm mb-6">Enter details for your transaction.</p>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden animate-in zoom-in-95 duration-200">
+
+            {/* Header section with clean typography */}
+            <div className="px-8 pt-8 pb-4 flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                  {transactionToEdit ? 'Update Position' : 'New Transaction'}
+                </h2>
+                <p className="text-slate-400 text-sm font-medium mt-1">
+                  {transactionToEdit ? 'Adjust existing entry details' : 'Log a new market move'}
+                </p>
+              </div>
+              <button onClick={handleFormClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-300 hover:text-slate-600">
+                <span className="text-2xl leading-none">×</span>
+              </button>
+            </div>
+
+            <div className="px-8 pb-8 pt-4">
               <TransactionForm editData={transactionToEdit} onClose={handleFormClose} />
             </div>
           </div>
