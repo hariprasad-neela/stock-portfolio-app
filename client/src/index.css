@@ -2,18 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-[#F9FAFB] text-slate-900 antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
-}
-
-/* Custom scrollbar for a cleaner look */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-slate-200 rounded-full;
+body {
+  @apply bg-[#F8FAFC] antialiased;
 }
