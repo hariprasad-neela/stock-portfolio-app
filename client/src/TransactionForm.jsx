@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import api from './api';
 
-const TransactionForm = () => {
+const TransactionForm = ({onTransactionAdded}) => {
     const initialFormState = {
         ticker: '',
         type: 'BUY', // Default to BUY
@@ -10,6 +10,12 @@ const TransactionForm = () => {
         quantity: '',
         price: ''
     };
+
+    // Inside TransactionForm.jsx handleSubmit:
+    try {
+        await api.post('/api/transactions', formData);
+        if (onTransactionAdded) onTransactionAdded(); // Closes form and triggers refresh
+    } catch (error) { console.log("Error occured in Transaction Form: ", error) }
 
     const [formData, setFormData] = useState(initialFormState);
     const [status, setStatus] = useState('');

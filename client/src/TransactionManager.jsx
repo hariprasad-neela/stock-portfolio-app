@@ -1,92 +1,90 @@
+// client/src/TransactionManager.jsx (ENHANCED)
 import React, { useState, useEffect } from 'react';
 import api from './api';
 
 const TransactionManager = () => {
     const [transactions, setTransactions] = useState([]);
-    const [filterType, setFilterType] = useState('ALL'); // ALL, BUY, SELL
-    const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, OPEN, CLOSED
-    const [loading, setLoading] = useState(false);
-
-    const fetchAllTransactions = async () => {
-        try {
-            const response = await api.get('/api/transactions'); // This matches app.use + router.get('/')
-            setTransactions(response.data);
-        } catch (err) {
-            console.error("404 Error: Check if backend is deployed with the new GET route.");
-        }
-    };
+    const [filterType, setFilterType] = useState('ALL');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => { fetchAllTransactions(); }, []);
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this record?")) {
-            await api.delete(`/api/transactions/${id}`);
-            fetchAllTransactions();
+    const fetchAllTransactions = async () => {
+        try {
+            const response = await api.get('/api/transactions');
+            setTransactions(response.data);
+        } catch (err) { console.error("Fetch failed", err); }
+    };
+
+    // Filter Logic
+    const filteredData = transactions.filter(t => filterType === 'ALL' || t.type === filterType);
+
+    // Pagination Logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+    const handleEdit = (transaction) => {
+        const newPrice = prompt("Enter new price:", transaction.price);
+        if (newPrice) {
+            api.put(`/api/transactions/${transaction.transaction_id}`, { ...transaction, price: newPrice })
+               .then(() => fetchAllTransactions());
         }
     };
 
-    // Filtering Logic
-    const filteredData = transactions.filter(t => {
-        const typeMatch = filterType === 'ALL' || t.type === filterType;
-        const statusMatch = filterStatus === 'ALL' || 
-                           (filterStatus === 'OPEN' ? t.is_open === true : t.is_open === false);
-        return typeMatch && statusMatch;
-    });
-
     return (
-        <div style={containerStyle}>
-            <h2>Transaction Ledger</h2>
-            
-            {/* Filter Bar */}
-            <div style={filterBarSyle}>
+        <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h2>Transaction Ledger</h2>
                 <select onChange={(e) => setFilterType(e.target.value)}>
                     <option value="ALL">All Types</option>
                     <option value="BUY">Buy</option>
                     <option value="SELL">Sell</option>
                 </select>
-
-                <select onChange={(e) => setFilterStatus(e.target.value)}>
-                    <option value="ALL">All Status</option>
-                    <option value="OPEN">Open (Unsold)</option>
-                    <option value="CLOSED">Closed (Sold)</option>
-                </select>
             </div>
 
             <table style={tableStyle}>
                 <thead>
-                    <tr>
+                    <tr style={{ background: '#f4f4f4' }}>
                         <th>Date</th>
                         <th>Ticker</th>
                         <th>Type</th>
                         <th>Qty</th>
                         <th>Price</th>
-                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredData.map(t => (
-                        <tr key={t.transaction_id}>
-                            <td>{new Date(t.date).toLocaleDateString('en-IN')}</td>
+                    {currentItems.map(t => (
+                        <tr key={t.transaction_id} style={{ borderBottom: '1px solid #eee' }}>
+                            <td>{new Date(t.date).toLocaleDateString()}</td>
                             <td>{t.ticker}</td>
-                            <td style={{ color: t.type === 'BUY' ? 'green' : 'red' }}>{t.type}</td>
+                            <td>{t.type}</td>
                             <td>{t.quantity}</td>
                             <td>₹{t.price}</td>
-                            <td>{t.type === 'BUY' ? (t.is_open ? '🟢 Open' : '⚪ Closed') : '-'}</td>
                             <td>
-                                <button onClick={() => handleDelete(t.transaction_id)}>Delete</button>
+                                <button onClick={() => handleEdit(t)} style={editBtn}>Edit</button>
+                                <button onClick={() => handleDelete(t.transaction_id)} style={delBtn}>Delete</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Prev</button>
+                <span style={{ margin: '0 15px' }}>Page {currentPage} of {totalPages}</span>
+                <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Next</button>
+            </div>
         </div>
     );
 };
 
-// ... Styles ...
-const containerStyle = { padding: '20px', backgroundColor: '#fff', borderRadius: '8px' };
-const filterBarSyle = { marginBottom: '20px', display: 'flex', gap: '10px' };
-const tableStyle = { width: '100%', borderCollapse: 'collapse' };
+const editBtn = { marginRight: '5px', backgroundColor: '#3498db', color: '#fff', border: 'none', padding: '5px 10px', cursor: 'pointer' };
+const delBtn = { backgroundColor: '#e74c3c', color: '#fff', border: 'none', padding: '5px 10px', cursor: 'pointer' };
+const tableStyle = { width: '100%', borderCollapse: 'collapse', textAlign: 'left' };
 
 export default TransactionManager;
