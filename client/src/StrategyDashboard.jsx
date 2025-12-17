@@ -2,13 +2,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from './api';
 import OpenInventoryTracker from './OpenInventoryTracker';
+import { SUPPORTED_STOCKS } from './constants';
 
 // List of ETFs you are tracking with this strategy
 const SUPPORTED_ETFS = ['SILVERBEES', 'GOLDETFS', 'NIFTYBEES'];
 
 const StrategyDashboard = () => {
-    // ... (State variables remain the same) ...
-    const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_ETFS[0]);
+    const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_STOCKS[0].ticker);
     const [openLots, setOpenLots] = useState([]); // Array state for the response data
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -89,13 +89,11 @@ const StrategyDashboard = () => {
             <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
                 {/* Ticker Selection Dropdown */}
                 <label style={{ fontWeight: 'bold' }}>Select Strategy Asset:</label>
-                <select
-                    value={selectedTicker}
-                    onChange={(e) => setSelectedTicker(e.target.value)}
-                    style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
-                >
-                    {SUPPORTED_ETFS.map(ticker => (
-                        <option key={ticker} value={ticker}>{ticker}</option>
+                <select value={selectedTicker} onChange={(e) => setSelectedTicker(e.target.value)}>
+                    {SUPPORTED_STOCKS.map(stock => (
+                        <option key={stock.ticker} value={stock.ticker}>
+                            {stock.ticker} - {stock.name}
+                        </option>
                     ))}
                 </select>
             </div>
