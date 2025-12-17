@@ -8,95 +8,71 @@ const StrategyDashboard = () => {
     const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_STOCKS[0].ticker);
     const [openLots, setOpenLots] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [calculatedMetrics, setCalculatedMetrics] = useState({
-        units_held: 0, average_buy_price: 0, capital_deployed: 0
-    });
+    const [metrics, setMetrics] = useState({ units: 0, abp: 0, capital: 0 });
 
-    const fetchInventory = useCallback(async (ticker) => {
+    const fetchData = useCallback(async (ticker) => {
         setLoading(true);
         try {
-            const response = await api.get(`/api/strategy/open-inventory/${ticker}`);
-            const lots = response.data;
-
-            let totalUnits = 0;
-            let totalCost = 0;
-            lots.forEach(lot => {
-                totalUnits += parseFloat(lot.open_quantity);
-                totalCost += (parseFloat(lot.open_quantity) * parseFloat(lot.buy_price));
+            const res = await api.get(`/api/strategy/open-inventory/${ticker}`);
+            const lots = res.data;
+            let units = 0, cost = 0;
+            lots.forEach(l => {
+                units += parseFloat(l.open_quantity);
+                cost += (parseFloat(l.open_quantity) * parseFloat(l.buy_price));
             });
-
             setOpenLots(lots);
-            setCalculatedMetrics({
-                units_held: totalUnits,
-                average_buy_price: totalUnits > 0 ? totalCost / totalUnits : 0,
-                capital_deployed: totalCost
-            });
-        } catch (err) {
-            console.error("Error:", err);
-        } finally {
-            setLoading(false);
-        }
+            setMetrics({ units, abp: units > 0 ? cost / units : 0, capital: cost });
+        } catch (err) { console.error(err); }
+        finally { setLoading(false); }
     }, []);
 
-    useEffect(() => { fetchInventory(selectedTicker); }, [selectedTicker, fetchInventory]);
-
-    const { units_held, average_buy_price, capital_deployed } = calculatedMetrics;
-
-    const StatBox = ({ label, value, detail, primary }) => (
-        <div className={`p-6 rounded-2xl border transition-all ${primary ? 'bg-blue-600 border-blue-500 shadow-blue-200 shadow-lg' : 'bg-white border-slate-200 shadow-sm'}`}>
-            <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${primary ? 'text-blue-100' : 'text-slate-400'}`}>{label}</p>
-            <p className={`text-3xl font-bold ${primary ? 'text-white' : 'text-slate-900'}`}>{value}</p>
-            <p className={`text-xs mt-2 ${primary ? 'text-blue-200' : 'text-slate-500'}`}>{detail}</p>
-        </div>
-    );
+    useEffect(() => { fetchData(selectedTicker); }, [selectedTicker, fetchData]);
 
     return (
-        <div className="space-y-8">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Strategy Overview</h2>
-                    <p className="text-slate-500 mt-1">Real-time breakdown of {selectedTicker} positions.</p>
+        <div className="space-y-10 max-w-6xl mx-auto px-4 py-6">
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-200 pb-8 gap-6">
+                <div className="space-y-1">
+                    <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">Investment Strategy</h2>
+                    <p className="text-slate-500 font-medium">Monitoring {selectedTicker} performance and lot history.</p>
                 </div>
-
-                <div className="flex items-center gap-2 bg-white border border-slate-200 p-1 rounded-xl shadow-sm">
-                    {SUPPORTED_STOCKS.map(s => (
-                        <button
-                            key={s.ticker}
-                            onClick={() => setSelectedTicker(s.ticker)}
-                            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${selectedTicker === s.ticker ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'
-                                }`}
-                        >
-                            {s.ticker}
-                        </button>
-                    ))}
+                
+                <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+                    <span className="pl-3 text-xs font-bold text-slate-400 uppercase tracking-widest">Asset</span>
+                    <select 
+                        className="bg-slate-50 border-none rounded-xl font-bold text-blue-600 focus:ring-0 cursor-pointer py-2 px-4"
+                        value={selectedTicker}
+                        onChange={(e) => setSelectedTicker(e.target.value)}
+                    >
+                        {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
+                    </select>
                 </div>
-            </header>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatBox label="Units Held" value={units_held.toLocaleString()} detail="Total Inventory" />
-                <StatBox label="Avg. Price" value={`₹${average_buy_price.toFixed(2)}`} detail="Cost Basis" />
-                <StatBox label="Investment" value={`₹${capital_deployed.toLocaleString()}`} detail="Total Value" primary />
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                    <h3 className="font-bold text-slate-800 uppercase tracking-wider text-xs">Open Lots</h3>
+            {/* Premium Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <MetricTile label="Units Held" value={metrics.units.toFixed(2)} sub="Total Shares" color="text-slate-900" />
+                <MetricTile label="Avg. Buy Price" value={`₹${metrics.abp.toFixed(2)}`} sub="Cost Basis" color="text-blue-600" />
+                <MetricTile label="Capital Deployed" value={`₹${metrics.capital.toLocaleString('en-IN')}`} sub="Total Investment" color="text-slate-900" />
+            </div>
+
+            {/* Inventory Table Container */}
+            <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden transition-all duration-500">
+                <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Open Inventory Lots</h3>
+                    <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>
                 </div>
                 <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
             </div>
         </div>
     );
-
 };
 
-// Reusable Metric Card Component
-const MetricCard = ({ title, value, icon, color }) => (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group">
-        <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</span>
-            <span className="text-xl group-hover:scale-110 transition-transform">{icon}</span>
-        </div>
-        <div className={`text-3xl font-black ${color}`}>{value}</div>
+const MetricTile = ({ label, value, sub, color }) => (
+    <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">{label}</p>
+        <p className={`text-4xl font-black tracking-tight ${color}`}>{value}</p>
+        <p className="text-xs text-slate-400 mt-2 font-medium">{sub}</p>
     </div>
 );
 
