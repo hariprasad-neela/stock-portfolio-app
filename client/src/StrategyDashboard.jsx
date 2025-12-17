@@ -7,85 +7,95 @@ import OpenInventoryTracker from './OpenInventoryTracker';
 const StrategyDashboard = () => {
     const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_STOCKS[0].ticker);
     const [openLots, setOpenLots] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [metrics, setMetrics] = useState({ units: 0, abp: 0, capital: 0 });
+    const [loading, setLoading] = useState(false);
 
     const fetchData = useCallback(async (ticker) => {
         setLoading(true);
         try {
             const res = await api.get(`/api/strategy/open-inventory/${ticker}`);
-            const lots = res.data;
-            let units = 0, cost = 0;
-            lots.forEach(l => {
-                units += parseFloat(l.open_quantity);
-                cost += (parseFloat(l.open_quantity) * parseFloat(l.buy_price));
+            const lots = res.data; // Verify this is an array in console
+            
+            let totalUnits = 0;
+            let totalCost = 0;
+
+            lots.forEach(lot => {
+                // Ensure we handle strings from backend
+                const qty = parseFloat(lot.open_quantity);
+                const price = parseFloat(lot.buy_price);
+                
+                totalUnits += qty;
+                totalCost += (qty * price);
             });
+
             setOpenLots(lots);
-            setMetrics({ units, abp: units > 0 ? cost / units : 0, capital: cost });
-        } catch (err) { console.error(err); }
-        finally { setLoading(false); }
+            setMetrics({
+                units: totalUnits,
+                abp: totalUnits > 0 ? totalCost / totalUnits : 0,
+                capital: totalCost
+            });
+        } catch (err) {
+            console.error("API Error:", err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    useEffect(() => { fetchData(selectedTicker); }, [selectedTicker, fetchData]);
+    useEffect(() => {
+        fetchData(selectedTicker);
+    }, [selectedTicker, fetchData]);
 
     return (
-        <div className="min-h-screen bg-slate-50 p-4 md:p-8">
-            <div className="max-w-6xl mx-auto space-y-8">
+        <div className="space-y-8 max-w-6xl mx-auto px-4 py-8">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-slate-200 pb-8">
+                <div>
+                    <h2 className="text-4xl font-black text-slate-900 tracking-tight">Strategy Dashboard</h2>
+                    <p className="text-slate-500 font-medium">Performance metrics for {selectedTicker}</p>
+                </div>
                 
-                {/* Header Card */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Portfolio Strategy</h1>
-                        <p className="text-slate-500 font-medium">Real-time inventory for {selectedTicker}</p>
-                    </div>
-                    
-                    <div className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm flex items-center">
-                        <span className="px-3 text-xs font-bold text-slate-400 uppercase">Asset</span>
-                        <select 
-                            className="bg-slate-50 border-none rounded-lg font-bold text-blue-600 focus:ring-0 cursor-pointer text-sm"
-                            value={selectedTicker}
-                            onChange={(e) => setSelectedTicker(e.target.value)}
+                <div className="flex items-center gap-2 bg-white border border-slate-200 p-1 rounded-xl shadow-sm">
+                    {SUPPORTED_STOCKS.map(s => (
+                        <button
+                            key={s.ticker}
+                            onClick={() => setSelectedTicker(s.ticker)}
+                            className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
+                                selectedTicker === s.ticker 
+                                ? 'bg-blue-600 text-white shadow-md' 
+                                : 'text-slate-500 hover:bg-slate-50'
+                            }`}
                         >
-                            {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
-                        </select>
-                    </div>
+                            {s.ticker}
+                        </button>
+                    ))}
                 </div>
+            </div>
 
-                {/* 3-Column Grid: This creates the Card Layout */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Units Held</p>
-                        <p className="text-3xl font-black text-slate-900">0.00</p>
-                    </div>
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard label="Units Held" value={metrics.units.toFixed(2)} detail="Quantity" />
+                <StatCard label="Avg. Price" value={`₹${metrics.abp.toFixed(2)}`} detail="Cost Basis" highlight />
+                <StatCard label="Investment" value={`₹${metrics.capital.toLocaleString('en-IN')}`} detail="Capital Deployed" />
+            </div>
 
-                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg. Buy Price</p>
-                        <p className="text-3xl font-black text-blue-600">₹0.00</p>
-                    </div>
-
-                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Capital Deployed</p>
-                        <p className="text-3xl font-black text-slate-900">₹0</p>
-                    </div>
+            {/* Inventory Table Container */}
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
+                <div className="px-8 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Active Inventory Lots</h3>
+                    {loading && <span className="text-xs text-blue-500 animate-pulse font-bold">Refreshing...</span>}
                 </div>
-
-                {/* Table Card */}
-                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden">
-                    <div className="px-8 py-5 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-                        <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Open Inventory Tracker</h2>
-                    </div>
-                    <OpenInventoryTracker ticker={selectedTicker} openLots={[]} />
-                </div>
+                {/* PASSING DATA TO TABLE HERE */}
+                <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
             </div>
         </div>
     );
 };
 
-const MetricTile = ({ label, value, sub, color }) => (
-    <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1">{label}</p>
-        <p className={`text-4xl font-black tracking-tight ${color}`}>{value}</p>
-        <p className="text-xs text-slate-400 mt-2 font-medium">{sub}</p>
+const StatCard = ({ label, value, detail, highlight }) => (
+    <div className={`p-8 rounded-3xl border transition-all ${highlight ? 'bg-blue-600 border-blue-500 shadow-lg shadow-blue-100' : 'bg-white border-slate-100 shadow-sm'}`}>
+        <p className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-2 ${highlight ? 'text-blue-100' : 'text-slate-400'}`}>{label}</p>
+        <p className={`text-4xl font-black tracking-tighter ${highlight ? 'text-white' : 'text-slate-900'}`}>{value}</p>
+        <p className={`text-xs mt-2 font-medium ${highlight ? 'text-blue-200' : 'text-slate-400'}`}>{detail}</p>
     </div>
 );
 
