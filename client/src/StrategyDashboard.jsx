@@ -29,40 +29,53 @@ const StrategyDashboard = () => {
     useEffect(() => { fetchData(selectedTicker); }, [selectedTicker, fetchData]);
 
     return (
-        <div className="space-y-10 max-w-6xl mx-auto px-4 py-6">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-200 pb-8 gap-6">
-                <div className="space-y-1">
-                    <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">Investment Strategy</h2>
-                    <p className="text-slate-500 font-medium">Monitoring {selectedTicker} performance and lot history.</p>
-                </div>
+        <div className="min-h-screen bg-slate-50 p-4 md:p-8">
+            <div className="max-w-6xl mx-auto space-y-8">
                 
-                <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
-                    <span className="pl-3 text-xs font-bold text-slate-400 uppercase tracking-widest">Asset</span>
-                    <select 
-                        className="bg-slate-50 border-none rounded-xl font-bold text-blue-600 focus:ring-0 cursor-pointer py-2 px-4"
-                        value={selectedTicker}
-                        onChange={(e) => setSelectedTicker(e.target.value)}
-                    >
-                        {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
-                    </select>
+                {/* Header Card */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Portfolio Strategy</h1>
+                        <p className="text-slate-500 font-medium">Real-time inventory for {selectedTicker}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm flex items-center">
+                        <span className="px-3 text-xs font-bold text-slate-400 uppercase">Asset</span>
+                        <select 
+                            className="bg-slate-50 border-none rounded-lg font-bold text-blue-600 focus:ring-0 cursor-pointer text-sm"
+                            value={selectedTicker}
+                            onChange={(e) => setSelectedTicker(e.target.value)}
+                        >
+                            {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            {/* Premium Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <MetricTile label="Units Held" value={metrics.units.toFixed(2)} sub="Total Shares" color="text-slate-900" />
-                <MetricTile label="Avg. Buy Price" value={`₹${metrics.abp.toFixed(2)}`} sub="Cost Basis" color="text-blue-600" />
-                <MetricTile label="Capital Deployed" value={`₹${metrics.capital.toLocaleString('en-IN')}`} sub="Total Investment" color="text-slate-900" />
-            </div>
+                {/* 3-Column Grid: This creates the Card Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Units Held</p>
+                        <p className="text-3xl font-black text-slate-900">0.00</p>
+                    </div>
 
-            {/* Inventory Table Container */}
-            <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-100 overflow-hidden transition-all duration-500">
-                <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Open Inventory Lots</h3>
-                    <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></div>
+                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Avg. Buy Price</p>
+                        <p className="text-3xl font-black text-blue-600">₹0.00</p>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Capital Deployed</p>
+                        <p className="text-3xl font-black text-slate-900">₹0</p>
+                    </div>
                 </div>
-                <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
+
+                {/* Table Card */}
+                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden">
+                    <div className="px-8 py-5 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                        <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Open Inventory Tracker</h2>
+                    </div>
+                    <OpenInventoryTracker ticker={selectedTicker} openLots={[]} />
+                </div>
             </div>
         </div>
     );
