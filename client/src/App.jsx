@@ -6,32 +6,40 @@ import TransactionForm from './TransactionForm'; // Your BUY form
 
 function App() {
   const [view, setView] = useState('DASHBOARD');
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState(null);
+
+  const handleOpenAdd = () => {
+    setTransactionToEdit(null); // Clear any previous edit data
+    setShowForm(true);
+  };
+
+  const handleOpenEdit = (transaction) => {
+    setTransactionToEdit(transaction); // Set the specific row data
+    setShowForm(true);
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
+    setTransactionToEdit(null);
+  };
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif' }}>
-      {/* Top Navigation */}
+    <div>
       <nav style={navStyle}>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <button onClick={() => setView('DASHBOARD')} style={view === 'DASHBOARD' ? activeTab : tab}>Dashboard</button>
-          <button onClick={() => setView('TRANSACTIONS')} style={view === 'TRANSACTIONS' ? activeTab : tab}>Ledger</button>
-        </div>
-        <button onClick={() => setShowAddForm(!showAddForm)} style={addBtn}>
-          {showAddForm ? 'Close Form' : '+ Add Transaction'}
-        </button>
+          <button onClick={() => setView('DASHBOARD')}>Dashboard</button>
+          <button onClick={() => setView('TRANSACTIONS')}>Ledger</button>
+          <button onClick={handleOpenAdd}>+ Add Transaction</button>
       </nav>
 
-      <div style={{ padding: '20px' }}>
-        {/* Conditional Add Form */}
-        {showAddForm && (
-          <div style={formOverlay}>
-            <TransactionForm onTransactionAdded={() => setShowAddForm(false)} />
-          </div>
-        )}
+      {showForm && (
+        <TransactionForm 
+          editData={transactionToEdit} 
+          onClose={handleFormClose} 
+        />
+      )}
 
-        {/* Screen Content */}
-        {view === 'DASHBOARD' ? <StrategyDashboard /> : <TransactionManager />}
-      </div>
+      {view === 'DASHBOARD' ? <StrategyDashboard /> : <TransactionManager onEditTriggered={handleOpenEdit} />}
     </div>
   );
 }

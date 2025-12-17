@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from './api';
 
-const TransactionManager = () => {
+const TransactionManager = ({onEditTriggered}) => {
     const [transactions, setTransactions] = useState([]);
     const [filterType, setFilterType] = useState('ALL');
     const [currentPage, setCurrentPage] = useState(1);
@@ -65,8 +65,8 @@ const TransactionManager = () => {
                             <td>{t.quantity}</td>
                             <td>₹{t.price}</td>
                             <td>
-                                <button onClick={() => handleEdit(t)} style={editBtn}>Edit</button>
-                                <button onClick={() => handleDelete(t.transaction_id)} style={delBtn}>Delete</button>
+                                <button onClick={() => onEditTriggered(t)}>Edit</button>
+                                <button onClick={() => handleDelete(t.transaction_id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
