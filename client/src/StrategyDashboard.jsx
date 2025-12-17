@@ -17,7 +17,7 @@ const StrategyDashboard = () => {
         try {
             const response = await api.get(`/api/strategy/open-inventory/${ticker}`);
             const lots = response.data;
-            
+
             let totalUnits = 0;
             let totalCost = 0;
             lots.forEach(lot => {
@@ -42,55 +42,51 @@ const StrategyDashboard = () => {
 
     const { units_held, average_buy_price, capital_deployed } = calculatedMetrics;
 
+    const StatBox = ({ label, value, detail, primary }) => (
+        <div className={`p-6 rounded-2xl border transition-all ${primary ? 'bg-blue-600 border-blue-500 shadow-blue-200 shadow-lg' : 'bg-white border-slate-200 shadow-sm'}`}>
+            <p className={`text-xs font-bold uppercase tracking-widest mb-1 ${primary ? 'text-blue-100' : 'text-slate-400'}`}>{label}</p>
+            <p className={`text-3xl font-bold ${primary ? 'text-white' : 'text-slate-900'}`}>{value}</p>
+            <p className={`text-xs mt-2 ${primary ? 'text-blue-200' : 'text-slate-500'}`}>{detail}</p>
+        </div>
+    );
+
     return (
-        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8">
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Investment Strategy</h1>
-                    <p className="text-slate-500">Track your open positions and performance</p>
+                    <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Strategy Overview</h2>
+                    <p className="text-slate-500 mt-1">Real-time breakdown of {selectedTicker} positions.</p>
                 </div>
-                
-                <div className="bg-white p-1.5 rounded-xl shadow-sm border border-slate-200 flex items-center">
-                    <span className="px-3 text-sm font-semibold text-slate-500">Asset:</span>
-                    <select 
-                        className="bg-transparent border-none focus:ring-0 font-bold text-brand cursor-pointer"
-                        value={selectedTicker}
-                        onChange={(e) => setSelectedTicker(e.target.value)}
-                    >
-                        {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
-                    </select>
-                </div>
-            </div>
 
-            {/* Metrics Grid */}
+                <div className="flex items-center gap-2 bg-white border border-slate-200 p-1 rounded-xl shadow-sm">
+                    {SUPPORTED_STOCKS.map(s => (
+                        <button
+                            key={s.ticker}
+                            onClick={() => setSelectedTicker(s.ticker)}
+                            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${selectedTicker === s.ticker ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'
+                                }`}
+                        >
+                            {s.ticker}
+                        </button>
+                    ))}
+                </div>
+            </header>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <MetricCard title="Units Held" value={units_held.toFixed(2)} icon="📦" color="text-slate-900" />
-                <MetricCard 
-                    title="Avg. Buy Price" 
-                    value={`₹${average_buy_price.toFixed(2)}`} 
-                    icon="🏷️" 
-                    color="text-brand" 
-                />
-                <MetricCard 
-                    title="Capital Deployed" 
-                    value={`₹${capital_deployed.toLocaleString('en-IN')}`} 
-                    icon="💰" 
-                    color="text-slate-900" 
-                />
+                <StatBox label="Units Held" value={units_held.toLocaleString()} detail="Total Inventory" />
+                <StatBox label="Avg. Price" value={`₹${average_buy_price.toFixed(2)}`} detail="Cost Basis" />
+                <StatBox label="Investment" value={`₹${capital_deployed.toLocaleString()}`} detail="Total Value" primary />
             </div>
 
-            {/* Main Content Area */}
-            <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-                <div className="p-6 border-b border-slate-50">
-                    <h3 className="text-lg font-bold text-slate-800">Open Inventory Lots</h3>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 className="font-bold text-slate-800 uppercase tracking-wider text-xs">Open Lots</h3>
                 </div>
-                <div className="p-0">
-                    <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
-                </div>
+                <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
             </div>
         </div>
     );
+
 };
 
 // Reusable Metric Card Component
