@@ -11,12 +11,6 @@ const TransactionForm = ({onTransactionAdded}) => {
         price: ''
     };
 
-    // Inside TransactionForm.jsx handleSubmit:
-    try {
-        await api.post('/api/transactions', formData);
-        if (onTransactionAdded) onTransactionAdded(); // Closes form and triggers refresh
-    } catch (error) { console.log("Error occured in Transaction Form: ", error) }
-
     const [formData, setFormData] = useState(initialFormState);
     const [status, setStatus] = useState('');
 
@@ -41,7 +35,7 @@ const TransactionForm = ({onTransactionAdded}) => {
             
             setStatus(`✅ Success! Transaction saved: ${formData.ticker} (${formData.quantity} shares)`);
             setFormData(initialFormState); // Clear form on success
-
+            if (onTransactionAdded) onTransactionAdded(); // Closes form and triggers refresh
         } catch (error) {
             console.error('API Error:', error.response ? error.response.data : error.message);
             setStatus(`❌ Error saving transaction: ${error.response?.data?.error || 'Check server logs.'}`);
