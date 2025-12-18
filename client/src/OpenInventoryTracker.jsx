@@ -12,6 +12,29 @@ const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
         );
     };
 
+    // Add this helper function outside the component or at the top of the file
+    const formatTableDate = (dateString) => {
+        if (!dateString) return 'N/A';
+
+        const date = new Date(dateString);
+
+        // Check if the date is actually valid
+        if (isNaN(date.getTime())) {
+            // Fallback: If it's a string like "2023-10-25", try splitting
+            const parts = dateString.split('T')[0].split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`; // Returns DD/MM/YYYY
+            }
+            return 'Invalid';
+        }
+
+        return date.toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
+
     // Calculate Profit/Loss for Selected Lots
     const selectionSummary = useMemo(() => {
         if (selectedIds.length === 0 || !currentPrice) return null;
@@ -74,7 +97,7 @@ const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
                                         onChange={() => toggleSelect(lot.transaction_id)}
                                     />
                                 </td>
-                                <td className="px-6 py-4 text-sm font-semibold text-slate-600 text-center">{new Date(lot.date).toLocaleDateString('en-IN')}</td>
+                                <td className="px-6 py-4 text-sm font-semibold text-slate-600 text-center">{formatTableDate(lot.date || lot.transaction_date)}</td>
                                 <td className="px-6 py-4 text-sm font-black text-slate-900 text-center">{lot.open_quantity}</td>
                                 <td className="px-6 py-4 text-sm font-mono text-slate-500 font-medium text-center">₹{parseFloat(lot.buy_price).toFixed(2)}</td>
                             </tr>
