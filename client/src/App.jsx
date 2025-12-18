@@ -27,6 +27,7 @@ function App() {
 
   const handleOpenBulkSell = (data) => {
     setBulkSellData(data); // { ticker, selectedIds, totalQty }
+    setTransactionToEdit(null); // Ensure we aren't in edit mode
     setShowForm(true);
   };
 
@@ -61,7 +62,7 @@ function App() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {view === 'DASHBOARD' ? <StrategyDashboard /> : <TransactionManager onEditTriggered={handleOpenEdit} />}
+        {view === 'DASHBOARD' ? <StrategyDashboard onSellTriggered={handleOpenBulkSell} /> : <TransactionManager onEditTriggered={handleOpenEdit} />}
       </main>
 
       {showForm && (
@@ -84,10 +85,13 @@ function App() {
             </div>
 
             <div className="px-8 pb-8 pt-4">
-              <TransactionForm 
+              <TransactionForm
                 editData={transactionToEdit}
                 bulkSellData={bulkSellData}
-                onClose={handleFormClose}
+                onClose={() => {
+                  setShowForm(false);
+                  setBulkSellData(null); // Clear after closing
+                }}
               />
             </div>
           </div>

@@ -1,7 +1,7 @@
 // client/src/OpenInventoryTracker.jsx
 import React, { useState, useMemo } from 'react';
 
-const OpenInventoryTracker = ({ ticker, openLots }) => {
+const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
     const [selectedIds, setSelectedIds] = useState([]);
     const [currentPrice, setCurrentPrice] = useState('');
 

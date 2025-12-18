@@ -4,7 +4,7 @@ import api from './api';
 import { SUPPORTED_STOCKS } from './constants';
 import OpenInventoryTracker from './OpenInventoryTracker';
 
-const StrategyDashboard = () => {
+const StrategyDashboard = ({ onSellTriggered }) => {
     const [selectedTicker, setSelectedTicker] = useState(SUPPORTED_STOCKS[0].ticker);
     const [openLots, setOpenLots] = useState([]);
     const [metrics, setMetrics] = useState({ units: 0, abp: 0, capital: 0 });
@@ -96,7 +96,11 @@ const StrategyDashboard = () => {
                     {loading && <span className="text-xs text-blue-500 animate-pulse font-bold">Refreshing...</span>}
                 </div>
                 {/* PASSING DATA TO TABLE HERE */}
-                <OpenInventoryTracker ticker={selectedTicker} openLots={openLots} />
+                <OpenInventoryTracker
+                    ticker={selectedTicker}
+                    openLots={openLots}
+                    onSellTriggered={onSellTriggered}
+                />
             </div>
         </div>
     );
