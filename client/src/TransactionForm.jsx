@@ -30,103 +30,127 @@ const TransactionForm = ({ editData, onClose }) => {
         }
     }, [editData]);
 
+    useEffect(() => {
+        if (bulkSellData) {
+            setFormData({
+                ticker: bulkSellData.ticker,
+                type: 'SELL',
+                quantity: bulkSellData.quantity,
+                price: '',
+                date: new Date().toISOString().split('T')[0],
+                is_open: false
+            });
+        }
+    }, [bulkSellData]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
-            if (editData) {
-                await api.put(`/api/transactions/${editData.transaction_id}`, formData);
+            if (bulkSellData) {
+                // Use the new bulk-sell endpoint
+                await api.post('/api/transactions/bulk-sell', {
+                    ticker: formData.ticker,
+                    quantity: formData.quantity,
+                    price: formData.price,
+                    date: formData.date,
+                    selectedBuyIds: bulkSellData.selectedBuyIds // Array of IDs from the checkboxes
+                });
             } else {
+                // Standard single transaction logic
                 await api.post('/api/transactions', formData);
             }
-            onClose(); // Refreshes and hides
-        } catch (err) { alert(err.message); }
+            onClose();
+            // Trigger a refresh of the dashboard and ledger
+        } catch (err) {
+            alert("Execution failed. Check console.");
+        }
     };
 
     return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-        
-        {/* Asset Selection */}
-        <div className="md:col-span-2">
-          <label className={labelStyle}>Trading Asset</label>
-          <select className={inputStyle} value={formData.ticker} onChange={e => setFormData({...formData, ticker: e.target.value})}>
-            {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
-          </select>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
 
-        {/* Type Toggle (BUY/SELL) */}
-        <div className="md:col-span-2">
-          <label className={labelStyle}>Action Type</label>
-          <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
-            {['BUY', 'SELL'].map(type => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setFormData({...formData, type})}
-                className={`py-2 text-xs font-black rounded-xl transition-all ${
-                  formData.type === type 
-                  ? 'bg-white shadow-sm text-blue-600' 
-                  : 'text-slate-400 hover:text-slate-600'
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
+                {/* Asset Selection */}
+                <div className="md:col-span-2">
+                    <label className={labelStyle}>Trading Asset</label>
+                    <select className={inputStyle} value={formData.ticker} onChange={e => setFormData({ ...formData, ticker: e.target.value })}>
+                        {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
+                    </select>
+                </div>
 
-        {/* Quantity and Price */}
-        <div className="space-y-1">
-          <label className={labelStyle}>Quantity</label>
-          <input type="number" step="any" className={inputStyle} value={formData.quantity} onChange={e => setFormData({...formData, quantity: e.target.value})} required />
-        </div>
+                {/* Type Toggle (BUY/SELL) */}
+                <div className="md:col-span-2">
+                    <label className={labelStyle}>Action Type</label>
+                    <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                        {['BUY', 'SELL'].map(type => (
+                            <button
+                                key={type}
+                                type="button"
+                                onClick={() => setFormData({ ...formData, type })}
+                                className={`py-2 text-xs font-black rounded-xl transition-all ${formData.type === type
+                                    ? 'bg-white shadow-sm text-blue-600'
+                                    : 'text-slate-400 hover:text-slate-600'
+                                    }`}
+                            >
+                                {type}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
-        <div className="space-y-1">
-          <label className={labelStyle}>Price per Unit</label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold">₹</span>
-            <input type="number" step="any" className={`${inputStyle} pl-8`} value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required />
-          </div>
-        </div>
+                {/* Quantity and Price */}
+                <div className="space-y-1">
+                    <label className={labelStyle}>Quantity</label>
+                    <input type="number" step="any" className={inputStyle} value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: e.target.value })} required />
+                </div>
 
-        {/* Date and Status */}
-        <div className="space-y-1">
-          <label className={labelStyle}>Transaction Date</label>
-          <input type="date" className={inputStyle} value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} required />
-        </div>
+                <div className="space-y-1">
+                    <label className={labelStyle}>Price per Unit</label>
+                    <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold">₹</span>
+                        <input type="number" step="any" className={`${inputStyle} pl-8`} value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
+                    </div>
+                </div>
 
-        {formData.type === 'BUY' && (
-          <div className="flex items-center gap-3 pt-6 px-1">
-            <input 
-              type="checkbox" 
-              id="is_open_check"
-              className="w-5 h-5 rounded-lg border-slate-200 text-blue-600 focus:ring-blue-500 cursor-pointer"
-              checked={formData.is_open} 
-              onChange={e => setFormData({...formData, is_open: e.target.checked})} 
-            />
-            <label htmlFor="is_open_check" className="text-sm font-bold text-slate-600 cursor-pointer select-none">Mark as Open Lot</label>
-          </div>
-        )}
-      </div>
+                {/* Date and Status */}
+                <div className="space-y-1">
+                    <label className={labelStyle}>Transaction Date</label>
+                    <input type="date" className={inputStyle} value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} required />
+                </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col-reverse md:flex-row gap-3 pt-6 border-t border-slate-50">
-        <button 
-          type="button" 
-          onClick={onClose} 
-          className="flex-1 px-6 py-4 bg-slate-100 text-slate-500 font-black text-xs uppercase tracking-widest rounded-3xl hover:bg-slate-200 transition-all"
-        >
-          Cancel
-        </button>
-        <button 
-          type="submit" 
-          className="flex-[2] px-6 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-3xl shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-[0.98]"
-        >
-          {editData ? 'Update Position' : 'Execute Entry'}
-        </button>
-      </div>
-    </form>
-  );
+                {formData.type === 'BUY' && (
+                    <div className="flex items-center gap-3 pt-6 px-1">
+                        <input
+                            type="checkbox"
+                            id="is_open_check"
+                            className="w-5 h-5 rounded-lg border-slate-200 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                            checked={formData.is_open}
+                            onChange={e => setFormData({ ...formData, is_open: e.target.checked })}
+                        />
+                        <label htmlFor="is_open_check" className="text-sm font-bold text-slate-600 cursor-pointer select-none">Mark as Open Lot</label>
+                    </div>
+                )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col-reverse md:flex-row gap-3 pt-6 border-t border-slate-50">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 px-6 py-4 bg-slate-100 text-slate-500 font-black text-xs uppercase tracking-widest rounded-3xl hover:bg-slate-200 transition-all"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    className="flex-[2] px-6 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-3xl shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-[0.98]"
+                >
+                    {editData ? 'Update Position' : 'Execute Entry'}
+                </button>
+            </div>
+        </form>
+    );
 };
 
 const formStyle = { padding: '20px', border: '1px solid #ccc', borderRadius: '8px', background: '#fff' };

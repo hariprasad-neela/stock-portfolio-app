@@ -67,9 +67,9 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
                         {openLots.map((lot) => (
                             <tr key={lot.transaction_id} className={`transition-colors ${selectedIds.includes(lot.transaction_id) ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
                                 <td className="px-6 py-4 text-center">
-                                    <input 
-                                        type="checkbox" 
-                                        className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                         checked={selectedIds.includes(lot.transaction_id)}
                                         onChange={() => toggleSelect(lot.transaction_id)}
                                     />
@@ -96,8 +96,14 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
                                 {selectionSummary.totalQty} Units Selected
                             </p>
                         </div>
-                        <button className="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg">
-                            Sell Selected
+                        <button onClick={() => onSellTriggered({
+                            ticker: ticker,
+                            selectedBuyIds: selectedIds,
+                            quantity: selectionSummary.totalQty
+                        })}
+                            className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-blue-700 transition-all"
+                        >
+                            Sell {selectionSummary.totalQty} Units
                         </button>
                     </div>
                 </div>

@@ -8,6 +8,7 @@ function App() {
   const [view, setView] = useState('DASHBOARD');
   const [showForm, setShowForm] = useState(false);
   const [transactionToEdit, setTransactionToEdit] = useState(null);
+  const [bulkSellData, setBulkSellData] = useState(null);
 
   const handleOpenAdd = () => {
     setTransactionToEdit(null); // Clear any previous edit data
@@ -22,6 +23,11 @@ function App() {
   const handleFormClose = () => {
     setShowForm(false);
     setTransactionToEdit(null);
+  };
+
+  const handleOpenBulkSell = (data) => {
+    setBulkSellData(data); // { ticker, selectedIds, totalQty }
+    setShowForm(true);
   };
 
   const NavButton = ({ active, onClick, label }) => (
@@ -78,7 +84,11 @@ function App() {
             </div>
 
             <div className="px-8 pb-8 pt-4">
-              <TransactionForm editData={transactionToEdit} onClose={handleFormClose} />
+              <TransactionForm 
+                editData={transactionToEdit}
+                bulkSellData={bulkSellData}
+                onClose={handleFormClose}
+              />
             </div>
           </div>
         </div>
