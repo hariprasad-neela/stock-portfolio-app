@@ -15,7 +15,7 @@ const StrategyDashboard = () => {
         try {
             const res = await api.get(`/api/strategy/open-inventory/${ticker}`);
             const lots = res.data; // Verify this is an array in console
-            
+
             let totalUnits = 0;
             let totalCost = 0;
 
@@ -23,7 +23,7 @@ const StrategyDashboard = () => {
                 // Ensure we handle strings from backend
                 const qty = parseFloat(lot.open_quantity);
                 const price = parseFloat(lot.buy_price);
-                
+
                 totalUnits += qty;
                 totalCost += (qty * price);
             });
@@ -48,26 +48,37 @@ const StrategyDashboard = () => {
     return (
         <div className="space-y-8 max-w-6xl mx-auto px-4 py-8">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-slate-200 pb-8">
-                <div>
-                    <h2 className="text-4xl font-black text-slate-900 tracking-tight">Strategy Dashboard</h2>
-                    <p className="text-slate-500 font-medium">Performance metrics for {selectedTicker}</p>
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between border-b border-slate-200 pb-8 gap-6">
+                <div className="space-y-1">
+                    <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight text-center lg:text-left">
+                        Strategy Dashboard
+                    </h2>
+                    <p className="text-slate-500 font-medium text-center lg:text-left">
+                        Monitoring {selectedTicker} performance
+                    </p>
                 </div>
-                
-                <div className="flex items-center gap-2 bg-white border border-slate-200 p-1 rounded-xl shadow-sm">
-                    {SUPPORTED_STOCKS.map(s => (
-                        <button
-                            key={s.ticker}
-                            onClick={() => setSelectedTicker(s.ticker)}
-                            className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
-                                selectedTicker === s.ticker 
-                                ? 'bg-blue-600 text-white shadow-md' 
-                                : 'text-slate-500 hover:bg-slate-50'
-                            }`}
-                        >
-                            {s.ticker}
-                        </button>
-                    ))}
+
+                {/* Responsive Ticker Selector */}
+                <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-full lg:w-auto">
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        <span className="hidden sm:block pl-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Select Asset
+                        </span>
+                        <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+                            {SUPPORTED_STOCKS.map(s => (
+                                <button
+                                    key={s.ticker}
+                                    onClick={() => setSelectedTicker(s.ticker)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${selectedTicker === s.ticker
+                                            ? 'bg-blue-600 text-white shadow-md'
+                                            : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
+                                        }`}
+                                >
+                                    {s.ticker}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
 
