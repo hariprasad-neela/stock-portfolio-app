@@ -3,6 +3,12 @@ const express = require('express');
 const pool = require('./db');
 const router = express.Router();
 
+// Import the controller functions
+import { 
+    bulkSell, 
+    // ... other imports like getTransactions, createTransaction
+} from './controllers/transactionController.js';
+
 /**
  * Helper function to find a stock by its ticker (or insert it if it doesn't exist).
  * This prevents creating duplicate entries in the 'stocks' table.
@@ -173,5 +179,8 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch transaction history' });
     }
 });
+
+// Define the route for bulk selling
+router.post('/bulk-sell', bulkSell);
 
 module.exports = router;
