@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import api from './api';
 import { SUPPORTED_STOCKS } from './constants';
 
-const TransactionForm = ({ editData, onClose }) => {
+const TransactionForm = ({ editData, bulkSellData, onClose }) => {
     const initialState = {
         ticker: 'SILVERBEES',
         type: 'BUY',
@@ -20,15 +20,25 @@ const TransactionForm = ({ editData, onClose }) => {
 
     // Populate form if we are in Edit mode
     useEffect(() => {
+        // If we are editing an existing transaction
         if (editData) {
             setFormData({
                 ...editData,
-                date: new Date(editData.date).toISOString().split('T')[0]
+                date: editData.date.split('T')[0]
             });
-        } else {
-            setFormData(initialState);
         }
-    }, [editData]);
+        // If we are doing a "Bulk Sell" from the Dashboard
+        else if (bulkSellData) {
+            setFormData({
+                ticker: bulkSellData.ticker,
+                type: 'SELL',
+                quantity: bulkSellData.quantity,
+                price: '', // User will enter this
+                date: new Date().toISOString().split('T')[0],
+                is_open: false // A sell transaction isn't an "open lot"
+            });
+        }
+    }, [editData, bulkSellData]); // Run this whenever these props change
 
     useEffect(() => {
         if (bulkSellData) {
@@ -45,25 +55,22 @@ const TransactionForm = ({ editData, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
             if (bulkSellData) {
-                // Use the new bulk-sell endpoint
+                // New Bulk Sell Endpoint
                 await api.post('/api/transactions/bulk-sell', {
-                    ticker: formData.ticker,
-                    quantity: formData.quantity,
-                    price: formData.price,
-                    date: formData.date,
-                    selectedBuyIds: bulkSellData.selectedBuyIds // Array of IDs from the checkboxes
+                    ...formData,
+                    selectedBuyIds: bulkSellData.selectedBuyIds
                 });
+            } else if (editData) {
+                await api.put(`/api/transactions/${editData.transaction_id}`, formData);
             } else {
-                // Standard single transaction logic
                 await api.post('/api/transactions', formData);
             }
             onClose();
-            // Trigger a refresh of the dashboard and ledger
+            // Refresh your data here...
         } catch (err) {
-            alert("Execution failed. Check console.");
+            console.error("Form submission error:", err);
         }
     };
 
