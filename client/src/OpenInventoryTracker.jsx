@@ -13,21 +13,26 @@ const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
     };
 
     // Add this helper function outside the component or at the top of the file
-    const formatTableDate = (dateString) => {
-        if (!dateString) return 'N/A';
+    const formatTableDate = (dateSource) => {
+        if (!dateSource) return 'No Date';
 
-        const date = new Date(dateString);
+        // Try parsing the date
+        const date = new Date(dateSource);
 
-        // Check if the date is actually valid
+        // If JavaScript can't parse it (Invalid Date)
         if (isNaN(date.getTime())) {
-            // Fallback: If it's a string like "2023-10-25", try splitting
-            const parts = dateString.split('T')[0].split('-');
-            if (parts.length === 3) {
-                return `${parts[2]}/${parts[1]}/${parts[0]}`; // Returns DD/MM/YYYY
+            // Fallback: Check if it's a ISO string or YYYY-MM-DD that just needs cleaning
+            try {
+                const cleanDate = dateSource.split('T')[0]; // Get "2023-10-25" from "2023-10-25T10:00:00"
+                const [y, m, d] = cleanDate.split('-');
+                if (y && m && d) return `${d}/${m}/${y}`;
+            } catch (e) {
+                return 'Format Error';
             }
             return 'Invalid';
         }
 
+        // Success: Return standard Indian format
         return date.toLocaleDateString('en-IN', {
             day: '2-digit',
             month: '2-digit',
@@ -97,7 +102,10 @@ const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
                                         onChange={() => toggleSelect(lot.transaction_id)}
                                     />
                                 </td>
-                                <td className="px-6 py-4 text-sm font-semibold text-slate-600 text-center">{formatTableDate(lot.date || lot.transaction_date)}</td>
+                                <td className="px-6 py-4 text-sm font-semibold text-slate-600 text-center">
+                                    {/* Try both 'date' and 'transaction_date' just in case */}
+                                    {formatTableDate(lot.date || lot.transaction_date || lot.created_at)}
+                                </td>
                                 <td className="px-6 py-4 text-sm font-black text-slate-900 text-center">{lot.open_quantity}</td>
                                 <td className="px-6 py-4 text-sm font-mono text-slate-500 font-medium text-center">₹{parseFloat(lot.buy_price).toFixed(2)}</td>
                             </tr>

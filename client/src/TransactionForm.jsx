@@ -78,18 +78,18 @@ const TransactionForm = ({ editData, bulkSellData, onClose }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
 
-{/* Ticker Input */}
-<div className="md:col-span-2">
-    <label className={labelStyle}>Trading Asset</label>
-    <select 
-        className={`${inputStyle} ${bulkSellData ? 'bg-slate-100 cursor-not-allowed opacity-70' : ''}`}
-        value={formData.ticker} 
-        disabled={!!bulkSellData} // Lock it!
-        onChange={e => setFormData({...formData, ticker: e.target.value})}
-    >
-        {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
-    </select>
-</div>
+                {/* Ticker Input */}
+                <div className="md:col-span-2">
+                    <label className={labelStyle}>Trading Asset</label>
+                    <select
+                        className={`${inputStyle} ${bulkSellData ? 'bg-slate-100 cursor-not-allowed opacity-70' : ''}`}
+                        value={formData.ticker}
+                        disabled={!!bulkSellData} // Lock it!
+                        onChange={e => setFormData({ ...formData, ticker: e.target.value })}
+                    >
+                        {SUPPORTED_STOCKS.map(s => <option key={s.ticker} value={s.ticker}>{s.ticker}</option>)}
+                    </select>
+                </div>
 
                 {/* Type Toggle (BUY/SELL) */}
                 <div className="md:col-span-2">
