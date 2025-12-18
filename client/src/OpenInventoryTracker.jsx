@@ -32,8 +32,6 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
         <div className="p-16 text-center text-slate-400 font-medium italic">No open lots found.</div>
     );
 
-    // client/src/OpenInventoryTracker.jsx (Table Section Update)
-
     return (
         <div className="w-full overflow-hidden">
             {/* Market Price Input: Stacked on mobile, side-by-side on desktop */}
@@ -66,7 +64,21 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {/* ... your map function ... */}
+                        {openLots.map((lot) => (
+                            <tr key={lot.transaction_id} className={`transition-colors ${selectedIds.includes(lot.transaction_id) ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
+                                <td className="px-6 py-4 text-center">
+                                    <input 
+                                        type="checkbox" 
+                                        className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                                        checked={selectedIds.includes(lot.transaction_id)}
+                                        onChange={() => toggleSelect(lot.transaction_id)}
+                                    />
+                                </td>
+                                <td className="px-6 py-4 text-sm font-semibold text-slate-600 text-center">{new Date(lot.date).toLocaleDateString('en-IN')}</td>
+                                <td className="px-6 py-4 text-sm font-black text-slate-900 text-center">{lot.open_quantity}</td>
+                                <td className="px-6 py-4 text-sm font-mono text-slate-500 font-medium text-center">₹{parseFloat(lot.buy_price).toFixed(2)}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
