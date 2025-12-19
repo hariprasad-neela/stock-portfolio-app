@@ -1,10 +1,14 @@
 // client/src/constants.js
 
 export const SUPPORTED_STOCKS = [
-    { ticker: 'SILVERBEES', name: 'Silver ETF' },
+    { ticker: 'ALPHAETF', name: 'Alpha ETF' },
+    { ticker: 'ALPL30IETF', name: 'ALPL 30 I ETF' },
+    { ticker: 'CPSEETF', name: 'CPSE ETF' },
     { ticker: 'GOLDBEES', name: 'Gold ETF' },
-    { ticker: 'FMCGIETF', name: 'Nifty 50 ETF' },
-    { ticker: 'CBSEETF', name: 'Liquid ETF' }
+    { ticker: 'MOM30IETF', name: 'Momentum 30 ETF' },
+    { ticker: 'NIFTYQLITY', name: 'Nifty Quality ETF' },
+    { ticker: 'NV20IETF', name: 'NV 20 I ETF' },
+    { ticker: 'SILVERBEES', name: 'Silver ETF' }
 ];
 
 export const APP_CONFIG = {
