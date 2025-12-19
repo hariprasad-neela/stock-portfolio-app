@@ -14,30 +14,23 @@ const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
 
     // Add this helper function outside the component or at the top of the file
     const formatTableDate = (dateSource) => {
-        if (!dateSource) return 'No Date';
+        // 1. If it's empty, return a dash
+        if (!dateSource) return '—';
 
-        // Try parsing the date
-        const date = new Date(dateSource);
-
-        // If JavaScript can't parse it (Invalid Date)
-        if (isNaN(date.getTime())) {
-            // Fallback: Check if it's a ISO string or YYYY-MM-DD that just needs cleaning
-            try {
-                const cleanDate = dateSource.split('T')[0]; // Get "2023-10-25" from "2023-10-25T10:00:00"
-                const [y, m, d] = cleanDate.split('-');
-                if (y && m && d) return `${d}/${m}/${y}`;
-            } catch (e) {
-                return 'Format Error';
-            }
-            return 'Invalid';
+        // 2. If it's already in DD/MM/YYYY format (contains slashes), return as is
+        if (typeof dateSource === 'string' && dateSource.includes('/')) {
+            return dateSource;
         }
 
-        // Success: Return standard Indian format
-        return date.toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
+        // 3. If it's in YYYY-MM-DD format (contains dashes), convert it
+        if (typeof dateSource === 'string' && dateSource.includes('-')) {
+            const [y, m, d] = dateSource.split('T')[0].split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        // 4. Final fallback for raw date objects
+        const d = new Date(dateSource);
+        return isNaN(d.getTime()) ? 'Invalid' : d.toLocaleDateString('en-IN');
     };
 
     // Calculate Profit/Loss for Selected Lots
@@ -103,8 +96,7 @@ const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
                                     />
                                 </td>
                                 <td className="px-6 py-4 text-sm font-semibold text-slate-600 text-center">
-                                    {/* Try both 'date' and 'transaction_date' just in case */}
-                                    {formatTableDate(lot.date || lot.transaction_date || lot.created_at)}
+                                    {formatTableDate(lot.date)}
                                 </td>
                                 <td className="px-6 py-4 text-sm font-black text-slate-900 text-center">{lot.open_quantity}</td>
                                 <td className="px-6 py-4 text-sm font-mono text-slate-500 font-medium text-center">₹{parseFloat(lot.buy_price).toFixed(2)}</td>
