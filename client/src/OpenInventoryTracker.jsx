@@ -4,16 +4,13 @@ import React, { useState, useMemo } from 'react';
 const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
     const [selectedIds, setSelectedIds] = useState([]);
     const [currentPrice, setCurrentPrice] = useState('');
+    const [targetPrice, setTargetPrice] = useState(''); // New State
 
     // --- Selection Logic ---
     const isAllSelected = openLots.length > 0 && selectedIds.length === openLots.length;
 
     const handleSelectAll = () => {
-        if (isAllSelected) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(openLots.map(lot => lot.transaction_id));
-        }
+        setSelectedIds(isAllSelected ? [] : openLots.map(lot => lot.transaction_id));
     };
 
     const toggleSelect = (id) => {
@@ -22,151 +19,139 @@ const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
         );
     };
 
-    // --- Expanded Summary Logic ---
+    // --- Advanced Projection Logic ---
     const summary = useMemo(() => {
         if (selectedIds.length === 0) return null;
 
         const selectedLotsData = openLots.filter(lot => selectedIds.includes(lot.transaction_id));
-        
         const totalQty = selectedLotsData.reduce((sum, lot) => sum + parseFloat(lot.open_quantity), 0);
         const totalInvestment = selectedLotsData.reduce((sum, lot) => 
             sum + (parseFloat(lot.open_quantity) * parseFloat(lot.buy_price)), 0);
-        
         const avgBuyPrice = totalInvestment / totalQty;
-        const marketPrice = parseFloat(currentPrice) || 0;
-        
-        const currentMarketValue = totalQty * marketPrice;
-        const profitLoss = currentMarketValue - totalInvestment;
-        const profitPercent = totalInvestment > 0 ? (profitLoss / totalInvestment) * 100 : 0;
+
+        // Current Calculations
+        const cPrice = parseFloat(currentPrice) || 0;
+        const currentVal = totalQty * cPrice;
+        const currentPL = currentVal - totalInvestment;
+
+        // Target Calculations
+        const tPrice = parseFloat(targetPrice) || 0;
+        const targetVal = totalQty * tPrice;
+        const targetPL = targetVal - totalInvestment;
 
         return { 
             totalQty, 
             avgBuyPrice, 
-            totalInvestment, 
-            currentMarketValue, 
-            profitLoss, 
-            profitPercent, 
-            isProfit: profitLoss >= 0,
-            hasPrice: !!currentPrice 
+            totalInvestment,
+            current: { val: currentVal, pl: currentPL, pct: (currentPL/totalInvestment)*100, exists: !!currentPrice },
+            target: { val: targetVal, pl: targetPL, pct: (targetPL/totalInvestment)*100, exists: !!targetPrice }
         };
-    }, [selectedIds, openLots, currentPrice]);
-
-    if (!openLots || openLots.length === 0) return (
-        <div className="p-16 text-center text-slate-400 font-medium italic">No open lots found for {ticker}.</div>
-    );
+    }, [selectedIds, openLots, currentPrice, targetPrice]);
 
     return (
-        <div className="w-full bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
-            {/* Header / Price Input */}
-            <div className="px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
-                <div className="flex items-center gap-3">
-                    <div className="w-2 h-8 bg-blue-600 rounded-full"></div>
-                    <h3 className="font-black text-slate-800 uppercase tracking-tight">Open Inventory: {ticker}</h3>
-                </div>
-                <div className="relative w-full sm:w-64">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">LIVE PRICE: ₹</span>
+        <div className="w-full bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-xl">
+            {/* Dual Price Control Header */}
+            <div className="px-6 py-6 bg-slate-50/80 border-b border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="relative">
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Live Market Price</label>
+                    <span className="absolute left-4 bottom-3 text-slate-400 font-bold text-sm">₹</span>
                     <input 
                         type="number"
-                        className="w-full pl-16 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
-                        placeholder="Enter Current Market Price"
+                        className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-black focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
+                        placeholder="Current Price"
                         value={currentPrice}
                         onChange={(e) => setCurrentPrice(e.target.value)}
                     />
                 </div>
+                <div className="relative">
+                    <label className="text-[9px] font-black text-blue-400 uppercase tracking-widest ml-1 mb-1 block">Exit Target Price</label>
+                    <span className="absolute left-4 bottom-3 text-blue-400 font-bold text-sm">₹</span>
+                    <input 
+                        type="number"
+                        className="w-full pl-10 pr-4 py-3 bg-blue-50/30 border border-blue-100 rounded-2xl text-sm font-black text-blue-700 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all placeholder:text-blue-200"
+                        placeholder="Set Target"
+                        value={targetPrice}
+                        onChange={(e) => setTargetPrice(e.target.value)}
+                    />
+                </div>
             </div>
 
-            {/* Responsive Table */}
-            <div className="w-full overflow-x-auto">
-                <table className="w-full text-left min-w-[600px]">
-                    <thead>
+            {/* Table Section (Condensed) */}
+            <div className="w-full overflow-x-auto max-h-64 overflow-y-auto">
+                <table className="w-full text-left">
+                    <thead className="sticky top-0 bg-white shadow-sm z-10">
                         <tr className="border-b border-slate-100">
-                            <th className="px-6 py-4 w-12">
-                                <input 
-                                    type="checkbox" 
-                                    className="w-5 h-5 rounded-lg border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
-                                    onChange={handleSelectAll}
-                                    checked={isAllSelected}
-                                />
-                            </th>
-                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Entry Date</th>
-                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Holding Qty</th>
-                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-right">Avg. Buy Price</th>
+                            <th className="px-6 py-4 w-12 text-center"><input type="checkbox" className="w-5 h-5 rounded-lg" onChange={handleSelectAll} checked={isAllSelected} /></th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase">Date</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase text-center">Qty</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase text-right">Cost Basis</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {openLots.map((lot) => (
-                            <tr key={lot.transaction_id} className={`transition-colors ${selectedIds.includes(lot.transaction_id) ? 'bg-blue-50/40' : 'hover:bg-slate-50/30'}`}>
-                                <td className="px-6 py-4">
-                                    <input 
-                                        type="checkbox" 
-                                        className="w-5 h-5 rounded-lg border-slate-300 text-blue-600 cursor-pointer" 
-                                        checked={selectedIds.includes(lot.transaction_id)}
-                                        onChange={() => toggleSelect(lot.transaction_id)}
-                                    />
+                            <tr key={lot.transaction_id} className={selectedIds.includes(lot.transaction_id) ? 'bg-blue-50/30' : ''}>
+                                <td className="px-6 py-3 text-center">
+                                    <input type="checkbox" className="w-5 h-5 rounded-lg" checked={selectedIds.includes(lot.transaction_id)} onChange={() => toggleSelect(lot.transaction_id)} />
                                 </td>
-                                <td className="px-6 py-4 text-sm font-bold text-slate-600">{lot.date}</td>
-                                <td className="px-6 py-4 text-sm font-black text-slate-900 text-center">{lot.open_quantity}</td>
-                                <td className="px-6 py-4 text-sm font-mono font-bold text-slate-500 text-right">₹{parseFloat(lot.buy_price).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                                <td className="px-6 py-3 text-xs font-bold text-slate-500">{lot.date}</td>
+                                <td className="px-6 py-3 text-sm font-black text-slate-800 text-center">{lot.open_quantity}</td>
+                                <td className="px-6 py-3 text-sm font-mono text-right text-slate-400">₹{parseFloat(lot.buy_price).toFixed(2)}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
 
-            {/* FULL DATA SUMMARY PANEL */}
+            {/* INTEGRATED SUMMARY & PROJECTION PANEL */}
             {summary && (
-                <div className={`border-t-4 transition-all ${summary.isProfit ? 'border-emerald-500 bg-emerald-50/30' : 'border-rose-500 bg-rose-50/30'} p-6 md:p-8`}>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="p-6 bg-slate-900 text-white rounded-t-[2rem]">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-6 border-b border-white/10">
                         <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Selected</p>
-                            <p className="text-xl font-black text-slate-800">{summary.totalQty} <span className="text-xs text-slate-400">Units</span></p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Invested</p>
+                            <p className="text-lg font-bold text-white">₹{summary.totalInvestment.toLocaleString()}</p>
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Invested Value</p>
-                            <p className="text-xl font-black text-slate-800">₹{summary.totalInvestment.toLocaleString('en-IN', {maximumFractionDigits: 0})}</p>
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Break-even</p>
+                            <p className="text-lg font-bold text-blue-400">₹{summary.avgBuyPrice.toFixed(2)}</p>
                         </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Value</p>
-                            <p className="text-xl font-black text-slate-800">
-                                {summary.hasPrice ? `₹${summary.currentMarketValue.toLocaleString('en-IN', {maximumFractionDigits: 0})}` : '--'}
+                        <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                            <p className="text-[10px] font-black text-emerald-400 uppercase">Unrealized P&L</p>
+                            <p className={`text-lg font-black ${summary.current.pl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                {summary.current.exists ? `₹${summary.current.pl.toLocaleString()}` : '--'}
                             </p>
                         </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Weighted Avg</p>
-                            <p className="text-xl font-black text-slate-800 text-blue-600">₹{summary.avgBuyPrice.toFixed(2)}</p>
+                        <div className="bg-blue-500/10 p-3 rounded-xl border border-blue-500/20">
+                            <p className="text-[10px] font-black text-blue-300 uppercase">At Target Profit</p>
+                            <p className={`text-lg font-black ${summary.target.pl >= 0 ? 'text-blue-300' : 'text-rose-300'}`}>
+                                {summary.target.exists ? `₹${summary.target.pl.toLocaleString()}` : '--'}
+                            </p>
                         </div>
                     </div>
 
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-6 border-t border-slate-200/50">
-                        {summary.hasPrice ? (
+                    <div className="flex flex-col md:flex-row justify-between items-center pt-6 gap-6">
+                        <div className="flex gap-8">
                             <div className="text-center md:text-left">
-                                <p className={`text-3xl font-black tracking-tighter ${summary.isProfit ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                    {summary.isProfit ? '+' : ''}₹{summary.profitLoss.toLocaleString('en-IN', {minimumFractionDigits: 2})}
-                                </p>
-                                <p className={`text-sm font-black flex items-center gap-2 justify-center md:justify-start ${summary.isProfit ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                    {summary.isProfit ? '↗' : '↘'} {summary.profitPercent.toFixed(2)}% Unrealized Status
-                                </p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase">Selected</p>
+                                <p className="text-xl font-black">{summary.totalQty} Units</p>
                             </div>
-                        ) : (
-                            <div className="text-amber-500 text-sm font-bold animate-pulse">
-                                ⚠️ Enter market price to calculate potential returns
-                            </div>
-                        )}
-
+                            {summary.target.exists && (
+                                <div className="text-center md:text-left">
+                                    <p className="text-[9px] font-black text-blue-400 uppercase">Target Upside</p>
+                                    <p className="text-xl font-black text-blue-400">+{summary.target.pct.toFixed(1)}%</p>
+                                </div>
+                            )}
+                        </div>
+                        
                         <button 
-                            onClick={() => onSellTriggered({
-                                ticker: ticker,
-                                selectedBuyIds: selectedIds,
-                                quantity: summary.totalQty
-                            })}
-                            disabled={!summary.hasPrice}
-                            className={`w-full md:w-auto px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95 ${
-                                !summary.hasPrice 
-                                ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                                : 'bg-slate-900 text-white hover:bg-black shadow-slate-200'
+                            onClick={() => onSellTriggered({ ticker, selectedBuyIds: selectedIds, quantity: summary.totalQty })}
+                            disabled={!summary.current.exists}
+                            className={`w-full md:w-auto px-12 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                                summary.current.exists 
+                                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/40' 
+                                : 'bg-slate-800 text-slate-600'
                             }`}
                         >
-                            Sell {summary.totalQty} Units Now
+                            Sell @ Market (₹{parseFloat(currentPrice || 0).toFixed(2)})
                         </button>
                     </div>
                 </div>
