@@ -20,6 +20,7 @@ const App = () => {
         ) : (
           <LedgerPage />
         )}
+        {currentView === VIEWS.OVERVIEW && <PortfolioOverview />}
       </main>
 
       {/* Global Modals remain accessible from both views */}

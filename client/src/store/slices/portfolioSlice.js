@@ -15,6 +15,18 @@ export const fetchOpenLots = createAsyncThunk(
   }
 );
 
+export const fetchPortfolioOverview = createAsyncThunk(
+    'portfolio/fetchOverview',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get('/api/strategy/portfolio-overview');
+            return response.data;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
 const portfolioSlice = createSlice({
   name: 'portfolio',
   initialState: {
@@ -23,6 +35,7 @@ const portfolioSlice = createSlice({
     metrics: { units: 0, abp: 0, capital: 0 },
     loading: false,
     error: null,
+    portfolioData: []
   },
   reducers: {
     setTicker: (state, action) => {
@@ -45,7 +58,11 @@ const portfolioSlice = createSlice({
       .addCase(fetchOpenLots.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      });
+      })
+      .addCase(fetchPortfolioOverview.fulfilled, (state, action) => {
+            state.portfolioData = action.payload;
+            state.loading = false;
+        });
   },
 });
 

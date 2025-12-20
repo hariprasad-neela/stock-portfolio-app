@@ -3,7 +3,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export const VIEWS = {
     DASHBOARD: 'DASHBOARD',
-    LEDGER: 'LEDGER'
+    LEDGER: 'LEDGER',
+    OVERVIEW: 'OVERVIEW'
 };
 
 const uiSlice = createSlice({

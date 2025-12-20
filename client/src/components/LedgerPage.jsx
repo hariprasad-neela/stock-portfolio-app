@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLedger, setPage, setTickerFilter } from '../store/slices/ledgerSlice';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const LedgerPage = () => {
     const dispatch = useDispatch();
     const ledgerState = useSelector((state) => state.ledger) || {};
+    const [searchTerm, setSearchTerm] = useState('');
     // Destructure with safe fallbacks
     const {
         items = [],
@@ -25,6 +26,15 @@ const LedgerPage = () => {
         return () => promise.abort();
     }, [pagination.currentPage, filters.ticker, dispatch]);
 
+    useEffect(() => {
+        // Set a timer to dispatch the filter after 500ms of no typing
+        const delayDebounceFn = setTimeout(() => {
+            dispatch(setTickerFilter(searchTerm));
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm, dispatch]);
+
     return (
         <div className="max-w-6xl mx-auto p-6">
             <div className="flex justify-between items-end mb-8">
@@ -36,7 +46,7 @@ const LedgerPage = () => {
                 <input
                     className="px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="Filter by Ticker..."
-                    onChange={(e) => dispatch(setTickerFilter(e.target.value))}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
 
