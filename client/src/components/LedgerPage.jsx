@@ -75,3 +75,5 @@ const LedgerPage = () => {
         </div>
     );
 };
+
+export default LedgerPage;
