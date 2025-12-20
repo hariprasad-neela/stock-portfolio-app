@@ -1,8 +1,8 @@
 // client/src/TransactionForm.jsx
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import api from './api';
-import { SUPPORTED_STOCKS } from './constants';
+import api from '../api';
+import { SUPPORTED_STOCKS } from '../constants';
 
 const TransactionForm = ({ onClose }) => {
     const { modalMode, editData, bulkSellData } = useSelector((state) => state.ui);
@@ -16,8 +16,6 @@ const TransactionForm = ({ onClose }) => {
 
     const inputStyle = "w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all";
     const labelStyle = "block text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1";
-
-    const [formData, setFormData] = useState(initialState);
 
     // Populate form if we are in Edit mode
     useEffect(() => {
