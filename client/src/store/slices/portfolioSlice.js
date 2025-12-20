@@ -1,13 +1,17 @@
 // client/src/store/slices/portfolioSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../../api'; // Your axios instance
 
 // Async thunk to fetch open lots for a specific ticker
 export const fetchOpenLots = createAsyncThunk(
   'portfolio/fetchOpenLots',
-  async (ticker) => {
-    const response = await axios.get(`/api/strategy/open-inventory/${ticker}`);
-    return response.data;
+  async (ticker, { rejectWithValue }) => {
+    try {
+      const res = await api.get(`/api/strategy/open-inventory/${ticker}`);
+      return res.data; 
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
   }
 );
 

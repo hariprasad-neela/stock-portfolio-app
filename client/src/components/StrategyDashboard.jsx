@@ -1,13 +1,11 @@
 // client/src/StrategyDashboard.jsx
 import { useSelector, useDispatch } from 'react-redux';
 import { setTicker, fetchOpenLots, updateMetrics } from '../store/slices/portfolioSlice';
-import React, { useEffect, useCallback, useState } from 'react';
-import api from '../api';
+import React, { useEffect } from 'react';
 import { SUPPORTED_STOCKS } from '../constants';
 import OpenInventoryTracker from '../OpenInventoryTracker';
 
 const StrategyDashboard = ({ onSellTriggered }) => {
-    // const [metrics, setMetrics] = useState({ units: 0, abp: 0, capital: 0 });
     const dispatch = useDispatch();
     const { selectedTicker, openLots, loading, metrics } = useSelector((state) => state.portfolio);
 
@@ -19,40 +17,12 @@ const StrategyDashboard = ({ onSellTriggered }) => {
         dispatch(setTicker(ticker));
     };
 
-    const fetchData = useCallback(async (ticker) => {
-        // setLoading(true);
-        try {
-            const res = await api.get(`/api/strategy/open-inventory/${ticker}`);
-            const lots = res.data; // Verify this is an array in console
-
-            let totalUnits = 0;
-            let totalCost = 0;
-
-            lots.forEach(lot => {
-                // Ensure we handle strings from backend
-                const qty = parseFloat(lot.open_quantity);
-                const price = parseFloat(lot.buy_price);
-
-                totalUnits += qty;
-                totalCost += (qty * price);
-            });
-
-            // setOpenLots(lots);
-            dispatch(updateMetrics({
-                units: totalUnits,
-                abp: totalUnits > 0 ? totalCost / totalUnits : 0,
-                capital: totalCost
-            }));
-        } catch (err) {
-            console.error("API Error:", err);
-        } finally {
-            // setLoading(false);
-        }
-    }, []);
-
     useEffect(() => {
-        fetchData(selectedTicker);
-    }, [selectedTicker, fetchData]);
+        if (selectedTicker) {
+            // This one line replaces your entire fetchData function
+            dispatch(fetchOpenLots(selectedTicker));
+        }
+    }, [selectedTicker, dispatch]);
 
     // Replace the old calculation useEffect with one that dispatches to Redux
     useEffect(() => {
@@ -96,7 +66,7 @@ const StrategyDashboard = ({ onSellTriggered }) => {
                             {SUPPORTED_STOCKS.map(s => (
                                 <button
                                     key={s.ticker}
-                                    onClick={() => setSelectedTicker(s.ticker)}
+                                    onClick={() => handleTickerChange(s.ticker)}
                                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${selectedTicker === s.ticker
                                             ? 'bg-blue-600 text-white shadow-md'
                                             : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
@@ -127,7 +97,6 @@ const StrategyDashboard = ({ onSellTriggered }) => {
                 <OpenInventoryTracker
                     ticker={selectedTicker}
                     openLots={openLots}
-                    onSellTriggered={onSellTriggered}
                 />
             </div>
         </div>
