@@ -56,7 +56,7 @@ const PORTFOLIO_ID = '75d19a27-a0e2-4f19-b223-9c86b16e133e';
 // POST /api/transactions
 // Adds a new stock transaction (BUY or SELL)
 // -------------------------------------------------------------
-router.post('/old', async (req, res) => {
+router.post('/', async (req, res) => {
     // closed_lots_ids will be an array of UUIDs passed ONLY for a SELL transaction
     const {
         user_id = USER_ID, 
@@ -157,7 +157,9 @@ router.put('/:id', async (req, res) => {
 });
 
 // GET all transactions for the ledger
-router.get('/', async (req, res) => {
+router.get('/', getLedger);
+// Old GET all transactions route (for reference)
+router.get('/old', async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT 
@@ -181,13 +183,9 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/', getLedger);
-
 // Define the route for bulk selling
 router.post('/bulk-sell', bulkSell);
 
 router.get('/open-inventory/:ticker', getOpenInventory);
-
-
 
 export default router;
