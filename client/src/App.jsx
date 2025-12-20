@@ -2,6 +2,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { closeModal } from './store/slices/uiSlice';
 import TransactionForm from './components/TransactionForm';
+import StrategyDashboard from './components/StrategyDashboard';
 
 const App = () => {
   const { isModalOpen } = useSelector((state) => state.ui);
