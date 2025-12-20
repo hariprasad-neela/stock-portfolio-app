@@ -3,9 +3,9 @@ import express from 'express';
 import cors from 'cors';
 require('dotenv').config();
 const pool = require('./db');
-import transactionRoutes from './transactionRoutes'; // <-- 1. Import the router
-import strategyRoutes from './strategyRoutes';
-import dataRoutes from './dataRoutes';
+import transactionRoutes from './transactionRoutes.js'; // <-- 1. Import the router
+import strategyRoutes from './strategyRoutes.js';
+import dataRoutes from './dataRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
