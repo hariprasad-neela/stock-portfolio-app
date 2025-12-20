@@ -77,44 +77,42 @@ export const getLedger = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
-        const ticker = req.query.ticker || '';
+        const tickerFilter = req.query.ticker || ''; // Search input
         const offset = (page - 1) * limit;
 
-        // 1. Build the query with a Window Function (count(*) OVER()) 
-        // to get the total count without a second query
+        // We JOIN with the stocks table to get the 'ticker' column
+        // We use t.* to get all transaction fields and s.ticker to get the name
         let query = `
-            SELECT *, count(*) OVER() AS total_count 
-            FROM transactions 
+            SELECT t.*, s.ticker, count(*) OVER() AS total_count 
+            FROM transactions t
+            JOIN stocks s ON t.stock_id = s.id
             WHERE 1=1
         `;
         const params = [];
 
-        if (ticker) {
-            params.push(ticker.toUpperCase());
-            query += ` AND ticker = $${params.length}`;
+        if (tickerFilter) {
+            params.push(`%${tickerFilter.toUpperCase()}%`);
+            query += ` AND s.ticker LIKE $${params.length}`; // Search by name, not ID
         }
 
-        query += ` ORDER BY date DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+        query += ` ORDER BY t.date DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(limit, offset);
 
         const result = await pool.query(query, params);
-
-        // 2. Extract total count from the first row (if exists)
+        
         const totalRecords = result.rows.length > 0 ? parseInt(result.rows[0].total_count) : 0;
-        const totalPages = Math.ceil(totalRecords / limit);
 
-        // 3. Construct the structured response
         res.json({
-            data: result.rows,
+            data: result.rows, // Now includes a 'ticker' field
             pagination: {
                 totalRecords,
-                totalPages: totalPages || 1,
+                totalPages: Math.ceil(totalRecords / limit) || 1,
                 currentPage: page,
                 limit: limit
             }
         });
     } catch (err) {
-        console.error(err);
+        console.error("Ledger Fetch Error:", err);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
