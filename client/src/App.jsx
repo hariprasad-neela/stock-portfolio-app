@@ -15,11 +15,8 @@ const App = () => {
       <Navbar />
 
       <main className="max-w-7xl mx-auto">
-        {currentView === VIEWS.DASHBOARD ? (
-          <StrategyDashboard />
-        ) : (
-          <LedgerPage />
-        )}
+        {currentView === VIEWS.DASHBOARD && <StrategyDashboard />}
+        {currentView === VIEWS.LEDGER && <LedgerPage />}
         {currentView === VIEWS.OVERVIEW && <PortfolioOverview />}
       </main>
 
