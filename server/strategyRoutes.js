@@ -1,6 +1,6 @@
 // server/strategyRoutes.js
-const express = require('express');
-const pool = require('./db');
+import express from 'express';
+import pool from './db.js';
 const router = express.Router();
 
 // Placeholder Portfolio ID
@@ -50,5 +50,4 @@ router.get('/open-inventory/:ticker', async (req, res) => {
     }
 });
 
-
-module.exports = router;
+export default router;

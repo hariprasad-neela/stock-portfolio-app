@@ -1,5 +1,5 @@
 import express from 'express';
-import pool from './db';
+import pool from './db.js';
 const router = express.Router();
 
 // Import the controller functions
@@ -185,4 +185,4 @@ router.post('/bulk-sell', bulkSell);
 
 router.get('/open-inventory/:ticker', getOpenInventory);
 
-module.exports = router;
+export default router;
