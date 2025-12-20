@@ -5,6 +5,8 @@ import StrategyDashboard from './components/StrategyDashboard';
 import { VIEWS, closeModal } from './store/slices/uiSlice';
 import Navbar from './components/Navbar';
 import LedgerPage from './components/LedgerPage'; // The new component!
+import { useEffect } from 'react';
+import { fetchStocks } from './store/slices/portfolioSlice';
 
 const App = () => {
   const { currentView, isModalOpen } = useSelector((state) => state.ui);
