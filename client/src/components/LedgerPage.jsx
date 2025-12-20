@@ -1,13 +1,29 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLedger, setPage, setTickerFilter } from '../store/slices/ledgerSlice';
+import { useEffect } from 'react';
 
 const LedgerPage = () => {
     const dispatch = useDispatch();
-    const { items, pagination, filters, loading } = useSelector(state => state.ledger);
+    const ledgerState = useSelector((state) => state.ledger) || {};
+    // Destructure with safe fallbacks
+    const {
+        items = [],
+        pagination = { currentPage: 1, totalPages: 1 },
+        filters = { ticker: '' },
+        loading = false,
+        limit = 10
+    } = ledgerState;
 
     useEffect(() => {
-        dispatch(fetchLedger({ page: pagination.currentPage, limit: pagination.limit, ticker: filters.ticker }));
-    }, [pagination.currentPage, filters.ticker]);
+        const promise = dispatch(fetchLedger({
+            page: pagination.currentPage,
+            limit: 10,
+            ticker: filters.ticker
+        }));
+
+        // Cleanup function to abort previous request if user types fast
+        return () => promise.abort();
+    }, [pagination.currentPage, filters.ticker, dispatch]);
 
     return (
         <div className="max-w-6xl mx-auto p-6">
@@ -17,7 +33,7 @@ const LedgerPage = () => {
                     <p className="text-slate-500 font-medium">History of all your trades</p>
                 </div>
                 {/* Search Filter */}
-                <input 
+                <input
                     className="px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="Filter by Ticker..."
                     onChange={(e) => dispatch(setTickerFilter(e.target.value))}
@@ -41,9 +57,8 @@ const LedgerPage = () => {
                                 <td className="px-6 py-4 text-sm font-semibold text-slate-600">{tx.date}</td>
                                 <td className="px-6 py-4 text-sm font-black text-slate-900">{tx.ticker}</td>
                                 <td className="px-6 py-4">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                        tx.type === 'BUY' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-                                    }`}>
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${tx.type === 'BUY' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                                        }`}>
                                         {tx.type}
                                     </span>
                                 </td>
@@ -56,7 +71,7 @@ const LedgerPage = () => {
 
                 {/* Pagination Controls */}
                 <div className="px-6 py-4 bg-slate-50 flex items-center justify-between border-t border-slate-100">
-                    <button 
+                    <button
                         disabled={pagination.currentPage === 1}
                         onClick={() => dispatch(setPage(pagination.currentPage - 1))}
                         className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-blue-600 disabled:opacity-30"
@@ -66,7 +81,7 @@ const LedgerPage = () => {
                     <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
                         Page {pagination.currentPage} of {pagination.totalPages}
                     </span>
-                    <button 
+                    <button
                         disabled={pagination.currentPage === pagination.totalPages}
                         onClick={() => dispatch(setPage(pagination.currentPage + 1))}
                         className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-blue-600 disabled:opacity-30"

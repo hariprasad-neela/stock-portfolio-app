@@ -4,20 +4,38 @@ import api from '../../api';
 
 export const fetchLedger = createAsyncThunk(
     'ledger/fetchLedger',
-    async ({ page, limit, ticker }) => {
-        const response = await api.get(`/api/transactions?page=${page}&limit=${limit}${ticker ? `&ticker=${ticker}` : ''}`);
-        return response.data;
+    async ({ page, limit, ticker }, { rejectWithValue }) => {
+        try {
+            // Use URLSearchParams for clean query strings
+            const params = new URLSearchParams({ page, limit });
+            if (ticker) params.append('ticker', ticker);
+
+            const response = await api.get(`/api/transactions?${params.toString()}`);
+            return response.data; // This now contains { data, pagination }
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
     }
 );
 
+const initialState = {
+    items: [],
+    loading: false,
+    pagination: {
+        currentPage: 1,
+        totalPages: 1,
+        limit: 10,
+        totalRecords: 0
+    },
+    filters: {
+        ticker: '',
+        type: ''
+    }
+};
+
 const ledgerSlice = createSlice({
     name: 'ledger',
-    initialState: {
-        items: [],
-        pagination: { currentPage: 1, totalPages: 1, limit: 10 },
-        filters: { ticker: '' },
-        loading: false
-    },
+    initialState,
     reducers: {
         setPage: (state, action) => { state.pagination.currentPage = action.payload; },
         setTickerFilter: (state, action) => { state.filters.ticker = action.payload; state.pagination.currentPage = 1; }

@@ -51,7 +51,7 @@ export const bulkSell = async (req, res) => {
 export const getOpenInventory = async (req, res) => {
     try {
         const { ticker } = req.params; // SILBERBEES will come from here
-        
+
         const query = `
             SELECT 
                 transaction_id, 
@@ -62,9 +62,9 @@ export const getOpenInventory = async (req, res) => {
             WHERE ticker = $1 AND type = 'BUY' AND is_open = true
             ORDER BY date ASC
         `;
-        
+
         const result = await pool.query(query, [ticker]);
-        
+
         // If everything is fine but no data found, return an empty array (not 404)
         res.status(200).json(result.rows);
     } catch (error) {
@@ -73,41 +73,49 @@ export const getOpenInventory = async (req, res) => {
     }
 };
 
+// server/controllers/transactionController.js
 export const getLedger = async (req, res) => {
     try {
-        const { page = 1, limit = 10, ticker, type } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const ticker = req.query.ticker || '';
         const offset = (page - 1) * limit;
 
-        let query = `SELECT *, count(*) OVER() AS total_count FROM transactions WHERE 1=1`;
+        // 1. Build the query with a Window Function (count(*) OVER()) 
+        // to get the total count without a second query
+        let query = `
+            SELECT *, count(*) OVER() AS total_count 
+            FROM transactions 
+            WHERE 1=1
+        `;
         const params = [];
 
         if (ticker) {
-            params.push(ticker);
+            params.push(ticker.toUpperCase());
             query += ` AND ticker = $${params.length}`;
-        }
-        
-        if (type) {
-            params.push(type);
-            query += ` AND type = $${params.length}`;
         }
 
         query += ` ORDER BY date DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(limit, offset);
 
         const result = await pool.query(query, params);
-        
-        const totalRecords = result.rows[0]?.total_count || 0;
 
+        // 2. Extract total count from the first row (if exists)
+        const totalRecords = result.rows.length > 0 ? parseInt(result.rows[0].total_count) : 0;
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        // 3. Construct the structured response
         res.json({
             data: result.rows,
             pagination: {
-                totalRecords: parseInt(totalRecords),
-                totalPages: Math.ceil(totalRecords / limit),
-                currentPage: parseInt(page),
-                limit: parseInt(limit)
+                totalRecords,
+                totalPages: totalPages || 1,
+                currentPage: page,
+                limit: limit
             }
         });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };

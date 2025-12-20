@@ -1,6 +1,6 @@
 // client/src/components/Navbar.jsx
 import { useDispatch, useSelector } from 'react-redux';
-import { setView, VIEWS } from '../store/slices/uiSlice';
+import { setView, VIEWS, openAddModal } from '../store/slices/uiSlice';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -23,7 +23,10 @@ const Navbar = () => {
         </button>
       </div>
       <button 
-        onClick={() => dispatch(openAddModal())}
+        onClick={() => {
+        console.log("Add button clicked!"); // Add this to test
+        dispatch(openAddModal());
+      }}
         className="bg-slate-900 text-white px-5 py-2 rounded-xl text-xs font-black hover:bg-blue-600 transition-all shadow-lg shadow-blue-900/20"
       >
         + ADD TRADE
