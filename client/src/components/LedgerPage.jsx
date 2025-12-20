@@ -1,3 +1,6 @@
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchLedger, setPage, setTickerFilter } from '../store/slices/ledgerSlice';
+
 const LedgerPage = () => {
     const dispatch = useDispatch();
     const { items, pagination, filters, loading } = useSelector(state => state.ledger);
