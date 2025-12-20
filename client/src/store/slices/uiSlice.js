@@ -1,9 +1,15 @@
 // client/src/store/slices/uiSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
+export const VIEWS = {
+    DASHBOARD: 'DASHBOARD',
+    LEDGER: 'LEDGER'
+};
+
 const uiSlice = createSlice({
   name: 'ui',
   initialState: {
+    currentView: VIEWS.DASHBOARD, // Default view
     isModalOpen: false,
     modalMode: 'ADD', // 'ADD', 'EDIT', or 'BULK_SELL'
     editData: null,
@@ -33,8 +39,11 @@ const uiSlice = createSlice({
       state.editData = null;
       state.bulkSellData = null;
     },
+    setView: (state, action) => {
+      state.currentView = action.payload;
+    },
   },
 });
 
-export const { openAddModal, openEditModal, openBulkSellModal, closeModal } = uiSlice.actions;
+export const { openAddModal, openEditModal, openBulkSellModal, closeModal, setView } = uiSlice.actions;
 export default uiSlice.reducer;

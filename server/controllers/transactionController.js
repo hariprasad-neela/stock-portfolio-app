@@ -72,3 +72,42 @@ export const getOpenInventory = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
+
+export const getLedger = async (req, res) => {
+    try {
+        const { page = 1, limit = 10, ticker, type } = req.query;
+        const offset = (page - 1) * limit;
+
+        let query = `SELECT *, count(*) OVER() AS total_count FROM transactions WHERE 1=1`;
+        const params = [];
+
+        if (ticker) {
+            params.push(ticker);
+            query += ` AND ticker = $${params.length}`;
+        }
+        
+        if (type) {
+            params.push(type);
+            query += ` AND type = $${params.length}`;
+        }
+
+        query += ` ORDER BY date DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+        params.push(limit, offset);
+
+        const result = await pool.query(query, params);
+        
+        const totalRecords = result.rows[0]?.total_count || 0;
+
+        res.json({
+            data: result.rows,
+            pagination: {
+                totalRecords: parseInt(totalRecords),
+                totalPages: Math.ceil(totalRecords / limit),
+                currentPage: parseInt(page),
+                limit: parseInt(limit)
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

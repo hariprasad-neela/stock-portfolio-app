@@ -1,29 +1,28 @@
 // client/src/App.jsx
 import { useSelector, useDispatch } from 'react-redux';
-import { closeModal } from './store/slices/uiSlice';
 import TransactionForm from './components/TransactionForm';
 import StrategyDashboard from './components/StrategyDashboard';
+import { VIEWS } from './store/slices/uiSlice';
+import Navbar from './components/Navbar';
+import LedgerPage from './components/LedgerPage'; // The new component!
 
 const App = () => {
-  const { isModalOpen } = useSelector((state) => state.ui);
-  const dispatch = useDispatch();
+  const { currentView, isModalOpen } = useSelector((state) => state.ui);
 
-  return (
-    <div className="min-h-screen bg-slate-50">
-      {/* ... Navigation / Sidebar ... */}
+return (
+    <div className="min-h-screen bg-slate-50 font-sans antialiased text-slate-900">
+      <Navbar />
       
-      <main className="p-4 md:p-8">
-        <StrategyDashboard />
+      <main className="max-w-7xl mx-auto">
+        {currentView === VIEWS.DASHBOARD ? (
+          <StrategyDashboard />
+        ) : (
+          <LedgerPage />
+        )}
       </main>
 
-      {/* Global Modal managed by Redux */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <TransactionForm onClose={() => dispatch(closeModal())} />
-          </div>
-        </div>
-      )}
+      {/* Global Modals remain accessible from both views */}
+      {isModalOpen && <TransactionForm />}
     </div>
   );
 };
