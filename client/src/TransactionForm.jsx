@@ -1,17 +1,18 @@
 // client/src/TransactionForm.jsx
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import api from './api';
 import { SUPPORTED_STOCKS } from './constants';
 
-const TransactionForm = ({ editData, bulkSellData, onClose }) => {
-    const initialState = {
-        ticker: 'SILVERBEES',
-        type: 'BUY',
-        quantity: '',
-        price: '',
-        date: new Date().toISOString().split('T')[0],
-        is_open: true
-    };
+const TransactionForm = ({ onClose }) => {
+    const { modalMode, editData, bulkSellData } = useSelector((state) => state.ui);
+    // Initialize state based on the mode
+  const [formData, setFormData] = useState({
+      ticker: bulkSellData?.ticker || editData?.ticker || 'SILVERBEES',
+      type: bulkSellData ? 'SELL' : (editData?.type || 'BUY'),
+      quantity: bulkSellData?.quantity || editData?.quantity || '',
+      // ...
+  });
 
     const inputStyle = "w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all";
     const labelStyle = "block text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2 ml-1";
@@ -39,6 +40,9 @@ const TransactionForm = ({ editData, bulkSellData, onClose }) => {
             });
         }
     }, [editData, bulkSellData]); // Run this whenever these props change
+    // Now you can use modalMode to change the UI title
+    const title = modalMode === 'BULK_SELL' ? 'Execute Bulk Exit' : 
+                modalMode === 'EDIT' ? 'Edit Transaction' : 'New Entry';
 
     useEffect(() => {
         if (bulkSellData) {

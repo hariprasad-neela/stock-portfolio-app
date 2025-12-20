@@ -24,4 +24,4 @@ All notable changes to this project will be documented in this file.
 #### 🛠️ Technical Stack (V1.0)
 - **Frontend**: React (Hooks, UseMemo), Tailwind CSS (Responsive Design).
 - **Backend**: Node.js, Express.
-- **Database**: PostgreSQL (UUID Primary Keys, Foreign Key Mapping Tables, ACID Transactions).
+- **Database**: PostgreSQL (UUID Primary Keys, Foreign Key Mapping Tables, ACID Transactions).  
