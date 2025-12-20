@@ -1,10 +1,10 @@
 // client/src/StrategyDashboard.jsx
 import { useSelector, useDispatch } from 'react-redux';
-import { setTicker, fetchOpenLots } from './store/slices/portfolioSlice';
+import { setTicker, fetchOpenLots } from '../store/slices/portfolioSlice';
 import React, { useEffect, useCallback } from 'react';
-import api from './api';
-import { SUPPORTED_STOCKS } from './constants';
-import OpenInventoryTracker from './OpenInventoryTracker';
+import api from '../api';
+import { SUPPORTED_STOCKS } from '../constants';
+import OpenInventoryTracker from '../OpenInventoryTracker';
 
 const StrategyDashboard = ({ onSellTriggered }) => {
     const [metrics, setMetrics] = useState({ units: 0, abp: 0, capital: 0 });
