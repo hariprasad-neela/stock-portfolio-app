@@ -20,7 +20,7 @@ const StrategyDashboard = ({ onSellTriggered }) => {
     };
 
     const fetchData = useCallback(async (ticker) => {
-        setLoading(true);
+        // setLoading(true);
         try {
             const res = await api.get(`/api/strategy/open-inventory/${ticker}`);
             const lots = res.data; // Verify this is an array in console
@@ -46,7 +46,7 @@ const StrategyDashboard = ({ onSellTriggered }) => {
         } catch (err) {
             console.error("API Error:", err);
         } finally {
-            setLoading(false);
+            // setLoading(false);
         }
     }, []);
 
@@ -70,6 +70,8 @@ const StrategyDashboard = ({ onSellTriggered }) => {
             }));
         }
     }, [openLots, dispatch]);
+
+    if (loading) return <div className="animate-pulse">Loading holdings...</div>;
 
     return (
         <div className="space-y-8 max-w-6xl mx-auto px-4 py-8">
