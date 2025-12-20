@@ -85,7 +85,7 @@ export const getLedger = async (req, res) => {
         let query = `
             SELECT t.*, s.ticker, count(*) OVER() AS total_count 
             FROM transactions t
-            JOIN stocks s ON t.stock_id = s.id
+            JOIN stocks s ON t.stock_id = s.stock_id
             WHERE 1=1
         `;
         const params = [];
