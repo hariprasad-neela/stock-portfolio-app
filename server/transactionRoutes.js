@@ -181,11 +181,13 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/', getLedger);
+
 // Define the route for bulk selling
 router.post('/bulk-sell', bulkSell);
 
 router.get('/open-inventory/:ticker', getOpenInventory);
 
-router.get('/', getLedger);
+
 
 export default router;
