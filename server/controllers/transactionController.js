@@ -1,4 +1,4 @@
-// server/controllers/transactionController.js
+import pool from '../db.js';
 
 export const bulkSell = async (req, res) => {
     const { ticker, quantity, price, date, selectedBuyIds } = req.body;
