@@ -6,7 +6,7 @@ import axios from 'axios';
 export const fetchOpenLots = createAsyncThunk(
   'portfolio/fetchOpenLots',
   async (ticker) => {
-    const response = await axios.get(`/api/transactions/open-inventory/${ticker}`);
+    const response = await axios.get(`/api/strategy/open-inventory/${ticker}`);
     return response.data;
   }
 );
