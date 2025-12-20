@@ -27,6 +27,18 @@ export const fetchPortfolioOverview = createAsyncThunk(
     }
 );
 
+export const fetchStocks = createAsyncThunk(
+    'portfolio/fetchStocks',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get('/api/strategy/stocks');
+            return response.data;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
 const portfolioSlice = createSlice({
   name: 'portfolio',
   initialState: {
@@ -35,7 +47,8 @@ const portfolioSlice = createSlice({
     metrics: { units: 0, abp: 0, capital: 0 },
     loading: false,
     error: null,
-    portfolioData: []
+    portfolioData: [],
+    stocksList: [],
   },
   reducers: {
     setTicker: (state, action) => {
@@ -62,6 +75,9 @@ const portfolioSlice = createSlice({
       .addCase(fetchPortfolioOverview.fulfilled, (state, action) => {
             state.portfolioData = action.payload;
             state.loading = false;
+        })
+      .addCase(fetchStocks.fulfilled, (state, action) => {
+            state.stocksList = action.payload;
         });
   },
 });

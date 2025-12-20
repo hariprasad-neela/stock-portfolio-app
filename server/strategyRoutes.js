@@ -54,4 +54,6 @@ router.get('/open-inventory/:ticker', async (req, res) => {
 // Define the endpoint for the overview cards
 router.get('/portfolio-overview', getPortfolioOverview);
 
+router.get('/stocks', getAllStocks);
+
 export default router;

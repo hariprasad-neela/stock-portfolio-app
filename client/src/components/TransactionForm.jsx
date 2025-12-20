@@ -63,6 +63,10 @@ const TransactionForm = ({ onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Simple validation
+        if (!formData.stock_id || !formData.quantity || !formData.price) {
+            return alert("Please fill all fields");
+        }
         try {
             if (bulkSellData) {
                 // New Bulk Sell Endpoint
@@ -76,7 +80,9 @@ const TransactionForm = ({ onClose }) => {
                 await api.post('/api/transactions', formData);
             }
             onClose();
-            // Refresh your data here...
+            // Refresh the current view data
+            dispatch(fetchPortfolioOverview());
+            dispatch(fetchLedger({ page: 1, limit: 10 }));
         } catch (err) {
             console.error("Form submission error:", err);
         }

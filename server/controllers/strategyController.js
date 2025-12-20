@@ -19,3 +19,12 @@ export const getPortfolioOverview = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getAllStocks = async (req, res) => {
+    try {
+        const result = await pool.query('SELECT stock_id, ticker FROM stocks ORDER BY ticker ASC');
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
