@@ -47,3 +47,28 @@ export const bulkSell = async (req, res) => {
         client.release();
     }
 };
+
+export const getOpenInventory = async (req, res) => {
+    try {
+        const { ticker } = req.params; // SILBERBEES will come from here
+        
+        const query = `
+            SELECT 
+                transaction_id, 
+                date, 
+                quantity AS open_quantity, 
+                price AS buy_price 
+            FROM transactions 
+            WHERE ticker = $1 AND type = 'BUY' AND is_open = true
+            ORDER BY date ASC
+        `;
+        
+        const result = await pool.query(query, [ticker]);
+        
+        // If everything is fine but no data found, return an empty array (not 404)
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error("Error fetching inventory:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};

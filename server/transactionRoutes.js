@@ -5,7 +5,8 @@ const router = express.Router();
 
 // Import the controller functions
 import { 
-    bulkSell, 
+    bulkSell,
+    getOpenInventory, 
     // ... other imports like getTransactions, createTransaction
 } from './controllers/transactionController.js';
 
@@ -182,5 +183,7 @@ router.get('/', async (req, res) => {
 
 // Define the route for bulk selling
 router.post('/bulk-sell', bulkSell);
+
+router.get('/open-inventory/:ticker', getOpenInventory);
 
 module.exports = router;
