@@ -1,7 +1,7 @@
 // client/src/StrategyDashboard.jsx
 import { useSelector, useDispatch } from 'react-redux';
 import { setTicker, fetchOpenLots } from '../store/slices/portfolioSlice';
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import api from '../api';
 import { SUPPORTED_STOCKS } from '../constants';
 import OpenInventoryTracker from '../OpenInventoryTracker';
