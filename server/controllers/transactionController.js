@@ -73,7 +73,6 @@ export const getOpenInventory = async (req, res) => {
     }
 };
 
-// server/controllers/transactionController.js
 export const getLedger = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
