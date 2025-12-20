@@ -1,6 +1,6 @@
 // server/dataRoutes.js
-const express = require('express');
-const axios = require('axios');
+import express from 'express';
+import axios  from 'axios';
 require('dotenv').config();
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 import express from 'express';
-const pool = require('./db');
+import pool from './db';
 const router = express.Router();
 
 // Import the controller functions

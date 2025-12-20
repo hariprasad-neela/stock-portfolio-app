@@ -1,11 +1,11 @@
 // server/index.js
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
 require('dotenv').config();
 const pool = require('./db');
-const transactionRoutes = require('./transactionRoutes'); // <-- 1. Import the router
-const strategyRoutes = require('./strategyRoutes');
-const dataRoutes = require('./dataRoutes');
+import transactionRoutes from './transactionRoutes'; // <-- 1. Import the router
+import strategyRoutes from './strategyRoutes';
+import dataRoutes from './dataRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
