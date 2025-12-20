@@ -1,15 +1,15 @@
 // client/src/StrategyDashboard.jsx
 import { useSelector, useDispatch } from 'react-redux';
-import { setTicker, fetchOpenLots } from '../store/slices/portfolioSlice';
+import { setTicker, fetchOpenLots, updateMetrics } from '../store/slices/portfolioSlice';
 import React, { useEffect, useCallback, useState } from 'react';
 import api from '../api';
 import { SUPPORTED_STOCKS } from '../constants';
 import OpenInventoryTracker from '../OpenInventoryTracker';
 
 const StrategyDashboard = ({ onSellTriggered }) => {
-    const [metrics, setMetrics] = useState({ units: 0, abp: 0, capital: 0 });
+    // const [metrics, setMetrics] = useState({ units: 0, abp: 0, capital: 0 });
     const dispatch = useDispatch();
-    const { selectedTicker, openLots, loading } = useSelector((state) => state.portfolio);
+    const { selectedTicker, openLots, loading, metrics } = useSelector((state) => state.portfolio);
 
     useEffect(() => {
         dispatch(fetchOpenLots(selectedTicker));
@@ -37,12 +37,12 @@ const StrategyDashboard = ({ onSellTriggered }) => {
                 totalCost += (qty * price);
             });
 
-            setOpenLots(lots);
-            setMetrics({
+            // setOpenLots(lots);
+            dispatch(updateMetrics({
                 units: totalUnits,
                 abp: totalUnits > 0 ? totalCost / totalUnits : 0,
                 capital: totalCost
-            });
+            }));
         } catch (err) {
             console.error("API Error:", err);
         } finally {
@@ -53,6 +53,23 @@ const StrategyDashboard = ({ onSellTriggered }) => {
     useEffect(() => {
         fetchData(selectedTicker);
     }, [selectedTicker, fetchData]);
+
+    // Replace the old calculation useEffect with one that dispatches to Redux
+    useEffect(() => {
+        if (openLots.length > 0) {
+            const totalUnits = openLots.reduce((sum, lot) => sum + parseFloat(lot.open_quantity), 0);
+            const totalCapital = openLots.reduce((sum, lot) => 
+                sum + (parseFloat(lot.open_quantity) * parseFloat(lot.buy_price)), 0);
+            const avgPrice = totalUnits > 0 ? totalCapital / totalUnits : 0;
+
+            // Update Redux Store
+            dispatch(updateMetrics({
+                units: totalUnits,
+                capital: totalCapital,
+                abp: avgPrice
+            }));
+        }
+    }, [openLots, dispatch]);
 
     return (
         <div className="space-y-8 max-w-6xl mx-auto px-4 py-8">

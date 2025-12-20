@@ -14,8 +14,9 @@ export const fetchOpenLots = createAsyncThunk(
 const portfolioSlice = createSlice({
   name: 'portfolio',
   initialState: {
-    selectedTicker: 'RELIANCE',
+    selectedTicker: 'SILVERBEES',
     openLots: [],
+    metrics: { units: 0, abp: 0, capital: 0 },
     loading: false,
     error: null,
   },
@@ -23,6 +24,10 @@ const portfolioSlice = createSlice({
     setTicker: (state, action) => {
       state.selectedTicker = action.payload;
     },
+    // Action to update metrics after calculation
+    updateMetrics: (state, action) => {
+      state.metrics = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -40,5 +45,5 @@ const portfolioSlice = createSlice({
   },
 });
 
-export const { setTicker } = portfolioSlice.actions;
+export const { setTicker, updateMetrics } = portfolioSlice.actions;
 export default portfolioSlice.reducer;
