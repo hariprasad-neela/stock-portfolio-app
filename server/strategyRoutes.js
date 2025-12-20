@@ -2,7 +2,7 @@
 import express from 'express';
 import pool from './db.js';
 const router = express.Router();
-import { getPortfolioOverview } from './controllers/strategyController.js';
+import { getPortfolioOverview, getAllStocks } from './controllers/strategyController.js';
 
 // Placeholder Portfolio ID
 const PORTFOLIO_ID = '75d19a27-a0e2-4f19-b223-9c86b16e133e'; 
