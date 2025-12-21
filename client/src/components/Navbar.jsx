@@ -31,7 +31,7 @@ const Navbar = () => {
       <button 
         onClick={() => {
         console.log("Add button clicked!"); // Add this to test
-        dispatch(openAddModal());
+        dispatch(openModal());
       }}
         className="bg-slate-900 text-white px-5 py-2 rounded-xl text-xs font-black hover:bg-blue-600 transition-all shadow-lg shadow-blue-900/20"
       >
