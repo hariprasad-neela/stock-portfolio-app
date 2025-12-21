@@ -12,15 +12,23 @@ const PortfolioOverview = () => {
 
     if (loading) return <div className="p-10 text-center">Calculating Portfolio Stats...</div>;
 
-    // 1. Calculate Grand Totals for the Top Bar
+    // Calculate Grand Totals for the Top Bar
+    // Inside PortfolioOverview.jsx
     const totals = useMemo(() => {
         return portfolioData.reduce((acc, curr) => {
-            acc.invested += parseFloat(curr.total_invested);
-            // Example: using a 2% hardcoded gain for demo until CMP is integrated
-            acc.profit += (parseFloat(curr.total_invested) * 0.02); 
-            return acc;
+            const invested = parseFloat(curr.total_invested) || 0;
+            // Logic: Unrealized Profit = (Current Price - Avg Price) * Qty
+            // Using a placeholder 2.5% for now
+            const profit = invested * 0.025;
+
+            return {
+                invested: acc.invested + invested,
+                profit: acc.profit + profit
+            };
         }, { invested: 0, profit: 0 });
     }, [portfolioData]);
+
+    const profitPercentage = totals.invested > 0 ? (totals.profit / totals.invested) * 100 : 0;
 
     const getCardColor = (pct) => {
         if (pct <= -3) return 'bg-rose-50 border-rose-200 text-rose-700';
@@ -35,7 +43,7 @@ const PortfolioOverview = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <SummaryCard title="Total Invested" value={`₹${totals.invested.toLocaleString()}`} color="text-slate-900" />
                 <SummaryCard title="Total Profit" value={`₹${totals.profit.toLocaleString()}`} color="text-emerald-600" />
-                <SummaryCard title="Net Return" value={`${((totals.profit / totals.invested) * 100).toFixed(2)}%`} color="text-emerald-600" />
+                <SummaryCard title="Net Return" value={`${profitPercentage}).toFixed(2)}%`} color="text-emerald-600" />
             </div>
 
             {/* Ticker Grid */}
@@ -48,7 +56,7 @@ const PortfolioOverview = () => {
                         <div key={stock.ticker} className={`p-5 rounded-3xl border-2 transition-all hover:scale-105 ${getCardColor(profitPct)}`}>
                             <h3 className="text-xl font-black mb-1">{stock.ticker}</h3>
                             <div className="text-xs font-bold opacity-70 uppercase tracking-wider mb-4">Open Inventory</div>
-                            
+
                             <div className="space-y-1">
                                 <div className="flex justify-between text-sm">
                                     <span>Invested:</span>

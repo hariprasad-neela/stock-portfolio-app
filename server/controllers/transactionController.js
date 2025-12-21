@@ -116,3 +116,25 @@ export const getLedger = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+export const addTransaction = async (req, res) => {
+    const { stock_id, type, quantity, price, date } = req.body;
+    
+    try {
+        const query = `
+            INSERT INTO transactions (stock_id, type, quantity, price, date, is_open)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *;
+        `;
+        // For a new BUY, is_open is true. For a SELL, it's usually false (or handles closing lots).
+        const isOpen = (type === 'BUY');
+        
+        const values = [stock_id, type, quantity, price, date, isOpen];
+        const result = await pool.query(query, values);
+        
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error("Add Transaction Error:", err);
+        res.status(500).json({ error: "Failed to save transaction" });
+    }
+};
