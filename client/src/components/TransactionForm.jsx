@@ -29,7 +29,7 @@ const TransactionForm = ({ onClose }) => {
                 stock_id: editingTransaction.stock_id,
                 type: editingTransaction.type,
                 quantity: editingTransaction.quantity,
-                price: editingTransaction.price,
+                price: editingTransaction.price ? parseFloat(editingTransaction.price) : '',
                 date: new Date(editingTransaction.date).toISOString().split('T')[0]
             });
         }
@@ -119,6 +119,7 @@ const TransactionForm = ({ onClose }) => {
                         <label className={labelClass}>Price</label>
                         <input
                             type="number"
+                            step="0.01" // This allows two decimal places
                             className={inputClass}
                             placeholder="0.00"
                             onChange={(e) => setFormData({ ...formData, price: e.target.value })}

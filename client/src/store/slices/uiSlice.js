@@ -27,7 +27,6 @@ const uiSlice = createSlice({
             state.editingTransaction = null;
         },
         setView: (state, action) => {
-            console.log('Setting view to:', action.payload);
             state.currentView = action.payload;
         },
     },

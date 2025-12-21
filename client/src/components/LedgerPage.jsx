@@ -36,17 +36,23 @@ const LedgerPage = () => {
         return () => clearTimeout(delayDebounceFn);
     }, [searchTerm, dispatch]);
 
-    const handleDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this trade?")) {
-            dispatch(removeTransaction(id)).then(() => {
-                dispatch(fetchLedger({ page: 1, limit: 10 })); // Refresh list
-            });
+    const handleDelete = async (id) => {
+        // Better to use a custom Modal later, but for now:
+        if (window.confirm("Delete this transaction? This cannot be undone.")) {
+            try {
+                await dispatch(removeTransaction(id)).unwrap();
+                // Optional: Show a "Deleted" toast here
+                dispatch(fetchLedger({ page: 1, limit: 10 }));
+                dispatch(fetchPortfolioOverview());
+            } catch (err) {
+                console.error("Delete failed:", err);
+            }
         }
     };
 
     const handleEdit = (transaction) => {
-    dispatch(openModal(transaction)); // Passes the whole tx object to uiSlice
-};
+        dispatch(openModal(transaction)); // Passes the whole tx object to uiSlice
+    };
 
     return (
         <div className="max-w-6xl mx-auto p-6">
