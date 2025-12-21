@@ -1,9 +1,8 @@
 // client/src/TransactionForm.jsx
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import api from '../api';
-import { SUPPORTED_STOCKS } from '../constants';
 import { closeModal } from '../store/slices/uiSlice';
+import { addTransaction, editTransaction, fetchLedger } from '../store/slices/ledgerSlice';
 
 const TransactionForm = ({ onClose }) => {
     const dispatch = useDispatch();
