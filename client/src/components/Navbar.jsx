@@ -1,6 +1,6 @@
 // client/src/components/Navbar.jsx
 import { useDispatch, useSelector } from 'react-redux';
-import { setView, VIEWS, openAddModal } from '../store/slices/uiSlice';
+import { setView, VIEWS, openModal } from '../store/slices/uiSlice';
 
 const Navbar = () => {
   const dispatch = useDispatch();
