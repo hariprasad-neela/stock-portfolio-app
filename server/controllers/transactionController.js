@@ -166,3 +166,34 @@ export const addTransaction = async (req, res) => {
         res.status(500).json({ error: "DB Insertion Failed" });
     }
 };
+
+// server/controllers/transactionController.js
+
+// 1. Delete Transaction
+export const deleteTransaction = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('DELETE FROM transactions WHERE transaction_id = $1', [id]);
+        res.json({ message: "Transaction deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// 2. Update Transaction
+export const updateTransaction = async (req, res) => {
+    const { id } = req.params;
+    const { stock_id, type, quantity, price, date } = req.body;
+    try {
+        const query = `
+            UPDATE transactions 
+            SET stock_id = $1, type = $2, quantity = $3, price = $4, date = $5
+            WHERE transaction_id = $6
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [stock_id, type, quantity, price, date, id]);
+        res.json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

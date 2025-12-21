@@ -18,6 +18,22 @@ export const fetchLedger = createAsyncThunk(
     }
 );
 
+export const removeTransaction = createAsyncThunk(
+    'transactions/delete',
+    async (id, { dispatch }) => {
+        await api.delete(`/api/transactions/${id}`);
+        return id;
+    }
+);
+
+export const editTransaction = createAsyncThunk(
+    'transactions/update',
+    async ({ id, data }) => {
+        const response = await api.put(`/api/transactions/${id}`, data);
+        return response.data;
+    }
+);
+
 const initialState = {
     items: [],
     loading: false,
