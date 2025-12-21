@@ -46,7 +46,7 @@ router.get('/open-inventory/:ticker', async (req, res) => {
         res.json(openLots);
 
     } catch (error) {
-        console.error(`Error fetching open inventory for ${targetTicker}:`, error.message);
+        console.error(`Error fetching open inventory for ${targetTicker}:`, error);
         res.status(500).json({ error: 'Failed to fetch open inventory.' });
     }
 });

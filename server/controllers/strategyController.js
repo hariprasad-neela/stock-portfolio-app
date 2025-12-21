@@ -1,3 +1,5 @@
+import pool from "../db.js";
+
 export const getPortfolioOverview = async (req, res) => {
     try {
         // This query groups by stock and calculates weighted average cost
