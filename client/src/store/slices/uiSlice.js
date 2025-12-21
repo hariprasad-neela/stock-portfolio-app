@@ -41,6 +41,7 @@ const uiSlice = createSlice({
       state.bulkSellData = null;
     },
     setView: (state, action) => {
+      console.log('Setting view to:', action.payload);
       state.currentView = action.payload;
     },
   },

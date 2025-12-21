@@ -10,10 +10,10 @@ const Navbar = () => {
     <nav className="flex items-center justify-between px-8 py-4 bg-white border-b border-slate-100 sticky top-0 z-50">
       <div className="flex gap-8">
         <button 
-          onClick={() => dispatch(setView(VIEWS.PORTFOLIO))}
-          className={`pb-2 text-sm font-black transition-all ${currentView === VIEWS.PORTFOLIO ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
+          onClick={() => dispatch(setView(VIEWS.OVERVIEW))}
+          className={`pb-2 text-sm font-black transition-all ${currentView === VIEWS.OVERVIEW ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400 hover:text-slate-600'}`}
         >
-          PORTFOLIO
+          OVERVIEW
         </button>
         <button 
           onClick={() => dispatch(setView(VIEWS.DASHBOARD))}

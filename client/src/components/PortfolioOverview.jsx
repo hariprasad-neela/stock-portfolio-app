@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useMemo, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { fetchPortfolioOverview } from '../store/slices/portfolioSlice';
 
 const PortfolioOverview = () => {
     const { portfolioData, loading } = useSelector(state => state.portfolio); // Assume data is fetched here
-
+    const dispatch = useDispatch();
     useEffect(() => {
+        console.log('useEffect triggered to fetch portfolio overview')
         dispatch(fetchPortfolioOverview());
     }, [dispatch]);
 

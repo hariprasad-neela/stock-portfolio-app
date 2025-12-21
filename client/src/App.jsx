@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import LedgerPage from './components/LedgerPage'; // The new component!
 import { useEffect } from 'react';
 import { fetchStocks } from './store/slices/portfolioSlice';
+import PortfolioOverview from './components/PortfolioOverview';
 
 const App = () => {
   const { currentView, isModalOpen } = useSelector((state) => state.ui);
