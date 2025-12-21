@@ -118,23 +118,51 @@ export const getLedger = async (req, res) => {
 };
 
 export const addTransaction = async (req, res) => {
-    const { stock_id, type, quantity, price, date } = req.body;
+    // 1. Destructure with explicit names
+    const { 
+        stock_id: incomingStockId, 
+        type, 
+        quantity, 
+        price, 
+        date 
+    } = req.body;
     
     try {
-        const query = `
+        // 2. Use a transaction block or explicit param mapping
+        const insertQuery = `
             INSERT INTO transactions (stock_id, type, quantity, price, date, is_open)
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *;
         `;
-        // For a new BUY, is_open is true. For a SELL, it's usually false (or handles closing lots).
+        
         const isOpen = (type === 'BUY');
         
-        const values = [stock_id, type, quantity, price, date, isOpen];
-        const result = await pool.query(query, values);
+        // 3. Log exactly what is being sent to the DB for debugging
+        console.log("DB INSERT PARAMS:", [incomingStockId, type, quantity, price, date, isOpen]);
+
+        const result = await pool.query(insertQuery, [
+            incomingStockId, // Ensure this matches $1
+            type, 
+            quantity, 
+            price, 
+            date, 
+            isOpen
+        ]);
         
-        res.status(201).json(result.rows[0]);
+        const newRecord = result.rows[0];
+
+        // 4. Join the ticker so the frontend can verify visually
+        const verification = await pool.query(
+            'SELECT ticker FROM stocks WHERE stock_id = $1', 
+            [newRecord.stock_id]
+        );
+
+        res.status(201).json({
+            ...newRecord,
+            ticker: verification.rows[0]?.ticker
+        });
     } catch (err) {
-        console.error("Add Transaction Error:", err);
-        res.status(500).json({ error: "Failed to save transaction" });
+        console.error("Critical Add Error:", err);
+        res.status(500).json({ error: "DB Insertion Failed" });
     }
 };

@@ -43,7 +43,7 @@ const PortfolioOverview = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <SummaryCard title="Total Invested" value={`₹${totals.invested.toLocaleString()}`} color="text-slate-900" />
                 <SummaryCard title="Total Profit" value={`₹${totals.profit.toLocaleString()}`} color="text-emerald-600" />
-                <SummaryCard title="Net Return" value={`${profitPercentage}).toFixed(2)}%`} color="text-emerald-600" />
+                <SummaryCard title="Net Return" value={`${profitPercentage.toFixed(2)}%`} color="text-emerald-600" />
             </div>
 
             {/* Ticker Grid */}
