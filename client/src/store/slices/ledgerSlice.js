@@ -63,6 +63,13 @@ const ledgerSlice = createSlice({
                 state.loading = false;
                 state.items = action.payload.data;
                 state.pagination = action.payload.pagination;
+            }).addCase(removeTransaction.fulfilled, (state, action) => {
+                state.items = state.items.filter(tx => tx.transaction_id !== action.payload);
+            }).addCase(editTransaction.fulfilled, (state, action) => {
+                const index = state.items.findIndex(tx => tx.transaction_id === action.payload.transaction_id);
+                if (index !== -1) {
+                    state.items[index] = action.payload;
+                }
             });
     }
 });

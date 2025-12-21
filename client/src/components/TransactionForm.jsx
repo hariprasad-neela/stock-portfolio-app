@@ -7,84 +7,53 @@ import { closeModal } from '../store/slices/uiSlice';
 
 const TransactionForm = ({ onClose }) => {
     const dispatch = useDispatch();
-    const { modalMode, editData, bulkSellData } = useSelector((state) => state.ui);
-    // Initialize state based on the mode
+    const { editingTransaction } = useSelector(state => state.ui);
+    const { stocksList } = useSelector(state => state.portfolio);
+
     const [formData, setFormData] = useState({
-        ticker: bulkSellData?.ticker || editData?.ticker || 'SILVERBEES',
-        type: bulkSellData ? 'SELL' : (editData?.type || 'BUY'),
-        quantity: bulkSellData?.quantity || editData?.quantity || '',
-        price: editData?.price || '',
+        stock_id: '',
+        type: 'BUY',
+        quantity: '',
+        price: '',
         date: new Date().toISOString().split('T')[0]
     });
-
-    // Assume you've fetched your stock list into Redux
-    const { stocksList } = useSelector(state => state.portfolio);
 
     const inputClass = "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400";
     const labelClass = "block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 ml-1";
 
     // Populate form if we are in Edit mode
+    // Populate form if editing
     useEffect(() => {
-        // If we are editing an existing transaction
-        if (editData) {
+        if (editingTransaction) {
             setFormData({
-                ...editData,
-                date: editData.date.split('T')[0]
+                stock_id: editingTransaction.stock_id,
+                type: editingTransaction.type,
+                quantity: editingTransaction.quantity,
+                price: editingTransaction.price,
+                date: new Date(editingTransaction.date).toISOString().split('T')[0]
             });
         }
-        // If we are doing a "Bulk Sell" from the Dashboard
-        else if (bulkSellData) {
-            setFormData({
-                ticker: bulkSellData.ticker,
-                type: 'SELL',
-                quantity: bulkSellData.quantity,
-                price: '', // User will enter this
-                date: new Date().toISOString().split('T')[0],
-                is_open: false // A sell transaction isn't an "open lot"
-            });
-        }
-    }, [editData, bulkSellData]); // Run this whenever these props change
-    // Now you can use modalMode to change the UI title
-    const title = modalMode === 'BULK_SELL' ? 'Execute Bulk Exit' :
-        modalMode === 'EDIT' ? 'Edit Transaction' : 'New Entry';
-
-    useEffect(() => {
-        if (bulkSellData) {
-            setFormData({
-                ticker: bulkSellData.ticker,
-                type: 'SELL',
-                quantity: bulkSellData.quantity,
-                price: '',
-                date: new Date().toISOString().split('T')[0],
-                is_open: false
-            });
-        }
-    }, [bulkSellData]);
+    }, [editingTransaction]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Simple validation
-        if (!formData.stock_id || !formData.quantity || !formData.price) {
-            return alert("Please fill all fields");
-        }
         try {
-            if (bulkSellData) {
-                // New Bulk Sell Endpoint
-                await api.post('/api/transactions/bulk-sell', {
-                    ...formData,
-                    selectedBuyIds: bulkSellData.selectedBuyIds
-                });
-            } else if (editData) {
-                await api.put(`/api/transactions/${editData.transaction_id}`, formData);
+            if (editingTransaction) {
+                // UPDATE MODE
+                await dispatch(editTransaction({
+                    id: editingTransaction.transaction_id,
+                    data: formData
+                })).unwrap();
             } else {
-                await api.post('/api/transactions', formData);
+                // ADD MODE
+                await dispatch(addTransaction(formData)).unwrap();
             }
-            onClose();
-            // Refresh the current view data
-            dispatch(fetchPortfolioOverview());
+
+            dispatch(closeModal());
             dispatch(fetchLedger({ page: 1, limit: 10 }));
+            dispatch(fetchPortfolioOverview());
         } catch (err) {
-            console.error("Form submission error:", err);
+            alert("Error saving transaction");
         }
     };
 
@@ -92,7 +61,9 @@ const TransactionForm = ({ onClose }) => {
         <div className="p-8">
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Record Trade</h2>
+                <h2 className="text-2xl font-black">
+                    {editingTransaction ? 'Edit Trade' : 'Add Trade'}
+                </h2>
                 <button
                     onClick={() => dispatch(closeModal())}
                     className="p-2 hover:bg-slate-100 rounded-full transition-colors"
@@ -106,10 +77,10 @@ const TransactionForm = ({ onClose }) => {
                     {/* Ticker Input */}
                     <div className="md:col-span-2">
                         <label className={labelClass}>Trading Asset</label>
-                        <select 
+                        <select
                             className={inputClass}
                             value={formData.stock_id}
-                            onChange={(e) => setFormData({...formData, stock_id: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, stock_id: e.target.value })}
                         >
                             <option value="">Select Stock...</option>
                             {stocksList.map(stock => (
@@ -146,11 +117,11 @@ const TransactionForm = ({ onClose }) => {
 
                     <div className="space-y-1">
                         <label className={labelClass}>Price</label>
-                        <input 
-                            type="number" 
-                            className={inputClass} 
+                        <input
+                            type="number"
+                            className={inputClass}
                             placeholder="0.00"
-                            onChange={(e) => setFormData({...formData, price: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                         />
                     </div>
 
@@ -183,11 +154,8 @@ const TransactionForm = ({ onClose }) => {
                     >
                         Cancel
                     </button>
-                    <button
-                        type="submit"
-                        className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-sm tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 mt-4"
-                    >
-                        {editData ? 'Update Position' : 'Execute Entry'}
+                    <button type="submit" className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black">
+                        {editingTransaction ? 'UPDATE TRANSACTION' : 'SAVE TRANSACTION'}
                     </button>
                 </div>
             </form>

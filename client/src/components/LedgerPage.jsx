@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLedger, setPage, setTickerFilter, removeTransaction } from '../store/slices/ledgerSlice';
 import { useEffect, useState } from 'react';
+import { openModal } from '../store/slices/uiSlice';
 
 const LedgerPage = () => {
     const dispatch = useDispatch();
@@ -42,6 +43,10 @@ const LedgerPage = () => {
             });
         }
     };
+
+    const handleEdit = (transaction) => {
+    dispatch(openModal(transaction)); // Passes the whole tx object to uiSlice
+};
 
     return (
         <div className="max-w-6xl mx-auto p-6">

@@ -8,43 +8,29 @@ export const VIEWS = {
 };
 
 const uiSlice = createSlice({
-  name: 'ui',
-  initialState: {
-    currentView: VIEWS.DASHBOARD, // Default view
-    isModalOpen: false,
-    modalMode: 'ADD', // 'ADD', 'EDIT', or 'BULK_SELL'
-    editData: null,
-    bulkSellData: null,
-  },
-  reducers: {
-    openAddModal: (state) => {
-      state.modalMode = 'ADD';
-      state.editData = null;
-      state.bulkSellData = null;
-      state.isModalOpen = true;
+    name: 'ui',
+    initialState: {
+        currentView: VIEWS.DASHBOARD, // Default view
+        isModalOpen: false,
+        modalMode: 'ADD', // 'ADD', 'EDIT', or 'BULK_SELL'
+        editData: null,
+        bulkSellData: null,
+        editingTransaction: null,
     },
-    openEditModal: (state, action) => {
-      state.modalMode = 'EDIT';
-      state.editData = action.payload; // Existing transaction object
-      state.bulkSellData = null;
-      state.isModalOpen = true;
+    reducers: {
+        openModal: (state, action) => {
+            state.isModalOpen = true;
+            state.editingTransaction = action.payload || null; // If payload exists, we are editing
+        },
+        closeModal: (state) => {
+            state.isModalOpen = false;
+            state.editingTransaction = null;
+        },
+        setView: (state, action) => {
+            console.log('Setting view to:', action.payload);
+            state.currentView = action.payload;
+        },
     },
-    openBulkSellModal: (state, action) => {
-      state.modalMode = 'BULK_SELL';
-      state.bulkSellData = action.payload; // { ticker, selectedBuyIds, quantity }
-      state.editData = null;
-      state.isModalOpen = true;
-    },
-    closeModal: (state) => {
-      state.isModalOpen = false;
-      state.editData = null;
-      state.bulkSellData = null;
-    },
-    setView: (state, action) => {
-      console.log('Setting view to:', action.payload);
-      state.currentView = action.payload;
-    },
-  },
 });
 
 export const { openAddModal, openEditModal, openBulkSellModal, closeModal, setView } = uiSlice.actions;
