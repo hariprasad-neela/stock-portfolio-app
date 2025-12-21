@@ -1,7 +1,7 @@
 // client/src/OpenInventoryTracker.jsx
 import React, { useState, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { openBulkSellModal } from './store/slices/uiSlice';
+import { openModal } from './store/slices/uiSlice';
 
 const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
     const [selectedIds, setSelectedIds] = useState([]);
@@ -9,14 +9,6 @@ const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
     const [targetPrice, setTargetPrice] = useState(''); // New State
 
     const dispatch = useDispatch();
-
-    const handleSellClick = () => {
-        dispatch(openBulkSellModal({
-            ticker: ticker,
-            selectedBuyIds: selectedIds,
-            quantity: summary.totalQty
-        }));
-    };
 
     // --- Selection Logic ---
     const isAllSelected = openLots.length > 0 && selectedIds.length === openLots.length;
