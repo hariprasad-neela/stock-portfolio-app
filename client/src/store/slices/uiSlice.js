@@ -33,5 +33,5 @@ const uiSlice = createSlice({
     },
 });
 
-export const { openAddModal, openEditModal, openBulkSellModal, closeModal, setView } = uiSlice.actions;
+export const { openModal, closeModal, setView } = uiSlice.actions;
 export default uiSlice.reducer;
