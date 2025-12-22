@@ -39,6 +39,30 @@ export const fetchStocks = createAsyncThunk(
     }
 );
 
+export const addTransaction = createAsyncThunk(
+    'portfolio/addTransaction',
+    async (transactionData, { rejectWithValue }) => {
+        try {
+            const response = await api.post('/api/transactions', transactionData);
+            return response.data;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
+export const editTransaction = createAsyncThunk(
+    'portfolio/editTransaction',
+    async ({ id, data }, { rejectWithValue }) => {
+        try {
+            const response = await api.put(`/api/transactions/${id}`, data);
+            return response.data;
+        } catch (err) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+);
+
 const portfolioSlice = createSlice({
   name: 'portfolio',
   initialState: {

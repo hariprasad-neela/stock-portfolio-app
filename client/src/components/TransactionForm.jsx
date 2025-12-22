@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeModal } from '../store/slices/uiSlice';
-import { addTransaction, editTransaction, fetchLedger } from '../store/slices/ledgerSlice';
+import { fetchLedger } from '../store/slices/ledgerSlice';
+import { addTransaction, editTransaction, fetchPortfolioOverview } from '../store/slices/portfolioSlice';
 
 const TransactionForm = ({ onClose }) => {
     const dispatch = useDispatch();
@@ -52,7 +53,7 @@ const TransactionForm = ({ onClose }) => {
             dispatch(fetchLedger({ page: 1, limit: 10 }));
             dispatch(fetchPortfolioOverview());
         } catch (err) {
-            alert("Error saving transaction");
+            alert("Error saving transaction", err);
         }
     };
 

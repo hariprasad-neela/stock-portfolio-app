@@ -127,6 +127,14 @@ export const addTransaction = async (req, res) => {
         date 
     } = req.body;
     
+    // This is where your error is being triggered
+    if (!incomingStockId || !type || !quantity || !price || !date) {
+        return res.status(400).json({ 
+            error: "Missing required transaction fields.",
+            received: { stock_id: incomingStockId, type, quantity, price, date } // Add this for debugging!
+        });
+    }
+
     try {
         // 2. Use a transaction block or explicit param mapping
         const insertQuery = `
