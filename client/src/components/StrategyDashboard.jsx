@@ -2,12 +2,12 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { setTicker, fetchOpenLots, updateMetrics } from '../store/slices/portfolioSlice';
 import React, { useEffect } from 'react';
-import { SUPPORTED_STOCKS } from '../constants';
 import OpenInventoryTracker from '../OpenInventoryTracker';
 
-const StrategyDashboard = ({ onSellTriggered }) => {
+const StrategyDashboard = () => {
     const dispatch = useDispatch();
     const { selectedTicker, openLots, loading, metrics } = useSelector((state) => state.portfolio);
+    const { stocksList } = useSelector(state => state.portfolio);
 
     useEffect(() => {
         dispatch(fetchOpenLots(selectedTicker));
@@ -28,7 +28,7 @@ const StrategyDashboard = ({ onSellTriggered }) => {
     useEffect(() => {
         if (openLots.length > 0) {
             const totalUnits = openLots.reduce((sum, lot) => sum + parseFloat(lot.open_quantity), 0);
-            const totalCapital = openLots.reduce((sum, lot) => 
+            const totalCapital = openLots.reduce((sum, lot) =>
                 sum + (parseFloat(lot.open_quantity) * parseFloat(lot.buy_price)), 0);
             const avgPrice = totalUnits > 0 ? totalCapital / totalUnits : 0;
 
@@ -58,23 +58,32 @@ const StrategyDashboard = ({ onSellTriggered }) => {
 
                 {/* Responsive Ticker Selector */}
                 <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-full lg:w-auto">
-                    <div className="flex flex-wrap items-center justify-center gap-2">
-                        <span className="hidden sm:block pl-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            Select Asset
-                        </span>
-                        <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
-                            {SUPPORTED_STOCKS.map(s => (
-                                <button
-                                    key={s.ticker}
-                                    onClick={() => handleTickerChange(s.ticker)}
-                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${selectedTicker === s.ticker
-                                            ? 'bg-blue-600 text-white shadow-md'
-                                            : 'bg-slate-50 text-slate-500 hover:bg-slate-100'
-                                        }`}
-                                >
-                                    {s.ticker}
-                                </button>
-                            ))}
+                    <div className="p-8">
+                        <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">
+                            Quick Access
+                        </h2>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            {stocksList.length > 0 ? (
+                                stocksList.map((stock) => (
+                                    <Link
+                                        key={stock.stock_id}
+                                        to={`/stock/${stock.ticker}`}
+                                        className="flex flex-col items-center p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-lg hover:border-blue-500 transition-all group"
+                                    >
+                                        <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-50 transition-colors">
+                                            <span className="text-xs font-black text-slate-600 group-hover:text-blue-600">
+                                                {stock.ticker.substring(0, 2)}
+                                            </span>
+                                        </div>
+                                        <span className="text-xs font-bold text-slate-900 uppercase">
+                                            {stock.ticker}
+                                        </span>
+                                    </Link>
+                                ))
+                            ) : (
+                                <p className="text-slate-400 text-sm">No stocks found in database.</p>
+                            )}
                         </div>
                     </div>
                 </div>
