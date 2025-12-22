@@ -144,7 +144,7 @@ export const addTransaction = async (req, res) => {
     try {
         // 2. Use a transaction block or explicit param mapping
         const insertQuery = `
-            INSERT INTO transactions (stock_id, type, quantity, price, date, is_open, profile_id)
+            INSERT INTO transactions (stock_id, type, quantity, price, date, is_open, portfolio_id)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *;
         `;
@@ -157,7 +157,7 @@ export const addTransaction = async (req, res) => {
         const result = await pool.query(insertQuery, [
             stock_id,
             type === 'BUY', 
-            profile_id || "75d19a27-a0e2-4f19-b223-9c86b16e133e", // Fallback to 1 if not provided, but better to be explicit 
+            portfolio_id || "75d19a27-a0e2-4f19-b223-9c86b16e133e", // Fallback to 1 if not provided, but better to be explicit 
             quantity, 
             price, 
             date, 
