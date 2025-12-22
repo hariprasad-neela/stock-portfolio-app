@@ -125,7 +125,7 @@ export const addTransaction = async (req, res) => {
         quantity, 
         price, 
         date,
-        profile_id 
+        portfolio_id 
     } = req.body;
     
     // V2 Stability Fix: Explicit check for undefined/null 
