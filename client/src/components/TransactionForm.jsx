@@ -25,8 +25,6 @@ const TransactionForm = ({ onClose }) => {
 
 useEffect(() => {
     if (editingTransaction) {
-        console.log("Editing Data:", editingTransaction); // Debug: Check if 'price' exists here
-        
         setFormData({
             stock_id: editingTransaction.stock_id || '',
             type: editingTransaction.type || 'BUY',
@@ -125,6 +123,7 @@ useEffect(() => {
                             step="0.01" // This allows two decimal places
                             className={inputClass}
                             placeholder="0.00"
+                            value={formData.price}
                             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                         />
                     </div>
