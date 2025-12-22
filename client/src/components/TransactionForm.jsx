@@ -22,18 +22,21 @@ const TransactionForm = ({ onClose }) => {
     const labelClass = "block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 ml-1";
 
     // Populate form if we are in Edit mode
-    // Populate form if editing
-    useEffect(() => {
-        if (editingTransaction) {
-            setFormData({
-                stock_id: editingTransaction.stock_id,
-                type: editingTransaction.type,
-                quantity: editingTransaction.quantity,
-                price: editingTransaction.price ? parseFloat(editingTransaction.price) : '',
-                date: new Date(editingTransaction.date).toISOString().split('T')[0]
-            });
-        }
-    }, [editingTransaction]);
+
+useEffect(() => {
+    if (editingTransaction) {
+        console.log("Editing Data:", editingTransaction); // Debug: Check if 'price' exists here
+        
+        setFormData({
+            stock_id: editingTransaction.stock_id || '',
+            type: editingTransaction.type || 'BUY',
+            quantity: editingTransaction.quantity || '',
+            // FIX: Ensure we handle both string and number types from backend
+            price: editingTransaction.price !== undefined ? parseFloat(editingTransaction.price) : '',
+            date: editingTransaction.date ? new Date(editingTransaction.date).toISOString().split('T')[0] : ''
+        });
+    }
+}, [editingTransaction]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
