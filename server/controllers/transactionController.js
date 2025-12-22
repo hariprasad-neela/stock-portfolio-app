@@ -144,7 +144,7 @@ export const addTransaction = async (req, res) => {
     try {
         // 2. Use a transaction block or explicit param mapping
         const insertQuery = `
-            INSERT INTO transactions (stock_id, type, quantity, price, date, is_open)
+            INSERT INTO transactions (stock_id, type, quantity, price, date, is_open, profile_id)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *;
         `;
