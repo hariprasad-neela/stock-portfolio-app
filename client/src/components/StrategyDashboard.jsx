@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setTicker, fetchOpenLots, updateMetrics } from '../store/slices/portfolioSlice';
 import React, { useEffect } from 'react';
 import OpenInventoryTracker from '../OpenInventoryTracker';
-import { Link } from 'react-router-dom';
 
 const StrategyDashboard = () => {
     const dispatch = useDispatch();
@@ -63,28 +62,19 @@ const StrategyDashboard = () => {
                         <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">
                             Quick Access
                         </h2>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                            {stocksList.length > 0 ? (
-                                stocksList.map((stock) => (
-                                    <Link
-                                        key={stock.stock_id}
-                                        to={`/stock/${stock.ticker}`}
-                                        className="flex flex-col items-center p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-lg hover:border-blue-500 transition-all group"
-                                    >
-                                        <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-3 group-hover:bg-blue-50 transition-colors">
-                                            <span className="text-xs font-black text-slate-600 group-hover:text-blue-600">
-                                                {stock.ticker.substring(0, 2)}
-                                            </span>
-                                        </div>
-                                        <span className="text-xs font-bold text-slate-900 uppercase">
-                                            {stock.ticker}
-                                        </span>
-                                    </Link>
-                                ))
-                            ) : (
-                                <p className="text-slate-400 text-sm">No stocks found in database.</p>
-                            )}
+                        <div className="flex items-center gap-4">
+                            <label className="font-black uppercase text-xs text-slate-400">Select Asset:</label>
+                            <select
+                                value={selectedTicker}
+                                onChange={handleTickerChange}
+                                className="bg-white border-2 border-slate-900 rounded-xl px-4 py-2 font-bold focus:ring-2 ring-blue-500 outline-none"
+                            >
+                                {stocksList.map(stock => (
+                                    <option key={stock.stock_id} value={stock.ticker}>
+                                        {stock.ticker}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>
