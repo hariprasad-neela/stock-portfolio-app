@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setTicker, fetchOpenLots, updateMetrics } from '../store/slices/portfolioSlice';
 import React, { useEffect } from 'react';
 import OpenInventoryTracker from '../OpenInventoryTracker';
+import { Link } from 'react-router-dom';
 
 const StrategyDashboard = () => {
     const dispatch = useDispatch();
