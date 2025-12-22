@@ -157,11 +157,11 @@ export const addTransaction = async (req, res) => {
         const result = await pool.query(insertQuery, [
             stock_id,
             type === 'BUY', 
-            portfolio_id || "75d19a27-a0e2-4f19-b223-9c86b16e133e", // Fallback to 1 if not provided, but better to be explicit 
             quantity, 
             price, 
             date, 
-            isOpen
+            isOpen,
+            portfolio_id || "75d19a27-a0e2-4f19-b223-9c86b16e133e", // Fallback to 1 if not provided
         ]);
         
         const newRecord = result.rows[0];
