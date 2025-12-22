@@ -156,7 +156,7 @@ export const addTransaction = async (req, res) => {
 
         const result = await pool.query(insertQuery, [
             stock_id,
-            type === 'BUY', 
+            type, 
             quantity, 
             price, 
             date, 

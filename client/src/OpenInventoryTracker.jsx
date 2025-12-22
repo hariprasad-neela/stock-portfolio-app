@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { openModal } from './store/slices/uiSlice';
 
-const OpenInventoryTracker = ({ ticker, openLots, onSellTriggered }) => {
+const OpenInventoryTracker = ({ ticker, openLots }) => {
     const [selectedIds, setSelectedIds] = useState([]);
     const [currentPrice, setCurrentPrice] = useState('');
     const [targetPrice, setTargetPrice] = useState(''); // New State
