@@ -13,8 +13,8 @@ const StrategyDashboard = () => {
         dispatch(fetchOpenLots(selectedTicker));
     }, [selectedTicker, dispatch]);
 
-    const handleTickerChange = (ticker) => {
-        dispatch(setTicker(ticker));
+    const handleTickerChange = (e) => {
+        dispatch(setTicker(e.target.value));
     };
 
     useEffect(() => {
