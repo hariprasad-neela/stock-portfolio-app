@@ -120,19 +120,24 @@ export const getLedger = async (req, res) => {
 export const addTransaction = async (req, res) => {
     // 1. Destructure with explicit names
     const { 
-        stock_id: incomingStockId, 
+        stock_id, 
         type, 
         quantity, 
         price, 
         date 
     } = req.body;
     
-    // This is where your error is being triggered
-    if (!incomingStockId || !type || !quantity || !price || !date) {
-        return res.status(400).json({ 
-            error: "Missing required transaction fields.",
-            received: { stock_id: incomingStockId, type, quantity, price, date } // Add this for debugging!
-        });
+    // V2 Stability Fix: Explicit check for undefined/null 
+    // This allows quantity or price to be 0 without failing
+    if (
+        stock_id === undefined || 
+        type === undefined || 
+        quantity === undefined || 
+        price === undefined || 
+        date === undefined
+    ) {
+        console.log("Validation Failed. Received:", req.body); // Check your terminal!
+        return res.status(400).json({ error: "Missing required transaction fields." });
     }
 
     try {
@@ -146,10 +151,10 @@ export const addTransaction = async (req, res) => {
         const isOpen = (type === 'BUY');
         
         // 3. Log exactly what is being sent to the DB for debugging
-        console.log("DB INSERT PARAMS:", [incomingStockId, type, quantity, price, date, isOpen]);
+        console.log("DB INSERT PARAMS:", [stock_id, type, quantity, price, date, isOpen]);
 
         const result = await pool.query(insertQuery, [
-            incomingStockId, // Ensure this matches $1
+            stock_id,
             type, 
             quantity, 
             price, 
