@@ -8,7 +8,8 @@ import {
     getOpenInventory, 
     getLedger,
     updateTransaction,
-    deleteTransaction
+    deleteTransaction,
+    addTransaction,
     // ... other imports like getTransactions, createTransaction
 } from './controllers/transactionController.js';
 
@@ -58,7 +59,7 @@ const PORTFOLIO_ID = '75d19a27-a0e2-4f19-b223-9c86b16e133e';
 // POST /api/transactions
 // Adds a new stock transaction (BUY or SELL)
 // -------------------------------------------------------------
-router.post('/', async (req, res) => {
+router.post('/old', async (req, res) => {
     // closed_lots_ids will be an array of UUIDs passed ONLY for a SELL transaction
     const {
         user_id = USER_ID, 
@@ -130,6 +131,7 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.post('/', addTransaction);
 router.put('/:id', updateTransaction); 
 router.delete('/:id', deleteTransaction);
 

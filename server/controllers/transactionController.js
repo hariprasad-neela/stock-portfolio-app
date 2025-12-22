@@ -137,7 +137,7 @@ export const addTransaction = async (req, res) => {
         date === undefined
     ) {
         console.log("Validation Failed. Received:", req.body); // Check your terminal!
-        return res.status(400).json({ error: "Missing required transaction fields. Updated" });
+        return res.status(400).json({ error: "Missing required transaction fields." });
     }
 
     try {
