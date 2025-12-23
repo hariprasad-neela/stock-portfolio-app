@@ -53,23 +53,28 @@ const PortfolioOverview = () => {
                     const profitAmt = (stock.total_invested * (profitPct / 100));
 
                     return (
-                        <div key={stock.ticker} className={`p-5 rounded-3xl border-2 transition-all hover:scale-105 ${getCardColor(profitPct)}`}>
-                            <h3 className="text-xl font-black mb-1">{stock.ticker}</h3>
-                            <div className="text-xs font-bold opacity-70 uppercase tracking-wider mb-4">Open Inventory</div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {portfolioData.map((stock) => (
+                                <div key={stock.stock_id} className="p-6 bg-white border-2 border-slate-900 rounded-[2rem] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h3 className="text-2xl font-black">{stock.ticker}</h3>
+                                        <span className="bg-blue-100 text-blue-800 text-xs font-black px-3 py-1 rounded-full uppercase">
+                                            Equity
+                                        </span>
+                                    </div>
 
-                            <div className="space-y-1">
-                                <div className="flex justify-between text-sm">
-                                    <span>Invested:</span>
-                                    <span className="font-bold">₹{parseFloat(stock.total_invested).toFixed(0)}</span>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500 font-bold text-sm">Units Held</span>
+                                            <span className="font-black text-lg">{stock.units_held}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500 font-bold text-sm">Avg. Cost</span>
+                                            <span className="font-black">₹{parseFloat(stock.avg_buy_price).toFixed(2)}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span>Profit:</span>
-                                    <span className="font-bold">₹{profitAmt.toFixed(0)}</span>
-                                </div>
-                                <div className="text-right text-lg font-black mt-2">
-                                    {profitPct > 0 ? '+' : ''}{profitPct}%
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     );
                 })}

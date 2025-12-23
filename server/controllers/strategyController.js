@@ -4,21 +4,20 @@ export const getPortfolioOverview = async (req, res) => {
     try {
         const query = `
             SELECT 
-                s.ticker,
+                s.ticker, 
                 s.stock_id,
-                SUM(t.quantity) as net_qty,
-                SUM(t.quantity * t.price) as total_invested,
-                (SUM(t.quantity * t.price) / SUM(t.quantity)) as avg_buy_price
+                SUM(CASE WHEN t.type = 'BUY' THEN t.quantity ELSE -t.quantity END) as units_held,
+                AVG(CASE WHEN t.type = 'BUY' THEN t.price END) as avg_buy_price
             FROM transactions t
             JOIN stocks s ON t.stock_id = s.stock_id
-            WHERE t.is_open = true AND t.type = 'BUY'
-            GROUP BY s.ticker, s.stock_id;
+            WHERE t.profile_id = $1
+            GROUP BY s.ticker, s.stock_id
+            HAVING SUM(CASE WHEN t.type = 'BUY' THEN t.quantity ELSE -t.quantity END) > 0;
         `;
-        const result = await pool.query(query);
+        const result = await pool.query(query, [req.query.profile_id || 1]);
         res.json(result.rows);
     } catch (err) {
-        console.error("Portfolio Overview Error:", err);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ error: err.message });
     }
 };
 
