@@ -14,7 +14,7 @@ export const getPortfolioOverview = async (req, res) => {
             GROUP BY s.ticker, s.stock_id
             HAVING SUM(CASE WHEN t.type = 'BUY' THEN t.quantity ELSE -t.quantity END) > 0;
         `;
-        const result = await pool.query(query, [req.query.portfolio_id || 1]);
+        const result = await pool.query(query, [req.query.portfolio_id || "75d19a27-a0e2-4f19-b223-9c86b16e133e"]);
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
