@@ -10,11 +10,11 @@ export const getPortfolioOverview = async (req, res) => {
                 AVG(CASE WHEN t.type = 'BUY' THEN t.price END) as avg_buy_price
             FROM transactions t
             JOIN stocks s ON t.stock_id = s.stock_id
-            WHERE t.profile_id = $1
+            WHERE t.portfolio_id = $1
             GROUP BY s.ticker, s.stock_id
             HAVING SUM(CASE WHEN t.type = 'BUY' THEN t.quantity ELSE -t.quantity END) > 0;
         `;
-        const result = await pool.query(query, [req.query.profile_id || 1]);
+        const result = await pool.query(query, [req.query.portfolio_id || 1]);
         res.json(result.rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
