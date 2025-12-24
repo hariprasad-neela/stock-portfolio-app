@@ -24,4 +24,34 @@ All notable changes to this project will be documented in this file.
 #### 🛠️ Technical Stack (V1.0)
 - **Frontend**: React (Hooks, UseMemo), Tailwind CSS (Responsive Design).
 - **Backend**: Node.js, Express.
-- **Database**: PostgreSQL (UUID Primary Keys, Foreign Key Mapping Tables, ACID Transactions).  
+- **Database**: PostgreSQL (UUID Primary Keys, Foreign Key Mapping Tables, ACID Transactions). 
+
+To freeze your progress correctly, you should place this content into a `CHANGELOG.md` file in your project's root directory. This acts as the "source of truth" for what was achieved during this stability sprint.
+
+# Changelog: Stock Portfolio Application
+
+
+## [2.0.0] - 2025-12-24
+
+### "Soundness & Stability" Freeze
+
+### 🏗️ Backend & Database Integrity
+
+* **UUID & Type Safety**: Corrected SQL parameter mapping in `addTransaction` and `updateTransaction` to properly handle `profile_id` (UUID) and `type` (Enum), resolving "invalid input syntax" and "check constraint" errors.
+* **Data Aggregation**: Refactored the Portfolio SQL query to use `SUM()` and `GROUP BY` logic, collapsing individual buy lots into single, ticker-based summary cards.
+* **Specific Identification (Sell Lot)**: Implemented backend support for closing specific transaction IDs to support precise capital gains tracking.
+* **Numeric Precision**: Standardized `NUMERIC(15,2)` types for `price` and `quantity` to prevent rounding errors during calculations.
+
+### 🖥️ Frontend & State Management
+
+* **Price Population Fix**: Resolved a critical bug where the Price field remained blank during edits by implementing `parseFloat()` casting within the `TransactionForm` `useEffect` hook.
+* **State-Based Navigation**: Migrated the Dashboard from URL-based routing to a React state-based dropdown system, eliminating unnecessary page reloads and "Error 31" crashes.
+* **Router Context**: Fixed the "Basename Null" crash by properly wrapping the application in `BrowserRouter`.
+* **Thunk Resilience**: Standardized Redux `createAsyncThunk` exports and implemented `extraReducers` for optimistic UI updates.
+
+### 🎨 UI/UX Improvements
+
+* **Neobrutalist Design**: Restored high-contrast borders and "hard shadows" across the card and modal components.
+* **Responsive Grid**: Fixed the Portfolio Overview layout using Tailwind CSS Grid to ensure cards are uniform and responsive.
+* **Data Guarding**: Added loading and empty-state checks to the Overview page to prevent blank screen crashes when data is unavailable.
+
