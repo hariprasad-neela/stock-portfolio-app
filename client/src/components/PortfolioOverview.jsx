@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchPortfolioOverview } from '../store/slices/portfolioSlice';
 
 const PortfolioOverview = () => {
+    const dispatch = useDispatch();
     // 1. Ensure we select the right state and provide a fallback empty array
     const { portfolioData, loading } = useSelector(state => state.portfolio) || { portfolioData: [] };
 
