@@ -34,6 +34,7 @@ const PortfolioOverview = () => {
                         <h3 className="text-2xl font-black">{stock.ticker}</h3>
                         <p>Units: {stock.total_units || 0}</p>
                         <p>Avg: ₹{stock.avg_price || 0}</p>
+                        <p>Invested: ₹{(stock.avg_price * stock.total_units) || 0}</p>
                     </div>
                 ))}
             </div>
