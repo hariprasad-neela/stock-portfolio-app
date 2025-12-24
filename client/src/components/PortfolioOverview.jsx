@@ -37,50 +37,50 @@ const PortfolioOverview = () => {
         return 'bg-emerald-50 border-emerald-200 text-emerald-700';
     };
 
-    return (
-        <div className="p-6 space-y-8">
-            {/* Top Summary Bar */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <SummaryCard title="Total Invested" value={`₹${totals.invested.toLocaleString()}`} color="text-slate-900" />
-                <SummaryCard title="Total Profit" value={`₹${totals.profit.toLocaleString()}`} color="text-emerald-600" />
-                <SummaryCard title="Net Return" value={`${profitPercentage.toFixed(2)}%`} color="text-emerald-600" />
-            </div>
+    const PortfolioOverview = () => {
+        const { portfolioData } = useSelector(state => state.portfolio);
 
-            {/* Ticker Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {portfolioData.map((stock) => {
-                    const profitPct = 2.5; // Placeholder for (CMP - avg) / avg
-                    const profitAmt = (stock.total_invested * (profitPct / 100));
+        return (
+            <div className="p-6">
+                <h2 className="text-2xl font-black mb-8">My Portfolio</h2>
 
-                    return (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {portfolioData.map((stock) => (
-                                <div key={stock.stock_id} className="p-6 bg-white border-2 border-slate-900 rounded-[2rem] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <h3 className="text-2xl font-black">{stock.ticker}</h3>
-                                        <span className="bg-blue-100 text-blue-800 text-xs font-black px-3 py-1 rounded-full uppercase">
-                                            Equity
-                                        </span>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500 font-bold text-sm">Units Held</span>
-                                            <span className="font-black text-lg">{stock.units_held}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-500 font-bold text-sm">Avg. Cost</span>
-                                            <span className="font-black">₹{parseFloat(stock.avg_buy_price).toFixed(2)}</span>
-                                        </div>
-                                    </div>
+                {/* The Container - ensures 3 columns on desktop, 1 on mobile */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {portfolioData.map((stock) => (
+                        <div
+                            key={stock.stock_id}
+                            className="bg-white border-[3px] border-slate-900 rounded-[2.5rem] p-8 shadow-[12px_12px_0px_0px_rgba(15,23,42,1)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all"
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <span className="text-3xl font-black tracking-tighter">{stock.ticker}</span>
+                                <div className="h-10 w-10 bg-slate-100 rounded-full flex items-center justify-center">
+                                    📈
                                 </div>
-                            ))}
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-slate-500 font-bold uppercase text-xs tracking-widest">Units Held</span>
+                                    <span className="text-xl font-black">{stock.total_units}</span>
+                                </div>
+
+                                <div className="flex justify-between items-center">
+                                    <span className="text-slate-500 font-bold uppercase text-xs tracking-widest">Avg Cost</span>
+                                    <span className="text-xl font-black">₹{stock.avg_price}</span>
+                                </div>
+                            </div>
+
+                            <hr className="my-6 border-slate-100" />
+
+                            <button className="w-full py-3 bg-slate-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-blue-600 transition-colors">
+                                View Analysis
+                            </button>
                         </div>
-                    );
-                })}
+                    ))}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 };
 
 const SummaryCard = ({ title, value, color }) => (
