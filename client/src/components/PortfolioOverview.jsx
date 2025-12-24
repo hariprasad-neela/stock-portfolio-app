@@ -6,6 +6,11 @@ const PortfolioOverview = () => {
     // 1. Ensure we select the right state and provide a fallback empty array
     const { portfolioData, loading } = useSelector(state => state.portfolio) || { portfolioData: [] };
 
+    useEffect(() => {
+        console.log('useEffect triggered to fetch portfolio overview')
+        dispatch(fetchPortfolioOverview());
+    }, [dispatch]);
+
     // 2. Loading State
     if (loading) return <div className="p-10 font-black">Loading Portfolio...</div>;
 
