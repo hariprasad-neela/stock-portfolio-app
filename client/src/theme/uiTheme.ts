@@ -20,11 +20,14 @@ export const uiTheme = {
   displayValue: "text-3xl font-black tracking-tight mt-1",
   label: "text-[10px] font-bold uppercase tracking-[0.15em] text-gray-500 block mb-1",
   
-  // Table Styling (Clean & Sharp)
-  table: "w-full border-collapse bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-  tableHeader: "text-left text-[11px] font-black uppercase tracking-wider text-gray-400 p-4 border-b-2 border-black bg-gray-50",
-  tableCell: "p-4 border-b border-gray-200 font-medium text-sm",
-  
   // Buttons
-  btnPrimary: "bg-black text-white px-6 py-2 font-bold uppercase text-[10px] tracking-widest hover:bg-gray-800 transition-all shadow-[3px_3px_0px_0px_rgba(59,130,246,1)] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]"
+  btnPrimary: "bg-black text-white px-6 py-2 font-bold uppercase text-[10px] tracking-widest hover:bg-gray-800 transition-all shadow-[3px_3px_0px_0px_rgba(59,130,246,1)] active:shadow-none active:translate-x-[3px] active:translate-y-[3px]",
+
+  // Table styles (Clean & Sharp)
+  tableWrapper: "w-full overflow-hidden border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+  table: "w-full border-collapse text-left",
+  tableHeader: "bg-gray-50 border-b-2 border-black p-4 text-[10px] font-black uppercase tracking-[0.15em] text-gray-400",
+  tableRow: "border-b border-gray-200 hover:bg-blue-50/30 transition-colors cursor-pointer",
+  tableCell: "p-4 text-sm font-bold text-slate-900",
+  badge: "px-2 py-1 border border-black text-[9px] font-black uppercase rounded-sm shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
 };
