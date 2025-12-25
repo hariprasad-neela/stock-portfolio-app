@@ -1,67 +1,66 @@
 import React from 'react';
 import { uiTheme } from '../../theme/uiTheme';
-import { Lot } from '../../types'; // Importing the types we defined earlier
+import { OpenLot } from '../../types';
 
-interface InventoryTableProps {
-  lots: Lot[];
-  onSelectLot: (id: string) => void;
+interface Props {
+  lots: OpenLot[];
   selectedIds: string[];
+  onToggleLot: (id: string) => void;
 }
 
-export const InventoryTable: React.FC<InventoryTableProps> = ({ lots, onSelectLot, selectedIds }) => {
+export const InventoryTable: React.FC<Props> = ({ lots, selectedIds = [], onToggleLot }) => {
+console.log("Rendering InventoryTable with lots:", lots);
   return (
     <div className={uiTheme.tableWrapper}>
       <table className={uiTheme.table}>
         <thead>
-          <tr>
-            <th className={uiTheme.tableHeader + " w-12"}>
-              {/* Checkbox Header */}
-            </th>
-            <th className={uiTheme.tableHeader}>Ticker</th>
+          <tr className="bg-gray-50">
+            <th className={uiTheme.tableHeader + " w-12 text-center"}>Select</th>
+            <th className={uiTheme.tableHeader}>Transaction ID</th>
             <th className={uiTheme.tableHeader}>Date</th>
-            <th className={uiTheme.tableHeader}>Qty</th>
-            <th className={uiTheme.tableHeader}>Buy Price</th>
-            <th className={uiTheme.tableHeader}>Current Value</th>
-            <th className={uiTheme.tableHeader}>P&L</th>
-            <th className={uiTheme.tableHeader}>Status</th>
+            <th className={uiTheme.tableHeader + " text-right"}>Qty</th>
+            <th className={uiTheme.tableHeader + " text-right"}>Buy Price</th>
+            <th className={uiTheme.tableHeader + " text-right"}>Total Cost</th>
+            <th className={uiTheme.tableHeader + " text-center"}>Status</th>
           </tr>
         </thead>
         <tbody>
           {lots.map((lot) => {
             const isSelected = selectedIds.includes(lot.transaction_id);
-            const profit = (lot.price_per_unit * 1.05) - lot.price_per_unit; // Mock calculation
+            const totalCost = lot.open_quantity * lot.buy_price;
 
             return (
               <tr 
                 key={lot.transaction_id} 
-                className={`${uiTheme.tableRow} ${isSelected ? 'bg-yellow-50' : ''}`}
-                onClick={() => onSelectLot(lot.transaction_id)}
+                className={`${uiTheme.tableRow} ${isSelected ? 'bg-blue-50/50' : ''}`}
+                onClick={() => onToggleLot(lot.transaction_id)}
               >
-                <td className={uiTheme.tableCell}>
+                <td className="p-4 text-center">
                   <input 
                     type="checkbox" 
                     checked={isSelected}
-                    onChange={() => {}} // Controlled via row click
-                    className="w-4 h-4 accent-black border-2 border-black"
+                    readOnly
+                    className="w-4 h-4 border-2 border-black accent-black rounded-none"
                   />
                 </td>
                 <td className={uiTheme.tableCell}>
-                  <span className="bg-black text-white px-2 py-1 text-[10px]">
-                    {lot.stock_id.substring(0, 5)} {/* Mock Ticker */}
-                  </span>
+                  <code className="text-[10px] bg-gray-100 px-1 border border-gray-300">
+                    {lot.transaction_id.split('-')[0]}...
+                  </code>
                 </td>
-                <td className={uiTheme.tableCell}>
-                  {new Date(lot.transaction_date).toLocaleDateString()}
+                <td className={uiTheme.tableCell}>{lot.date}</td>
+                <td className={uiTheme.tableCell + " text-right font-black"}>
+                  {lot.open_quantity}
                 </td>
-                <td className={uiTheme.tableCell}>{lot.quantity}</td>
-                <td className={uiTheme.tableCell}>₹{lot.price_per_unit}</td>
-                <td className={uiTheme.tableCell}>₹{(lot.price_per_unit * 1.05).toFixed(2)}</td>
-                <td className={`${uiTheme.tableCell} ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {profit >= 0 ? '+' : ''}₹{profit.toFixed(2)}
+                <td className={uiTheme.tableCell + " text-right"}>
+                  ₹{lot.buy_price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </td>
-                <td className={uiTheme.tableCell}>
-                  <span className={`${uiTheme.badge} ${lot.is_open ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                    {lot.is_open ? 'Available' : 'Batched'}
+                <td className={uiTheme.tableCell + " text-right font-black"}>
+                  ₹{totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </td>
+                <td className={uiTheme.tableCell + " text-center"}>
+                  <span className={uiTheme.badge + " bg-white"}>
+                    Available
                   </span>
                 </td>
               </tr>
@@ -72,4 +71,5 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({ lots, onSelectLo
     </div>
   );
 };
+
 export default InventoryTable;

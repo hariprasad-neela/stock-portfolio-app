@@ -46,6 +46,7 @@ const StrategyDashboard = () => {
 
     return (
         <div className="space-y-8 max-w-6xl mx-auto px-4 py-8">
+            <InventoryTable lots={openLots} />
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between border-b border-slate-200 pb-8 gap-6">
                 <div className="space-y-1">

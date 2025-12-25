@@ -35,3 +35,12 @@ export interface BatchSelection {
   projectedProfit: number;
   projectedTotalValue: number;
 }
+
+export interface OpenLot {
+  transaction_id: string;
+  date: string;
+  open_quantity: number;
+  buy_price: number;
+  // We add these for UI state logic
+  current_price?: number; 
+}
