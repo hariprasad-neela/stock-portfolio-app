@@ -8,6 +8,7 @@ To ensure absolute clarity across the Database, Backend logic, and Frontend UI, 
 
 | Term | Scope | DB Mapping | Definition |
 | :--- | :--- | :--- | :--- |
+| **Portfolio** | Global | `portfolios` table | Portfolio. |
 | **Asset** | Global | `stocks` table | The underlying security/ticker (e.g., SILVERBEES). |
 | **Unit** | Strategy | `transactions.quantity` | A standardized portion of an asset, typically ₹5,000. |
 | **Lot** | Strategy | `transactions` row | A specific purchase record with its own cost basis. |
@@ -57,8 +58,9 @@ export const uiTheme = {
   card: "bg-white border-[3px] border-slate-900 rounded-[2.5rem] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]",
   button: "bg-slate-900 text-white rounded-2xl font-black px-6 py-3 uppercase"
 };
-
 ```
+### 3.4 Reference website for design
+https://brutalism.tailwinddashboard.com/index.html
 
 ---
 

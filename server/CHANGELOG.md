@@ -55,3 +55,58 @@ To freeze your progress correctly, you should place this content into a `CHANGEL
 * **Responsive Grid**: Fixed the Portfolio Overview layout using Tailwind CSS Grid to ensure cards are uniform and responsive.
 * **Data Guarding**: Added loading and empty-state checks to the Overview page to prevent blank screen crashes when data is unavailable.
 
+---
+
+## [2.0.0] - 2025-12-24
+
+### "Soundness & Stability" Phase
+
+### 🏗️ Backend & Database Integrity
+
+* **UUID Mapping Correction**: Fixed parameter mismatch in `addTransaction` and `updateTransaction` to properly cast `profile_id` as UUID, resolving "invalid input syntax" database crashes.
+* **Portfolio Aggregation Logic**: Refactored SQL queries to use `SUM()` and `GROUP BY`, consolidating individual buy lots into single summary cards per ticker.
+* **Specific Identification Prep**: Implemented support for individual transaction targeting to facilitate future "Selective Batching" strategy.
+* **Data Consistency**: Standardized numeric types for `price` and `quantity` to prevent floating-point rounding errors during profit calculations.
+
+### 🖥️ Frontend & State Management
+
+* **Edit Modal Price Fix**: Resolved the "Blank Price" bug in the `TransactionForm` by implementing `parseFloat` casting within the `useEffect` hook to ensure numeric strings populate correctly.
+* **Router Context Resolution**: Wrapped the application root in `BrowserRouter` to fix `basename` null errors and enable dynamic routing.
+* **State-Driven Dashboard**: Migrated ticker selection from URL params to local React state, improving navigation speed and resolving "Error 31" crashes.
+* **Redux Thunk Hardening**: Standardized API response handling in Redux slices to manage loading and error states gracefully.
+
+### 🎨 UI & Design Recovery
+
+* **Neobrutalist Design Restoration**: Re-applied high-contrast borders (`border-3`), thick shadows, and the primary color palette across all card and modal components.
+* **Layout Stability**: Fixed the CSS Grid for the Portfolio Overview to ensure card uniformity across various screen sizes.
+* **Empty State Handling**: Added "Data Guards" to prevent application crashes when the database returns an empty transaction history.
+
+---
+
+## [1.0.0] - Initial Prototype
+
+* Initial project setup with React and Node.js.
+
+* Basic CRUD operations for stock transactions.
+* PostgreSQL schema initialization for stocks and transactions.
+
+---
+
+### 💾 Next Steps to "Freeze"
+
+To ensure this is properly archived before moving to Version 3, follow these terminal commands:
+
+1. **Save the file**: Create/Update `CHANGELOG.md` with the content above.
+2. **Commit the logs**:
+```bash
+git add CHANGELOG.md
+git commit -m "docs: finalize v2.0.0 changelog"
+
+```
+
+
+3. **Branch for Version 3**:
+```bash
+git checkout -b v3-development
+
+```

@@ -2,7 +2,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { setView, VIEWS, openModal } from '../store/slices/uiSlice';
 
-const Navbar = () => {
+const NavbarOld = () => {
   const dispatch = useDispatch();
   const currentView = useSelector(state => state.ui.currentView);
 
@@ -41,4 +41,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar
+export default NavbarOld
