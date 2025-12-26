@@ -7,6 +7,7 @@ import InventoryTable from '../features/inventory/InventoryTable';
 import BatchBuilder from '../features/inventory/BatchBuilder';
 import { executeBatchCreation } from '../features/inventory/batchService';
 import { OpenLot } from '../types';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 const StrategyDashboard = () => {
     const dispatch = useDispatch();
@@ -103,23 +104,25 @@ const StrategyDashboard = () => {
     const refreshPrices = async () => {
         if (!lots || lots.length === 0) return;
 
-        // Extract unique tickers and filter out any potential undefined values
-        const uniqueTickers = [...new Set(lots.map(l => l.ticker))].filter(Boolean);
-
-        if (uniqueTickers.length === 0) return;
-
-        const symbolString = uniqueTickers.map(t => `NSE:${t}`).join(',');
+        const symbolString = lots.map(l => `NSE:${l.ticker}`).join(',');
 
         try {
-            const res = await fetch(`/api/market/quotes?symbols=${symbolString}`);
+            // 2. Use the absolute URL for the fetch
+            const res = await fetch(`${API_BASE_URL}/api/market/quotes?symbols=${symbolString}`);
+
+            if (res.status === 404) {
+                console.error("Route not found on server. Check backend route registration.");
+                return;
+            }
+
             const data = await res.json();
             setLivePrices(data);
         } catch (err) {
-            console.error("Zerodha Refresh Error:", err);
+            console.error("Fetch Error:", err);
         }
     };
 
-    // Use effect to poll every 5 seconds
+    // Use effect to poll every 50 seconds
     useEffect(() => {
         const interval = setInterval(refreshPrices, 50000);
         return () => clearInterval(interval);

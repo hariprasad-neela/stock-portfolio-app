@@ -6,6 +6,7 @@ import pool from './db.js';
 import transactionRoutes from './transactionRoutes.js'; // <-- 1. Import the router
 import strategyRoutes from './strategyRoutes.js';
 import batchRoutes from './routes/batchRoutes.js';
+import marketRoutes from './routes/marketRoutes.js';
 // import dataRoutes from './dataRoutes.js';
 
 const app = express();
@@ -40,6 +41,7 @@ app.use(express.json());
 app.use('/api/transactions', transactionRoutes); 
 app.use('/api/strategy', strategyRoutes);
 app.use('/api/batches', batchRoutes);
+app.use('/api/market', marketRoutes);
 // app.use('/api/data', dataRoutes);
 
 // -----------------------------------------------------------------
