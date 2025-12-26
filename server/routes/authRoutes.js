@@ -3,6 +3,9 @@ import { kite, setKiteAccessToken } from '../services/zerodhaService.js';
 
 const router = express.Router();
 
+// This becomes: GET /api/auth/zerodha-url
+router.get('/zerodha-url', getZerodhaLoginUrl);
+
 // Route 1: Trigger Login
 router.get('/zerodha-login', (req, res) => {
     const url = kite.getLoginURL();
