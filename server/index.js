@@ -17,19 +17,11 @@ const allowedOrigins = [
     process.env.FRONTEND_URL // Will be added for production (Vercel URL)
 ];
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow if origin is in the list or if the origin is undefined (e.g., direct API request)
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      // NOTE: Temporarily allowing all origins to avoid CORS issues during Render troubleshooting.
-      // In production, tighten this up.
-      callback(null, true); // Temporarily allow all for testing
-    }
-  }
-};
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: 'https://stock-portfolio-app-kappa.vercel.app/', // Allow your Vercel URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // -----------------------------------------------------------------
