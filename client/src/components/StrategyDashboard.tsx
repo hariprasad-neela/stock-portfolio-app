@@ -1,10 +1,11 @@
 // client/src/StrategyDashboard.jsx
 import { useSelector, useDispatch } from 'react-redux';
 import { setTicker, fetchOpenLots, updateMetrics } from '../store/slices/portfolioSlice';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import OpenInventoryTracker from '../OpenInventoryTracker';
 import InventoryTable from '../features/inventory/InventoryTable';
 import BatchBuilder from '../features/inventory/BatchBuilder';
+import { OpenLot } from '../types';
 
 const StrategyDashboard = () => {
     const dispatch = useDispatch();
