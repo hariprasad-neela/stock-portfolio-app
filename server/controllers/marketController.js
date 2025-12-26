@@ -1,22 +1,24 @@
 import { kite } from '../services/zerodhaService.js';
 
 export const getLivePrices = async (req, res) => {
-    const { symbols } = req.query; // e.g., "NSE:RELIANCE,NSE:TCS"
+    const { symbols } = req.query;
     
-    if (!symbols) return res.status(400).json({ error: "No symbols provided" });
+    // Check if kite instance has an access token
+    if (!kite.access_token) {
+        return res.status(401).json({ 
+            error: "Zerodha Disconnected", 
+            message: "Please login to Zerodha to resume live tracking." 
+        });
+    }
 
     try {
-        const instrumentList = symbols.split(',');
-        const quotes = await kite.getQuote(instrumentList);
-        
-        // Transform Zerodha's complex object into a simple { SYMBOL: PRICE } map
+        const quotes = await kite.getQuote(symbols.split(','));
         const priceMap = {};
         Object.keys(quotes).forEach(key => {
             priceMap[key] = quotes[key].last_price;
         });
-
         res.json(priceMap);
     } catch (err) {
-        res.status(500).json({ error: "Could not fetch live prices. Is Zerodha connected?" });
+        res.status(500).json({ error: "Kite API Error", detail: err.message });
     }
 };
