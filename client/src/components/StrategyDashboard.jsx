@@ -4,11 +4,48 @@ import { setTicker, fetchOpenLots, updateMetrics } from '../store/slices/portfol
 import React, { useEffect } from 'react';
 import OpenInventoryTracker from '../OpenInventoryTracker';
 import InventoryTable from '../features/inventory/InventoryTable';
+import BatchBuilder from '../features/inventory/BatchBuilder';
 
 const StrategyDashboard = () => {
     const dispatch = useDispatch();
     const { selectedTicker, openLots, loading, metrics } = useSelector((state) => state.portfolio);
     const { stocksList } = useSelector(state => state.portfolio);
+    // State for selected lots
+    const [selectedIds, setSelectedIds] = useState < string[] > ([]);
+    // Mock data - in real app, this comes from your Redux store or API
+    const [lots, setLots] = useState < OpenLot[] > ([
+        { transaction_id: '16e0bcdc-5605-4911-8e6d-298f22729321', date: '24/12/2025', open_quantity: 24, buy_price: 209.13 }
+    ]);
+    // Handler to toggle selection
+    const handleToggle = (id: string) => {
+        setSelectedIds(prev =>
+            prev.includes(id)
+                ? prev.filter(item => item !== id)
+                : [...prev, id]
+        );
+    };
+    // 3. Handler to execute the Strategy
+    const handleCreateBatch = async () => {
+        if (selectedIds.length === 0) return;
+
+        const batchData = {
+            batch_name: `Batch_${new Date().getTime()}`,
+            transaction_ids: selectedIds,
+            // portfolio_id will come from your global state/context
+        };
+
+        try {
+            console.log("Executing Selective Batch for:", batchData);
+
+            // TODO: Replace with your actual API call
+            // await api.post('/batches', batchData);
+
+            alert(`Success! Created batch with ${selectedIds.length} lots.`);
+            setSelectedIds([]); // Clear selection after success
+        } catch (error) {
+            console.error("Batch creation failed", error);
+        }
+    };
 
     useEffect(() => {
         dispatch(fetchOpenLots(selectedTicker));
@@ -44,9 +81,28 @@ const StrategyDashboard = () => {
 
     if (loading) return <div className="animate-pulse">Loading holdings...</div>;
 
+
     return (
         <div className="space-y-8 max-w-6xl mx-auto px-4 py-8">
-            <InventoryTable lots={openLots} />
+            <div className="grid grid-cols-12 gap-8">
+                {/* Table takes up 9 columns */}
+                <div className="col-span-12 lg:col-span-9">
+                    <InventoryTable
+                        lots={lots}
+                        selectedIds={selectedIds}
+                        onToggleLot={handleToggle}
+                    />
+                </div>
+
+                {/* Sidebar takes up 3 columns */}
+                <div className="col-span-12 lg:col-span-3">
+                    <BatchBuilder
+                        selectedLots={lots.filter(l => selectedIds.includes(l.transaction_id))}
+                        onClear={() => setSelectedIds([])}
+                        onCreateBatch={handleCreateBatch}
+                    />
+                </div>
+            </div>
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between border-b border-slate-200 pb-8 gap-6">
                 <div className="space-y-1">

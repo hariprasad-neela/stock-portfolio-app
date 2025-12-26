@@ -29,5 +29,13 @@ export const uiTheme = {
   tableHeader: "bg-gray-50 border-b-2 border-black p-4 text-[10px] font-black uppercase tracking-[0.15em] text-gray-400",
   tableRow: "border-b border-gray-200 hover:bg-blue-50/30 transition-colors cursor-pointer",
   tableCell: "p-4 text-sm font-bold text-slate-900",
-  badge: "px-2 py-1 border border-black text-[9px] font-black uppercase rounded-sm shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
+  badge: "px-2 py-1 border border-black text-[9px] font-black uppercase rounded-sm shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]",
+
+//Sidar styles
+sidebar: "bg-white border-2 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] sticky top-24 h-fit",
+  metricBox: "bg-gray-50 border border-black p-3 mb-4",
+  metricValue: "text-xl font-black tracking-tight leading-none",
+  metricLabel: "text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1 block",
+  divider: "border-t-2 border-black border-dashed my-4"
+    
 };
