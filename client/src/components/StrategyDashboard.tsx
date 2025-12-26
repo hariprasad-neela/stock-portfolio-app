@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import OpenInventoryTracker from '../OpenInventoryTracker';
 import InventoryTable from '../features/inventory/InventoryTable';
 import BatchBuilder from '../features/inventory/BatchBuilder';
+import { executeBatchCreation } from '../features/inventory/batchService';
 import { OpenLot } from '../types';
 
 const StrategyDashboard = () => {
@@ -13,10 +14,14 @@ const StrategyDashboard = () => {
     const { stocksList } = useSelector(state => state.portfolio);
     // State for selected lots
     const [selectedIds, setSelectedIds] = useState < string[] > ([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    // Assuming you have your portfolio ID (hardcoded for now or from Auth)
+    const portfolioId = "your-portfolio-uuid-here";
     // Mock data - in real app, this comes from your Redux store or API
     const [lots, setLots] = useState < OpenLot[] > ([
         { transaction_id: '16e0bcdc-5605-4911-8e6d-298f22729321', date: '24/12/2025', open_quantity: 24, buy_price: 209.13 }
     ]);
+    const [livePrices, setLivePrices] = useState<Record<string, number>>({});
     // Handler to toggle selection
     const handleToggle = (id: string) => {
         setSelectedIds(prev =>
@@ -79,6 +84,21 @@ const StrategyDashboard = () => {
             }));
         }
     }, [openLots, dispatch]);
+
+// Function to update prices from our new API
+const refreshPrices = async () => {
+    // Get unique tickers from your lots
+    const tickers = [...new Set(lots.map(l => `NSE:${l.ticker}`))].join(',');
+    const res = await fetch(`/api/market/quotes?symbols=${tickers}`);
+    const data = await res.json();
+    setLivePrices(data);
+};
+
+// Use effect to poll every 5 seconds
+useEffect(() => {
+    const interval = setInterval(fetchPrices, 5000);
+    return () => clearInterval(interval);
+}, []);
 
     if (loading) return <div className="animate-pulse">Loading holdings...</div>;
 

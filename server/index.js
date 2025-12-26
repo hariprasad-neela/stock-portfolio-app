@@ -5,6 +5,7 @@ import cors from 'cors';
 import pool from './db.js';
 import transactionRoutes from './transactionRoutes.js'; // <-- 1. Import the router
 import strategyRoutes from './strategyRoutes.js';
+import batchRoutes from './routes/batchRoutes.js';
 // import dataRoutes from './dataRoutes.js';
 
 const app = express();
@@ -35,6 +36,7 @@ app.use(express.json());
 // 2. Use the Transaction Router
 app.use('/api/transactions', transactionRoutes); 
 app.use('/api/strategy', strategyRoutes);
+app.use('/api/batches', batchRoutes);
 // app.use('/api/data', dataRoutes);
 
 // -----------------------------------------------------------------
