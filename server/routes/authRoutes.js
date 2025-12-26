@@ -1,5 +1,6 @@
 import express from 'express';
 import { kite, setKiteAccessToken } from '../services/zerodhaService.js';
+import { getZerodhaLoginUrl, handleZerodhaCallback } from '../controllers/authController.js';
 
 const router = express.Router();
 
@@ -11,6 +12,9 @@ router.get('/zerodha-login', (req, res) => {
     const url = kite.getLoginURL();
     res.json({ url }); // Send URL to frontend
 });
+
+// This becomes: GET /api/auth/callback
+router.get('/callback', handleZerodhaCallback);
 
 // Route 2: The Callback (Zerodha redirects here)
 router.get('/zerodha/callback', async (req, res) => {
