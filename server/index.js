@@ -7,6 +7,7 @@ import transactionRoutes from './transactionRoutes.js'; // <-- 1. Import the rou
 import strategyRoutes from './strategyRoutes.js';
 import batchRoutes from './routes/batchRoutes.js';
 import marketRoutes from './routes/marketRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 // import dataRoutes from './dataRoutes.js';
 
 const app = express();
@@ -43,6 +44,14 @@ app.use('/api/strategy', strategyRoutes);
 app.use('/api/batches', batchRoutes);
 app.use('/api/market', marketRoutes);
 // app.use('/api/data', dataRoutes);
+
+
+// Mount the auth routes
+// If you mount it like this, the full URL will be /api/auth/...
+app.use('/api/auth', authRoutes); 
+
+// For debugging: Add a test route directly in index.js
+app.get('/api/test', (req, res) => res.json({ message: "Backend is reachable!" }));
 
 // -----------------------------------------------------------------
 
