@@ -15,7 +15,7 @@ const App = () => {
         <Route path="/" element={<MainLayout />}>
           
           {/* Default view: Live Tracker (formerly strategyDashboard) */}
-          <index element={<LiveTrackerPage />} />
+          <Route index element={<LiveTrackerPage />} />
           
           {/* Inventory Workbench */}
           <Route path="inventory" element={<InventoryPage />} />
