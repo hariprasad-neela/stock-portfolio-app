@@ -1,38 +1,28 @@
-import React from 'react';
-
-interface LotProps {
-  lot: {
-    id: number;
-    buy_price: number;
-    quantity: number;
-    buy_date: string;
-  }
-}
-
-export const LotSelectorCard = ({ lot }: LotProps) => {
-  const costBasis = (lot.buy_price * lot.quantity).toFixed(2);
+export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }) => {
+  const cost = lot.buy_price * lot.quantity;
+  const currentVal = cmp * lot.quantity;
+  const pnlPct = ((currentVal - cost) / cost) * 100;
 
   return (
-    <div className="group bg-white border-2 border-black p-4 flex justify-between items-center hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-      <div className="flex items-center gap-6">
-        <input 
-          type="checkbox" 
-          className="w-6 h-6 border-4 border-black cursor-pointer accent-black"
-        />
+    <div 
+      onClick={onToggle}
+      className={`cursor-pointer border-2 border-black p-4 flex justify-between items-center transition-all ${isSelected ? 'bg-yellow-50 translate-x-1 shadow-none' : 'bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}`}
+    >
+      <div className="flex items-center gap-4">
+        <div className={`w-6 h-6 border-2 border-black flex items-center justify-center ${isSelected ? 'bg-black' : 'bg-white'}`}>
+          {isSelected && <span className="text-white text-xs">✓</span>}
+        </div>
         <div>
-          <p className="text-[10px] font-black text-gray-400 uppercase leading-none">Buy Date</p>
-          <p className="font-bold">{new Date(lot.buy_date).toLocaleDateString()}</p>
+          <p className="font-black text-lg">₹{cost.toFixed(0)}</p>
+          <p className="text-[10px] uppercase font-bold text-gray-500">{new Date(lot.buy_date).toLocaleDateString()}</p>
         </div>
       </div>
 
       <div className="text-right">
-        <p className="text-[10px] font-black text-gray-400 uppercase leading-none">Qty @ Price</p>
-        <p className="font-bold">{lot.quantity} <span className="text-gray-400">@</span> ₹{lot.buy_price}</p>
-      </div>
-
-      <div className="text-right">
-        <p className="text-[10px] font-black text-gray-400 uppercase leading-none">Lot Value</p>
-        <p className="text-xl font-black">₹{costBasis}</p>
+        <p className={`text-xl font-black ${pnlPct >= 3 ? 'text-green-600' : pnlPct > 0 ? 'text-black' : 'text-red-600'}`}>
+          {pnlPct.toFixed(2)}%
+        </p>
+        <p className="text-[10px] uppercase font-bold text-gray-400">Individual P&L</p>
       </div>
     </div>
   );

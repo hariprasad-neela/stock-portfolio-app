@@ -25,7 +25,7 @@ To ensure absolute clarity across the Database, Backend logic, and Frontend UI, 
 - **Frontend:** React (Vite) on Vercel.
 - **Backend:** Node.js (Express) on Render.
 - **Database:** PostgreSQL on Render (with `app_config` for session persistence).
-- **Core Strategy:** Selective Batching (Grouping transactions into ₹5,000 units).
+- **Core Strategy:** Selective Batching (Grouping transactions into to sell at 3% profit).
 
 ### 3.1 Folder Structure (Domain-Driven)
 The project is organized by **Feature Domains** to ensure high maintainability and professional scalability.
@@ -71,7 +71,11 @@ https://brutalism.tailwinddashboard.com/index.html
 
 ---
 
-## 4. Trading Strategy Logic
+## 4. Trading Strategy Logic (v3.0)
+- **Unit Size:** Target cost basis per lot is ~₹5,000.
+- **Sell Trigger:** A "Batch" (selection of lots) is eligible for exit only when the aggregate profit exceeds **3.0%**.
+- **Visual Feedback:** - Individual P&L color-coded per lot.
+  - Sidebar Summary background shifts to `bg-green-400` when the 3% threshold is crossed.
 
 ### 4.1 Selective Batching Workflow
 
