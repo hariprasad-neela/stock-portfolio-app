@@ -1,221 +1,105 @@
-// client/src/StrategyDashboard.jsx
-import { useSelector, useDispatch } from 'react-redux';
-import { setTicker, fetchOpenLots, updateMetrics } from '../store/slices/portfolioSlice';
-import React, { useEffect, useState } from 'react';
-import OpenInventoryTracker from '../OpenInventoryTracker';
-import InventoryTable from '../features/inventory/InventoryTable';
-import BatchBuilder from '../features/inventory/BatchBuilder';
-import { executeBatchCreation } from '../features/inventory/batchService';
-import { OpenLot } from '../types';
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
-import { ZerodhaManager } from '../features/market/ZerodhaManager';
+import React, { useState, useEffect } from 'react';
+
+interface PortfolioSummary {
+  ticker: string;
+  total_qty: number;
+  avg_price: number;
+  total_cost: number;
+}
 
 export const LiveTrackerPage = () => {
-    const dispatch = useDispatch();
-    const { selectedTicker, openLots, loading, metrics } = useSelector((state) => state.portfolio);
-    const { stocksList } = useSelector(state => state.portfolio);
-    // State for selected lots
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    // Assuming you have your portfolio ID (hardcoded for now or from Auth)
-    const portfolioId = "your-portfolio-uuid-here";
-    // Mock data - in real app, this comes from your Redux store or API
-    // Update your mock data to include tickers
-    const [lots, setLots] = useState<OpenLot[]>([
-        {
-            transaction_id: '16e0bcdc-5605-4911-8e6d-298f22729321',
-            date: '24/12/2025',
-            ticker: 'TCS',          // Added
-            open_quantity: 24,
-            buy_price: 209.13
-        },
-        {
-            transaction_id: '82f1aabc-1234-5678-9e0f-123f44556677',
-            date: '25/12/2025',
-            ticker: 'INFY',         // Added
-            open_quantity: 10,
-            buy_price: 1850.50
+  const [portfolio, setPortfolio] = useState<PortfolioSummary[]>([]);
+  const [livePrices, setLivePrices] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+
+  useEffect(() => {
+    const loadFullPortfolio = async () => {
+      try {
+        // 1. Get consolidated transactions
+        const res = await fetch(`${API_BASE}/api/strategy/consolidated`);
+        const data = await res.json();
+        setPortfolio(data);
+
+        // 2. Fetch Live Prices for all tickers in the portfolio
+        if (data.length > 0) {
+          const symbols = data.map((item: any) => `NSE:${item.ticker}`).join(',');
+          const priceRes = await fetch(`${API_BASE}/api/market/quotes?symbols=${symbols}`);
+          const priceData = await priceRes.json();
+          setLivePrices(priceData);
         }
-    ]);
-    const [livePrices, setLivePrices] = useState<Record<string, number>>({});
-    // Handler to toggle selection
-    const handleToggle = (id: string) => {
-        setSelectedIds(prev =>
-            prev.includes(id)
-                ? prev.filter(item => item !== id)
-                : [...prev, id]
-        );
-    };
-    // 3. Handler to execute the Strategy
-    const handleCreateBatch = async () => {
-        if (selectedIds.length === 0) return;
-
-        const batchData = {
-            batch_name: `Batch_${new Date().getTime()}`,
-            transaction_ids: selectedIds,
-            // portfolio_id will come from your global state/context
-        };
-
-        try {
-            console.log("Executing Selective Batch for:", batchData);
-
-            // TODO: Replace with your actual API call
-            // await api.post('/batches', batchData);
-
-            alert(`Success! Created batch with ${selectedIds.length} lots.`);
-            setSelectedIds([]); // Clear selection after success
-        } catch (error) {
-            console.error("Batch creation failed", error);
-        }
+      } catch (err) {
+        console.error("Portfolio Load Failed", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    useEffect(() => {
-        dispatch(fetchOpenLots(selectedTicker));
-    }, [selectedTicker, dispatch]);
+    loadFullPortfolio();
+  }, [API_BASE]);
 
-    const handleTickerChange = (e) => {
-        dispatch(setTicker(e.target.value));
-    };
+  const totalPortfolioCost = portfolio.reduce((sum, item) => sum + Number(item.total_cost), 0);
+  const totalCurrentValue = portfolio.reduce((sum, item) => {
+    const price = livePrices[`NSE:${item.ticker}`] || Number(item.avg_price);
+    return sum + (price * Number(item.total_qty));
+  }, 0);
 
-    useEffect(() => {
-        if (selectedTicker) {
-            // This one line replaces your entire fetchData function
-            dispatch(fetchOpenLots(selectedTicker));
-        }
-    }, [selectedTicker, dispatch]);
+  const totalPnL = totalCurrentValue - totalPortfolioCost;
+  const totalPnLPct = (totalPnL / totalPortfolioCost) * 100;
 
-    // Replace the old calculation useEffect with one that dispatches to Redux
-    useEffect(() => {
-        if (openLots.length > 0) {
-            const totalUnits = openLots.reduce((sum, lot) => sum + parseFloat(lot.open_quantity), 0);
-            const totalCapital = openLots.reduce((sum, lot) =>
-                sum + (parseFloat(lot.open_quantity) * parseFloat(lot.buy_price)), 0);
-            const avgPrice = totalUnits > 0 ? totalCapital / totalUnits : 0;
-
-            // Update Redux Store
-            dispatch(updateMetrics({
-                units: totalUnits,
-                capital: totalCapital,
-                abp: avgPrice
-            }));
-        }
-    }, [openLots, dispatch]);
-
-    // Function to update prices from our new API
-    const refreshPrices = async () => {
-        if (!lots || lots.length === 0) return;
-
-        const symbolString = lots.map(l => `NSE:${l.ticker}`).join(',');
-
-        try {
-            // 2. Use the absolute URL for the fetch
-            const res = await fetch(`${API_BASE_URL}/api/market/quotes?symbols=${symbolString}`);
-
-            if (res.status === 404) {
-                console.error("Route not found on server. Check backend route registration.");
-                return;
-            }
-
-            const data = await res.json();
-            setLivePrices(data);
-        } catch (err) {
-            console.error("Fetch Error:", err);
-        }
-    };
-
-    // Use effect to poll every 50 seconds
-    useEffect(() => {
-        const interval = setInterval(refreshPrices, 50000);
-        return () => clearInterval(interval);
-    }, []);
-
-    if (loading) return <div className="animate-pulse">Loading holdings...</div>;
-
-
-    return (
-        <div className="space-y-8 max-w-6xl mx-auto px-4 py-8">
-            <div className="grid grid-cols-12 gap-8">
-                <ZerodhaManager />
-                {/* Table takes up 9 columns */}
-                <div className="col-span-12 lg:col-span-9">
-                    <InventoryTable
-                        lots={lots}
-                        selectedIds={selectedIds}
-                        onToggleLot={handleToggle}
-                    />
-                </div>
-
-                {/* Sidebar takes up 3 columns */}
-                <div className="col-span-12 lg:col-span-3">
-                    <BatchBuilder
-                        selectedLots={lots.filter(l => selectedIds.includes(l.transaction_id))}
-                        onClear={() => setSelectedIds([])}
-                        onCreateBatch={handleCreateBatch}
-                    />
-                </div>
-            </div>
-            {/* Header Section */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between border-b border-slate-200 pb-8 gap-6">
-                <div className="space-y-1">
-                    <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight text-center lg:text-left">
-                        Strategy Dashboard
-                    </h2>
-                    <p className="text-slate-500 font-medium text-center lg:text-left">
-                        Monitoring {selectedTicker} performance
-                    </p>
-                </div>
-
-                {/* Responsive Ticker Selector */}
-                <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-full lg:w-auto">
-                    <div className="p-8">
-                        <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6">
-                            Quick Access
-                        </h2>
-                        <div className="flex items-center gap-4">
-                            <label className="font-black uppercase text-xs text-slate-400">Select Asset:</label>
-                            <select
-                                value={selectedTicker}
-                                onChange={handleTickerChange}
-                                className="bg-white border-2 border-slate-900 rounded-xl px-4 py-2 font-bold focus:ring-2 ring-blue-500 outline-none"
-                            >
-                                {stocksList.map(stock => (
-                                    <option key={stock.stock_id} value={stock.ticker}>
-                                        {stock.ticker}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Metrics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatCard label="Units Held" value={metrics.units.toFixed(2)} detail="Quantity" />
-                <StatCard label="Avg. Price" value={`₹${metrics.abp.toFixed(2)}`} detail="Cost Basis" highlight />
-                <StatCard label="Investment" value={`₹${metrics.capital.toLocaleString('en-IN')}`} detail="Capital Deployed" />
-            </div>
-
-            {/* Inventory Table Container */}
-            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <div className="px-8 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Active Inventory Lots</h3>
-                    {loading && <span className="text-xs text-blue-500 animate-pulse font-bold">Refreshing...</span>}
-                </div>
-                {/* PASSING DATA TO TABLE HERE */}
-                <OpenInventoryTracker
-                    ticker={selectedTicker}
-                    openLots={openLots}
-                />
-            </div>
+  return (
+    <div className="space-y-8">
+      {/* GLOBAL PORTFOLIO BAR */}
+      <section className="bg-black text-white p-8 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center">
+        <div>
+          <p className="text-xs font-black uppercase text-gray-400">Total Invested Value</p>
+          <p className="text-4xl font-black">₹{totalPortfolioCost.toLocaleString('en-IN')}</p>
         </div>
-    );
-};
+        <div className="text-right">
+          <p className="text-xs font-black uppercase text-gray-400">Current P&L</p>
+          <p className={`text-4xl font-black ${totalPnL >= 0 ? 'text-green-400' : 'text-red-500'}`}>
+            {totalPnL >= 0 ? '+' : ''}{totalPnLPct.toFixed(2)}%
+          </p>
+          <p className="font-bold">₹{totalPnL.toLocaleString('en-IN')}</p>
+        </div>
+      </section>
 
-const StatCard = ({ label, value, detail, highlight }) => (
-    <div className={`p-8 rounded-3xl border transition-all ${highlight ? 'bg-blue-600 border-blue-500 shadow-lg shadow-blue-100' : 'bg-white border-slate-100 shadow-sm'}`}>
-        <p className={`text-[10px] font-bold uppercase tracking-[0.2em] mb-2 ${highlight ? 'text-blue-100' : 'text-slate-400'}`}>{label}</p>
-        <p className={`text-4xl font-black tracking-tighter ${highlight ? 'text-white' : 'text-slate-900'}`}>{value}</p>
-        <p className={`text-xs mt-2 font-medium ${highlight ? 'text-blue-200' : 'text-slate-400'}`}>{detail}</p>
+      {/* TICKER GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {portfolio.map((item) => {
+          const ltp = livePrices[`NSE:${item.ticker}`] || 0;
+          const pnl = ltp > 0 ? ((ltp - Number(item.avg_price)) / Number(item.avg_price)) * 100 : 0;
+
+          return (
+            <div key={item.ticker} className="bg-white border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-2xl font-black uppercase italic">{item.ticker}</h3>
+                <div className={`px-2 py-1 font-black text-xs ${pnl >= 3 ? 'bg-green-400' : 'bg-gray-100'}`}>
+                  {pnl >= 3 ? 'TARGET MET' : 'HOLDING'}
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm font-bold text-gray-500">
+                  <span>QTY: {item.total_qty}</span>
+                  <span>AVG: ₹{Number(item.avg_price).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-xs font-black text-gray-400 uppercase">Current Price</p>
+                    <p className="text-xl font-black">₹{ltp.toFixed(2)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-2xl font-black ${pnl >= 0 ? 'text-black' : 'text-red-600'}`}>
+                      {pnl.toFixed(2)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
-);
+  );
+};

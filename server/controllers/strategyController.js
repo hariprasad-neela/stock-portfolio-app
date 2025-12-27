@@ -32,3 +32,23 @@ export const getAllStocks = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getConsolidatedPortfolio = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                ticker, 
+                SUM(open_quantity) as total_qty,
+                SUM(open_quantity * buy_price) / SUM(open_quantity) as avg_price,
+                SUM(open_quantity * buy_price) as total_cost
+            FROM transactions
+            WHERE open_quantity > 0
+            GROUP BY ticker
+            ORDER BY total_cost DESC
+        `;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
