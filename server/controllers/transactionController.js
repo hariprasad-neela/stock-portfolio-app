@@ -248,3 +248,30 @@ export const getTransactions = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const saveTransaction = async (req, res) => {
+    const { ticker, quantity, price, date, type } = req.body;
+    
+    try {
+        // 1. Get the stock_id for the given ticker
+        const stockResult = await pool.query("SELECT id FROM stocks WHERE ticker = $1", [ticker]);
+        
+        if (stockResult.rows.length === 0) {
+            return res.status(400).json({ message: `Ticker ${ticker} not found in stocks table.` });
+        }
+        
+        const stock_id = stockResult.rows[0].id;
+
+        // 2. Insert the new transaction
+        const insertQuery = `
+            INSERT INTO transactions (stock_id, quantity, price, date, type, is_open, portfolio_id)
+            VALUES ($1, $2, $3, $4, $5, TRUE, 'your-default-portfolio-id')
+            RETURNING *
+        `;
+        
+        const result = await pool.query(insertQuery, [stock_id, quantity, price, date, type]);
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
