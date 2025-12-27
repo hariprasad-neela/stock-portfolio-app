@@ -1,4 +1,5 @@
 import { kite } from '../services/zerodhaService.js';
+import pool from '../db.js';
 
 export const getLivePrices = async (req, res) => {
     const { symbols } = req.query;
