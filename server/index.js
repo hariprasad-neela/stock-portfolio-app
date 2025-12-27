@@ -71,9 +71,7 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
-import { kite } from './services/zerodhaService.js';
-import pool from './db.js';
-
+// Restore Zerodha Session on Server Start
 const restoreZerodhaSession = async () => {
   try {
     const result = await pool.query("SELECT value FROM app_config WHERE key = 'zerodha_access_token'");
