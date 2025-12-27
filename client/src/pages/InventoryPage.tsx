@@ -87,13 +87,13 @@ export const InventoryPage = () => {
           ) : lots.length > 0 ? (
             lots.map(lot => (
               <LotSelectorCard 
-                key={lot.id} 
+                key={lot.transaction_id} 
                 lot={lot} 
                 cmp={cmp}
-                isSelected={selectedLotIds.includes(lot.id)}
+                isSelected={selectedLotIds.includes(lot.transaction_id)}
                 onToggle={() => {
                   setSelectedLotIds(prev => 
-                    prev.includes(lot.id) ? prev.filter(i => i !== lot.id) : [...prev, lot.id]
+                    prev.includes(lot.transaction_id) ? prev.filter(i => i !== lot.transaction_id) : [...prev, lot.transaction_id]
                   );
                 }}
               />
