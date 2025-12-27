@@ -1,4 +1,5 @@
 import { kite } from '../services/zerodhaService.js';
+import pool from '../db.js';
 
 export const getZerodhaLoginUrl = (req, res) => {
     try {
@@ -8,9 +9,6 @@ export const getZerodhaLoginUrl = (req, res) => {
         res.status(500).json({ error: "Failed to generate login URL" });
     }
 };
-
-import { kite } from '../services/zerodhaService.js';
-import pool from '../db.js';
 
 export const handleZerodhaCallback = async (req, res) => {
     const { request_token } = req.query;
