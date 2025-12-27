@@ -5,18 +5,17 @@ import { ZerodhaManager } from '../../features/market/ZerodhaManager';
 
 export const MainLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-50 font-mono text-black">
-      {/* GLOBAL NAVIGATION */}
+    <div className="min-h-screen bg-[#F4F4F4] font-mono text-black">
       <Navbar />
-
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* GLOBAL CONNECTION STATUS */}
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Global Zerodha Status: Visible on every page */}
         <ZerodhaManager />
-
-        {/* FEATURE-SPECIFIC CONTENT */}
-        <div className="mt-8">
+        
+        {/* This is where LiveTrackerPage, InventoryPage, etc. will render */}
+        <section className="mt-6">
           <Outlet />
-        </div>
+        </section>
       </main>
     </div>
   );

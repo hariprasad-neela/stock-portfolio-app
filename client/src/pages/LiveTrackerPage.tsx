@@ -10,7 +10,7 @@ import { OpenLot } from '../types';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 import { ZerodhaManager } from '../features/market/ZerodhaManager';
 
-const LiveTrackerPage = () => {
+export const LiveTrackerPage = () => {
     const dispatch = useDispatch();
     const { selectedTicker, openLots, loading, metrics } = useSelector((state) => state.portfolio);
     const { stocksList } = useSelector(state => state.portfolio);
@@ -219,5 +219,3 @@ const StatCard = ({ label, value, detail, highlight }) => (
         <p className={`text-xs mt-2 font-medium ${highlight ? 'text-blue-200' : 'text-slate-400'}`}>{detail}</p>
     </div>
 );
-
-export default LiveTrackerPage;

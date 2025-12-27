@@ -1,4 +1,7 @@
-# DESIGN_DOC.md: Stock Portfolio & Strategy Tracker (v3)
+# Design Document: Stock Portfolio App v3.0
+
+**Project URL:** https://stock-portfolio-app-kappa.vercel.app  
+**API URL:** https://stock-portfolio-api-f38f.onrender.com
 
 ## 1. Executive Summary
 This application is a production-grade portfolio management system designed to track and execute a **Selective Batching Strategy**. It treats every investment as a unique ₹5,000 **Lot** and allows for the strategic grouping of these lots into **Batches** to achieve net-profit targets, even when individual lots within the batch are currently at a loss.
@@ -19,6 +22,10 @@ To ensure absolute clarity across the Database, Backend logic, and Frontend UI, 
 ---
 
 ## 3. Architecture & Standards
+- **Frontend:** React (Vite) on Vercel.
+- **Backend:** Node.js (Express) on Render.
+- **Database:** PostgreSQL on Render (with `app_config` for session persistence).
+- **Core Strategy:** Selective Batching (Grouping transactions into ₹5,000 units).
 
 ### 3.1 Folder Structure (Domain-Driven)
 The project is organized by **Feature Domains** to ensure high maintainability and professional scalability.
@@ -89,44 +96,21 @@ https://brutalism.tailwinddashboard.com/index.html
 
 ```
 
-**Project URL:** https://stock-portfolio-app-kappa.vercel.app  
-**API URL:** https://stock-portfolio-api-f38f.onrender.com
 
-## 1. System Architecture
-- **Frontend:** React (Vite) deployed on Vercel.
-- **Backend:** Node.js (Express) deployed on Render.
-- **Database:** PostgreSQL (Managed) on Render.
-- **External API:** Zerodha Kite Connect for live market data.
+## 2. API Endpoints
+- `GET /api/auth/zerodha-url`: Handshake initiation.
+- `GET /api/auth/callback`: Token exchange and DB storage.
+- `GET /api/market/status`: Checks if Zerodha session is valid.
+- `GET /api/market/quotes`: Live LTP feed.
+- `GET /api/strategy/open-inventory/:ticker`: Fetches ungrouped buy transactions.
+- `POST /api/batches/create-selective`: Commits selected lots as a new Batch.
 
-## 2. API Endpoints Reference
-
-### Authentication (Zerodha)
-- `GET /api/auth/zerodha-url`: Returns the OAuth URL to initiate the daily Zerodha session.
-- `GET /api/auth/callback`: Handles the redirect from Zerodha, exchanges tokens, and persists the session.
-
-### Market Data
-- `GET /api/market/status`: Checks if the server currently has a valid, active Zerodha `access_token`.
-- `GET /api/market/quotes?symbols=...`: Returns live Last Traded Price (LTP) for provided NSE symbols.
-
-### Inventory & Strategy
-- `GET /api/strategy/open-inventory/:ticker`: Fetches individual open buy lots for a specific stock/ETF.
-- `POST /api/batches/create-selective`: Groups specific lots into a "Batch" (target unit ₹5,000) for P&L tracking.
-
-## 3. Frontend Component Structure (v3.1 - Refactored)
-
-### `/src/components/common`
-- `MainLayout.tsx`: The master shell providing a consistent frame across all views.
-- `Navbar.tsx`: High-contrast navigation links: [Tracker, Inventory, History].
-
-### `/src/pages` (Feature Parents)
-- `LiveTrackerPage.tsx`: (Formerly `strategyDashboard`) Focuses on active session health and current portfolio P&L.
-- `InventoryPage.tsx`: The "Workbench" where users select individual `OpenLot` records to construct new batches.
-- `HistoryPage.tsx`: Data-dense view of completed cycles and historical performance.
-
-### `/src/features/inventory`
-- `BatchBuilder.tsx`: Logic engine to filter transactions and calculate cumulative cost for selection.
-- `LotSelectorCard.tsx`: A "Brutalist" card component representing a single buy transaction.
-- `BatchTable.tsx`: Displays active batches with LTP-based market valuation.
+## 3. Frontend Component Hierarchy
+- `App.tsx`: Router configuration using `BrowserRouter`.
+- `MainLayout.tsx`: Master frame containing `Navbar` and `ZerodhaManager`.
+- `LiveTrackerPage.tsx`: Real-time P&L monitoring.
+- `InventoryPage.tsx`: Workbench for batch construction.
+- `HistoryPage.tsx`: Archive of realized gains and historical trades.
 
 
 ## 4. Data Persistence (PostgreSQL)
