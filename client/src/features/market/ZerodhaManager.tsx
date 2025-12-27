@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
 
 export const ZerodhaManager = () => {
-    const [isConnected, setIsConnected] = useState(false);
     const API_BASE = import.meta.env.VITE_API_URL || '';
 
-    const checkStatus = async () => {
-        try {
-            const res = await fetch(`${API_BASE}/api/market/quotes?symbols=NSE:SILVERBEES`);
-            if (res.ok) setIsConnected(true);
-            else setIsConnected(false);
-        } catch {
-            setIsConnected(false);
+const [status, setStatus] = useState('checking');
+
+useEffect(() => {
+    const verifyConnection = async () => {
+        const response = await fetch(`${API_BASE}/api/market/status`);
+        const data = await response.json();
+        
+        if (data.status === 'active') {
+            setStatus('connected');
+        } else {
+            setStatus('offline');
         }
     };
-
-    useEffect(() => {
-        checkStatus();
-    }, []);
+    verifyConnection();
+}, []);
 
     const handleLogin = async () => {
         try {

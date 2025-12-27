@@ -22,3 +22,19 @@ export const getLivePrices = async (req, res) => {
         res.status(500).json({ error: "Kite API Error", detail: err.message });
     }
 };
+
+export const checkZerodhaStatus = async (req, res) => {
+    try {
+        // If there's no token at all, it's definitely disconnected
+        if (!kite.access_token) {
+            return res.json({ status: 'disconnected' });
+        }
+
+        // Test the token with a lightweight call
+        await kite.getProfile(); 
+        res.json({ status: 'active' });
+    } catch (err) {
+        // If Kite returns a TokenException, the session is expired
+        res.json({ status: 'disconnected', reason: 'Session expired' });
+    }
+};
