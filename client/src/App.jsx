@@ -1,7 +1,7 @@
 // client/src/App.jsx
 import { useSelector, useDispatch } from 'react-redux';
 import TransactionForm from './components/TransactionForm';
-import StrategyDashboard from './components/StrategyDashboard';
+import LiveTrackerPage from './pages/LiveTrackerPage';
 import { VIEWS, closeModal } from './store/slices/uiSlice';
 import NavbarOld from './components/NavbarOld';
 import LedgerPage from './components/LedgerPage'; // The new component!
@@ -29,7 +29,7 @@ const App = () => {
           <NavbarOld />
 
           <main className="max-w-7xl mx-auto">
-            {currentView === VIEWS.DASHBOARD && <StrategyDashboard />}
+            {currentView === VIEWS.DASHBOARD && <LiveTrackerPage />}
             {currentView === VIEWS.LEDGER && <LedgerPage />}
             {currentView === VIEWS.OVERVIEW && <PortfolioOverview />}
           </main>

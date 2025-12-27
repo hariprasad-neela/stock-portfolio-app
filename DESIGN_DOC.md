@@ -112,22 +112,21 @@ https://brutalism.tailwinddashboard.com/index.html
 - `GET /api/strategy/open-inventory/:ticker`: Fetches individual open buy lots for a specific stock/ETF.
 - `POST /api/batches/create-selective`: Groups specific lots into a "Batch" (target unit ₹5,000) for P&L tracking.
 
-## 3. Frontend Component Structure
-## 3. Frontend Component Structure (Modular Layout)
+## 3. Frontend Component Structure (v3.1 - Refactored)
 
 ### `/src/components/common`
-- `MainLayout.tsx`: The master wrapper. Contains the Navbar and the Global Zerodha Status bar.
-- `Navbar.tsx`: Brutalist navigation with active-state tracking for different features.
+- `MainLayout.tsx`: The master shell providing a consistent frame across all views.
+- `Navbar.tsx`: High-contrast navigation links: [Tracker, Inventory, History].
 
 ### `/src/pages` (Feature Parents)
-- `StrategyDashboard.tsx`: Parent for real-time tracking and batch P&L.
-- `InventoryPage.tsx`: Parent for Lot Selection and ₹5,000 unit construction.
-- `HistoryPage.tsx`: Parent for closed batches and performance analytics.
+- `LiveTrackerPage.tsx`: (Formerly `strategyDashboard`) Focuses on active session health and current portfolio P&L.
+- `InventoryPage.tsx`: The "Workbench" where users select individual `OpenLot` records to construct new batches.
+- `HistoryPage.tsx`: Data-dense view of completed cycles and historical performance.
 
-### `/src/features` (Domain Specific)
-- `market/`: Zerodha connection logic and CMP (Current Market Price) fetching.
-- `inventory/`: Core strategy logic for "Selective Batching."
-- `analytics/`: Calculations for XIRR and Batch-wise Profit.
+### `/src/features/inventory`
+- `BatchBuilder.tsx`: Logic engine to filter transactions and calculate cumulative cost for selection.
+- `LotSelectorCard.tsx`: A "Brutalist" card component representing a single buy transaction.
+- `BatchTable.tsx`: Displays active batches with LTP-based market valuation.
 
 
 ## 4. Data Persistence (PostgreSQL)
