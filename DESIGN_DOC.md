@@ -89,4 +89,51 @@ https://brutalism.tailwinddashboard.com/index.html
 
 ```
 
+**Project URL:** https://stock-portfolio-app-kappa.vercel.app  
+**API URL:** https://stock-portfolio-api-f38f.onrender.com
+
+## 1. System Architecture
+- **Frontend:** React (Vite) deployed on Vercel.
+- **Backend:** Node.js (Express) deployed on Render.
+- **Database:** PostgreSQL (Managed) on Render.
+- **External API:** Zerodha Kite Connect for live market data.
+
+## 2. API Endpoints Reference
+
+### Authentication (Zerodha)
+- `GET /api/auth/zerodha-url`: Returns the OAuth URL to initiate the daily Zerodha session.
+- `GET /api/auth/callback`: Handles the redirect from Zerodha, exchanges tokens, and persists the session.
+
+### Market Data
+- `GET /api/market/status`: Checks if the server currently has a valid, active Zerodha `access_token`.
+- `GET /api/market/quotes?symbols=...`: Returns live Last Traded Price (LTP) for provided NSE symbols.
+
+### Inventory & Strategy
+- `GET /api/strategy/open-inventory/:ticker`: Fetches individual open buy lots for a specific stock/ETF.
+- `POST /api/batches/create-selective`: Groups specific lots into a "Batch" (target unit ₹5,000) for P&L tracking.
+
+## 3. Frontend Component Structure
+## 3. Frontend Component Structure (Modular Layout)
+
+### `/src/components/common`
+- `MainLayout.tsx`: The master wrapper. Contains the Navbar and the Global Zerodha Status bar.
+- `Navbar.tsx`: Brutalist navigation with active-state tracking for different features.
+
+### `/src/pages` (Feature Parents)
+- `StrategyDashboard.tsx`: Parent for real-time tracking and batch P&L.
+- `InventoryPage.tsx`: Parent for Lot Selection and ₹5,000 unit construction.
+- `HistoryPage.tsx`: Parent for closed batches and performance analytics.
+
+### `/src/features` (Domain Specific)
+- `market/`: Zerodha connection logic and CMP (Current Market Price) fetching.
+- `inventory/`: Core strategy logic for "Selective Batching."
+- `analytics/`: Calculations for XIRR and Batch-wise Profit.
+
+
+## 4. Data Persistence (PostgreSQL)
+- `app_config`: Key-value store for persisting `zerodha_access_token` to survive server restarts.
+- `transactions`: Historical buy/sell data imported from brokers.
+- `batches`: User-defined groups of transactions forming the "Selective Units."
+
 ---
+*Last Updated: 2025-12-27*
