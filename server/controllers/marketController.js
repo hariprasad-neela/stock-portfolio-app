@@ -38,3 +38,17 @@ export const checkZerodhaStatus = async (req, res) => {
         res.json({ status: 'disconnected', reason: 'Session expired' });
     }
 };
+
+export const getActiveTickers = async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT ticker FROM stocks WHERE display = TRUE ORDER BY ticker ASC"
+        );
+        // Extracting just the strings into an array
+        const tickers = result.rows.map(row => row.ticker);
+        res.json(tickers);
+    } catch (err) {
+        console.error("Error fetching active tickers:", err);
+        res.status(500).json({ error: "Failed to fetch tickers" });
+    }
+};

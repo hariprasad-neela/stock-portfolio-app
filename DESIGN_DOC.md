@@ -48,8 +48,6 @@ The project is organized by **Feature Domains** to ensure high maintainability a
 ### 3.2 Database Schema (Backward Compatible)
 The schema maintains Version 2 stability by using nullable columns and new table additions only.
 
-
-
 - **Table: `stocks`**: Stores metadata for various Assets.
 - **Table: `transactions`**: The core data store.
     - *Added Column:* `batch_id (UUID)` - Nullable; links a lot to a specific Batch.
@@ -71,11 +69,10 @@ https://brutalism.tailwinddashboard.com/index.html
 
 ---
 
-## 4. Trading Strategy Logic (v3.0)
-- **Unit Size:** Target cost basis per lot is ~₹5,000.
-- **Sell Trigger:** A "Batch" (selection of lots) is eligible for exit only when the aggregate profit exceeds **3.0%**.
-- **Visual Feedback:** - Individual P&L color-coded per lot.
-  - Sidebar Summary background shifts to `bg-green-400` when the 3% threshold is crossed.
+## 4. Data Persistence (v3.2)
+- `app_config`: Stores Zerodha access tokens for session persistence.
+- `stocks`: Configuration table; only tickers where `display = TRUE` are populated in the frontend workbench.
+- `transactions`: Raw trade data used to calculate `open_quantity`.
 
 ### 4.1 Selective Batching Workflow
 
