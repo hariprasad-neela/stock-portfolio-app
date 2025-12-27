@@ -25,6 +25,15 @@ export const HistoryPage = () => {
     fetchTransactions();
   };
 
+  // Helper to format ISO Date to Readable Indian Format
+  const formatDate = (isoString: string) => {
+    return new Date(isoString).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* TOOLBAR */}
