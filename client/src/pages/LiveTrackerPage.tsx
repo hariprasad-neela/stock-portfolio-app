@@ -38,16 +38,14 @@ export const LiveTrackerPage = () => {
     loadFullPortfolio();
   }, [API_BASE]);
 
-  const totalPortfolioCost = portfolio.reduce((sum, item) => sum + Number(item.total_cost), 0);
   const totalCurrentValue = portfolio.reduce((sum, item) => {
     const price = livePrices[`NSE:${item.ticker}`] || Number(item.avg_price);
     return sum + (price * Number(item.total_qty));
   }, 0);
 
+  const totalPortfolioCost = portfolio.reduce((sum, item) => sum + parseFloat(item.total_cost.toString()), 0);
   const totalPnL = totalCurrentValue - totalPortfolioCost;
   const totalPnLPct = (totalPnL / totalPortfolioCost) * 100;
-
-  const totalPortfolioCost = portfolio.reduce((sum, item) => sum + parseFloat(item.total_cost.toString()), 0);
 
   return (
     <div className="space-y-8">
