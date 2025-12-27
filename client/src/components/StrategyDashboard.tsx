@@ -8,6 +8,7 @@ import BatchBuilder from '../features/inventory/BatchBuilder';
 import { executeBatchCreation } from '../features/inventory/batchService';
 import { OpenLot } from '../types';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+import { ZerodhaManager } from '../features/market/ZerodhaManager';
 
 const StrategyDashboard = () => {
     const dispatch = useDispatch();
@@ -134,6 +135,7 @@ const StrategyDashboard = () => {
     return (
         <div className="space-y-8 max-w-6xl mx-auto px-4 py-8">
             <div className="grid grid-cols-12 gap-8">
+                <ZerodhaManager />
                 {/* Table takes up 9 columns */}
                 <div className="col-span-12 lg:col-span-9">
                     <InventoryTable

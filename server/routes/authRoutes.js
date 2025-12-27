@@ -14,7 +14,33 @@ router.get('/zerodha-login', (req, res) => {
 });
 
 // This becomes: GET /api/auth/callback
-router.get('/callback', handleZerodhaCallback);
+// router.get('/callback', handleZerodhaCallback);
+// server/routes/authRoutes.js
+router.get('/callback', async (req, res) => {
+    const { request_token } = req.query; // Zerodha sends this in the URL
+
+    try {
+        // Exchange request_token for a permanent 24-hour access_token
+        const response = await kite.generateSession(request_token, process.env.ZERODHA_API_SECRET);
+        
+        // Save token in the current kite instance
+        kite.setAccessToken(response.access_token);
+        
+        console.log("Successfully logged into Zerodha!");
+
+        // Return a simple HTML page that closes itself (if opened in a popup)
+        res.send(`
+            <script>
+                alert("Zerodha Connected!");
+                window.close(); 
+            </script>
+            <p>Authenticated. You can close this tab.</p>
+        `);
+    } catch (err) {
+        console.error("Token exchange failed:", err);
+        res.status(500).send("Authentication failed");
+    }
+});
 
 // Route 2: The Callback (Zerodha redirects here)
 router.get('/zerodha/callback', async (req, res) => {
