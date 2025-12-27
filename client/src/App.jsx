@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { fetchStocks } from './store/slices/portfolioSlice';
 import PortfolioOverview from './components/PortfolioOverview';
 import { uiTheme } from './theme/uiTheme';
-import Navbar from './components/common/Navbar';
+import { Navbar } from './components/common/Navbar';
 import { DashboardStats } from './features/portfolio/DashboardStats';
 
 const App = () => {
