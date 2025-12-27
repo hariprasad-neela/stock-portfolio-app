@@ -212,3 +212,39 @@ export const updateTransaction = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getTransactions = async (req, res) => {
+    const { page = 1, limit = 10, ticker, type } = req.query;
+    const offset = (page - 1) * limit;
+
+    try {
+        let query = `
+            SELECT t.*, s.ticker 
+            FROM transactions t
+            JOIN stocks s ON t.stock_id = s.id
+            WHERE 1=1
+        `;
+        const params = [];
+
+        if (ticker) {
+            params.push(`%${ticker}%`);
+            query += ` AND s.ticker ILIKE $${params.length}`;
+        }
+
+        query += ` ORDER BY t.date DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+        params.push(limit, offset);
+
+        const result = await pool.query(query, params);
+        
+        // Also get total count for pagination math
+        const countResult = await pool.query("SELECT COUNT(*) FROM transactions");
+        
+        res.json({
+            data: result.rows,
+            total: parseInt(countResult.rows[0].count),
+            pages: Math.ceil(countResult.rows[0].count / limit)
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

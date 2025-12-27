@@ -1,53 +1,94 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export const HistoryPage = () => {
-  return (
-    <div className="space-y-8">
-      {/* HEADER SECTION */}
-      <section className="bg-black text-white p-8 border-4 border-black shadow-[8px_8px_0px_0px_rgba(254,240,138,1)]">
-        <h1 className="text-5xl font-black uppercase tracking-tighter">
-          Archive <span className="text-yellow-400">&</span> History
-        </h1>
-        <p className="mt-2 font-bold text-gray-400 uppercase tracking-widest">
-          Performance Tracking • Realized Gains • Closed Cycles
-        </p>
-      </section>
+  const [transactions, setTransactions] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [filterTicker, setFilterTicker] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const API_BASE = import.meta.env.VITE_API_URL || '';
 
-      {/* STATS GRID PLACEHOLDER */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { label: 'Total Realized', value: '₹0.00', color: 'bg-white' },
-          { label: 'Completed Batches', value: '0', color: 'bg-white' },
-          { label: 'Avg. Cycle Time', value: '0 Days', color: 'bg-white' }
-        ].map((stat, i) => (
-          <div key={i} className={`${stat.color} border-4 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]`}>
-            <p className="text-xs font-black uppercase text-gray-500">{stat.label}</p>
-            <p className="text-3xl font-black">{stat.value}</p>
-          </div>
-        ))}
+  useEffect(() => {
+    fetchTransactions();
+  }, [page, filterTicker]);
+
+  const fetchTransactions = async () => {
+    const res = await fetch(`${API_BASE}/api/transactions?page=${page}&ticker=${filterTicker}`);
+    const json = await res.json();
+    setTransactions(json.data);
+    setTotalPages(json.pages);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this transaction?")) return;
+    await fetch(`${API_BASE}/api/transactions/${id}`, { method: 'DELETE' });
+    fetchTransactions();
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* TOOLBAR */}
+      <div className="flex justify-between items-center bg-white border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <input 
+          type="text" 
+          placeholder="Filter Ticker..." 
+          className="border-2 border-black p-2 font-bold uppercase outline-none focus:bg-yellow-50"
+          onChange={(e) => setFilterTicker(e.target.value)}
+        />
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-black text-white px-6 py-2 font-black uppercase hover:bg-yellow-400 hover:text-black transition-colors"
+        >
+          + Add Transaction
+        </button>
       </div>
 
-      {/* DATA TABLE PLACEHOLDER */}
-      <section className="bg-white border-4 border-black min-h-[400px] relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
-          <div className="text-center z-10">
-            <div className="inline-block bg-yellow-400 border-2 border-black px-4 py-1 mb-4 font-black uppercase text-sm rotate-[-2deg]">
-              Development in Progress
-            </div>
-            <h2 className="text-4xl font-black uppercase tracking-tighter text-black opacity-20">
-              No Closed Batches Found
-            </h2>
-          </div>
-        </div>
-        
-        {/* Skeleton Table Header */}
-        <div className="border-b-4 border-black bg-gray-100 p-4 grid grid-cols-4 font-black uppercase text-xs">
-          <span>Batch ID</span>
-          <span>Asset</span>
-          <span>Exit Date</span>
-          <span className="text-right">Profit/Loss</span>
-        </div>
-      </section>
+      {/* DATA TABLE */}
+      <div className="bg-white border-4 border-black overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-gray-100 border-b-4 border-black">
+              <th className="p-4 font-black uppercase text-sm">Date</th>
+              <th className="p-4 font-black uppercase text-sm">Ticker</th>
+              <th className="p-4 font-black uppercase text-sm text-right">Qty</th>
+              <th className="p-4 font-black uppercase text-sm text-right">Price</th>
+              <th className="p-4 font-black uppercase text-sm text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((tx: any) => (
+              <tr key={tx.transaction_id} className="border-b-2 border-black hover:bg-gray-50">
+                <td className="p-4 font-bold text-sm">{tx.date}</td>
+                <td className="p-4 font-black text-blue-600">{tx.ticker}</td>
+                <td className="p-4 font-bold text-right">{tx.open_quantity}</td>
+                <td className="p-4 font-bold text-right">₹{tx.buy_price}</td>
+                <td className="p-4 text-center space-x-2">
+                  <button className="text-xs font-black uppercase underline decoration-2">Edit</button>
+                  <button 
+                    onClick={() => handleDelete(tx.transaction_id)}
+                    className="text-xs font-black uppercase text-red-600 underline decoration-2"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* PAGINATION */}
+      <div className="flex justify-center gap-2">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i + 1}
+            onClick={() => setPage(i + 1)}
+            className={`w-10 h-10 border-2 border-black font-black ${page === i + 1 ? 'bg-yellow-400' : 'bg-white'}`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
