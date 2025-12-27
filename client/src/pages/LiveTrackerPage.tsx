@@ -47,6 +47,8 @@ export const LiveTrackerPage = () => {
   const totalPnL = totalCurrentValue - totalPortfolioCost;
   const totalPnLPct = (totalPnL / totalPortfolioCost) * 100;
 
+  const totalPortfolioCost = portfolio.reduce((sum, item) => sum + parseFloat(item.total_cost.toString()), 0);
+
   return (
     <div className="space-y-8">
       {/* GLOBAL PORTFOLIO BAR */}
@@ -67,6 +69,8 @@ export const LiveTrackerPage = () => {
       {/* TICKER GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {portfolio.map((item) => {
+          const avgPrice = parseFloat(item.avg_price.toString());
+          const totalQty = parseFloat(item.total_qty.toString());
           const ltp = livePrices[`NSE:${item.ticker}`] || 0;
           const pnl = ltp > 0 ? ((ltp - Number(item.avg_price)) / Number(item.avg_price)) * 100 : 0;
 

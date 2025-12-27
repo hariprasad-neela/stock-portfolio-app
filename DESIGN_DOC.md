@@ -73,6 +73,7 @@ https://brutalism.tailwinddashboard.com/index.html
 - `app_config`: Stores Zerodha access tokens for session persistence.
 - `stocks`: Configuration table; only tickers where `display = TRUE` are populated in the frontend workbench.
 - `transactions`: Raw trade data used to calculate `open_quantity`.
+- *Note:* All portfolio-wide views require a JOIN on these two tables.
 
 ### 4.1 Selective Batching Workflow
 

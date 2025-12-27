@@ -37,18 +37,20 @@ export const getConsolidatedPortfolio = async (req, res) => {
     try {
         const query = `
             SELECT 
-                ticker, 
-                SUM(open_quantity) as total_qty,
-                SUM(open_quantity * buy_price) / SUM(open_quantity) as avg_price,
-                SUM(open_quantity * buy_price) as total_cost
-            FROM transactions
-            WHERE open_quantity > 0
-            GROUP BY ticker
+                s.ticker, 
+                SUM(t.open_quantity) as total_qty,
+                SUM(t.open_quantity * t.buy_price) / NULLIF(SUM(t.open_quantity), 0) as avg_price,
+                SUM(t.open_quantity * t.buy_price) as total_cost
+            FROM transactions t
+            JOIN stocks s ON t.stock_id = s.id
+            WHERE t.open_quantity > 0
+            GROUP BY s.ticker
             ORDER BY total_cost DESC
         `;
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Aggregation Error:", err.message);
+        res.status(500).json({ error: "Failed to consolidate portfolio data" });
     }
 };
