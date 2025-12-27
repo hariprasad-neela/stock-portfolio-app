@@ -67,10 +67,10 @@ export const HistoryPage = () => {
           <tbody>
             {transactions.map((tx: any) => (
               <tr key={tx.transaction_id} className="border-b-2 border-black hover:bg-gray-50">
-                <td className="p-4 font-bold text-sm">{tx.date}</td>
+                <td className="p-4 font-bold text-sm">{formatDate(tx.date)}</td>
                 <td className="p-4 font-black text-blue-600">{tx.ticker}</td>
-                <td className="p-4 font-bold text-right">{tx.open_quantity}</td>
-                <td className="p-4 font-bold text-right">₹{tx.buy_price}</td>
+                <td className="p-4 font-bold text-right">{parseFloat(tx.quantity).toLocaleString('en-IN')}</td>
+                <td className="p-4 font-bold text-right">₹{parseFloat(tx.price).toFixed(2)}</td>
                 <td className="p-4 text-center space-x-2">
                   <button className="text-xs font-black uppercase underline decoration-2">Edit</button>
                   <button 
