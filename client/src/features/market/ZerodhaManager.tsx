@@ -3,32 +3,37 @@ import React, { useState, useEffect } from 'react';
 export const ZerodhaManager = () => {
     const API_BASE = import.meta.env.VITE_API_URL || '';
 
-const [status, setStatus] = useState('checking');
+    const [isConnected, setIsConnected] = useState(false);
 
-useEffect(() => {
-    const verifyConnection = async () => {
-        const response = await fetch(`${API_BASE}/api/market/status`);
-        const data = await response.json();
-        
-        if (data.status === 'active') {
-            setStatus('connected');
-        } else {
-            setStatus('offline');
+    const checkStatus = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/api/market/status`);
+            const data = await res.json();
+
+            if (data.status === 'active') {
+                setIsConnected(true);
+            } else {
+                setIsConnected(false);
+            }
+        } catch (error) {
+            setIsConnected(false);
         }
     };
-    verifyConnection();
-}, []);
+
+    useEffect(() => {
+        checkStatus();
+    }, []);
 
     const handleLogin = async () => {
         try {
             const res = await fetch(`${API_BASE}/api/auth/zerodha-url`);
             const { url } = await res.json();
-            
+
             // Open Zerodha in a popup
             const width = 500, height = 600;
             const left = (window.innerWidth - width) / 2;
             const top = (window.innerHeight - height) / 2;
-            
+
             window.open(url, 'ZerodhaLogin', `width=${width},height=${height},top=${top},left=${left}`);
         } catch (err) {
             alert("Failed to connect to backend");
@@ -47,7 +52,7 @@ useEffect(() => {
                 </div>
             </div>
             {!isConnected && (
-                <button 
+                <button
                     onClick={handleLogin}
                     className="bg-yellow-400 border-2 border-black px-4 py-2 font-black text-[10px] uppercase hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                 >
