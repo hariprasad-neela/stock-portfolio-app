@@ -5,6 +5,7 @@ import { MainLayout } from './components/common/MainLayout';
 // Page Imports (Ensure filenames match your recent renames)
 import { LiveTrackerPage } from './pages/LiveTrackerPage';
 import { InventoryPage } from './pages/InventoryPage';
+import { BatchesPage } from './pages/BatchesPage';
 import { HistoryPage } from './pages/HistoryPage';
 
 const App = () => {
@@ -20,6 +21,9 @@ const App = () => {
           {/* Inventory Workbench */}
           <Route path="inventory" element={<InventoryPage />} />
           
+          {/* Batch Management */}
+          <Route path="batches" element={<BatchesPage />} />
+
           {/* Historical Performance */}
           <Route path="history" element={<HistoryPage />} />
           
