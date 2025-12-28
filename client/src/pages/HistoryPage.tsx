@@ -124,6 +124,7 @@ export const HistoryPage = () => {
             <tr className="bg-gray-100 border-b-4 border-black">
               <th className="p-4 font-black uppercase text-sm">Date</th>
               <th className="p-4 font-black uppercase text-sm">Ticker</th>
+              <th className="p-4 font-black uppercase text-sm text-right">Type</th>
               <th className="p-4 font-black uppercase text-sm text-right">Qty</th>
               <th className="p-4 font-black uppercase text-sm text-right">Price</th>
               <th className="p-4 font-black uppercase text-sm text-center">Actions</th>
@@ -134,6 +135,7 @@ export const HistoryPage = () => {
               <tr key={tx.transaction_id} className="border-b-2 border-black hover:bg-gray-50">
                 <td className="p-4 font-bold text-sm">{formatDate(tx.date)}</td>
                 <td className="p-4 font-black text-blue-600">{tx.ticker}</td>
+                <td className="p-4 font-black text-blue-600">{tx.type}</td>
                 <td className="p-4 font-bold text-right">{parseFloat(tx.quantity).toLocaleString('en-IN')}</td>
                 <td className="p-4 font-bold text-right">₹{parseFloat(tx.price).toFixed(2)}</td>
                 <td className="p-4 text-center space-x-2">
