@@ -9,7 +9,7 @@ export const HistoryPage = () => {
   const [filterTicker, setFilterTicker] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState<any>(null);
-  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
   const [filters, setFilters] = useState({ ticker: '', fromDate: '', toDate: '' });
   const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -21,25 +21,22 @@ export const HistoryPage = () => {
     fetchTransactions(1);
   }, [filters]); // Re-fetch when filters change
 
-  const fetchTransactions = async (page = 1) => {
-    const query = new URLSearchParams({
-      page: page.toString(),
-      limit: '10',
-      ticker: filters.ticker,
-      fromDate: filters.fromDate,
-      toDate: filters.toDate
-    }).toString();
-
-    const res = await fetch(`${API_BASE}/api/transactions?${query}`);
+const fetchTransactions = async (page = 1) => {
+  try {
+    const res = await fetch(`${API_BASE}/api/transactions?page=${page}&limit=10`);
     const data = await res.json();
-
-    // Based on your backend response structure:
-    setTransactions(data.records || data.data || []);
+    
+    setTransactions(data.records); 
+    // Match these keys exactly to your backend response
     setPagination({
       currentPage: data.currentPage,
-      totalPages: data.totalPages
+      totalPages: data.totalPages,
+      totalRecords: data.totalRecords
     });
-  };
+  } catch (err) {
+    console.error("Pagination fetch failed", err);
+  }
+};
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this transaction?")) return;
@@ -182,39 +179,43 @@ export const HistoryPage = () => {
         onSave={handleSave}
         initialData={editingData}
       />
+
       {/* PAGINATION CONTROLS */}
       <div className="mt-8 flex items-center justify-between bg-white border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
         <div className="font-black uppercase text-xs">
-          Page {pagination.currentPage} of {pagination.totalPages}
+          {/* Added conditional checks to prevent empty "PAGE OF" */}
+          {pagination.totalPages > 0
+            ? `Page ${pagination.currentPage} of ${pagination.totalPages}`
+            : "Loading records..."}
         </div>
 
         <div className="flex gap-2">
           <button
-            disabled={pagination.currentPage === 1}
+            disabled={pagination.currentPage <= 1}
             onClick={() => fetchTransactions(pagination.currentPage - 1)}
-            className={`${uiTheme.button.secondary} py-2 px-4 disabled:opacity-30`}
+            className={`${uiTheme.button.secondary} py-1 px-3 disabled:opacity-30 disabled:border-gray-300 disabled:text-gray-300`}
           >
             PREV
           </button>
 
-          {/* Page Numbers */}
           <div className="hidden md:flex gap-1">
-            {[...Array(pagination.totalPages)].map((_, i) => (
+            {/* Generate an array of page numbers safely */}
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pageNum) => (
               <button
-                key={i + 1}
-                onClick={() => fetchTransactions(i + 1)}
-                className={`w-10 h-10 border-4 border-black font-black transition-colors ${pagination.currentPage === i + 1 ? 'bg-black text-white' : 'hover:bg-yellow-400'
+                key={pageNum}
+                onClick={() => fetchTransactions(pageNum)}
+                className={`w-10 h-10 border-4 border-black font-black transition-colors ${pagination.currentPage === pageNum ? 'bg-yellow-400 text-black' : 'bg-white hover:bg-gray-100'
                   }`}
               >
-                {i + 1}
+                {pageNum}
               </button>
             ))}
           </div>
 
           <button
-            disabled={pagination.currentPage === pagination.totalPages}
+            disabled={pagination.currentPage >= pagination.totalPages}
             onClick={() => fetchTransactions(pagination.currentPage + 1)}
-            className={`${uiTheme.button.secondary} py-2 px-4 disabled:opacity-30`}
+            className={`${uiTheme.button.secondary} py-1 px-3 disabled:opacity-30 disabled:border-gray-300 disabled:text-gray-300`}
           >
             NEXT
           </button>
