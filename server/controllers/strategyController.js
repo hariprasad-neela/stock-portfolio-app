@@ -43,7 +43,8 @@ export const getConsolidatedPortfolio = async (req, res) => {
                 SUM(t.quantity * t.price) as total_cost
             FROM transactions t
             JOIN stocks s ON t.stock_id = s.stock_id
-            WHERE t.quantity > 0
+            WHERE t.type = 'BUY'
+            AND t.is_open = FALSE
             GROUP BY s.ticker
             ORDER BY total_cost DESC
         `;
