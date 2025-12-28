@@ -2,25 +2,28 @@ import React, { useState, useEffect } from 'react';
 
 export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
     const [activeTickers, setActiveTickers] = useState<string[]>([]);
+    const [openLots, setOpenLots] = useState<any[]>([]);
+    const [selectedLotIds, setSelectedLotIds] = useState<string[]>([]);
     const [formData, setFormData] = useState({
         ticker: '',
         type: 'BUY',
         quantity: '',
         price: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        parent_buy_id: null // Added to track the 1:1 link
     });
 
     const API_BASE = import.meta.env.VITE_API_URL || '';
 
-    // 1. Fetch allowed tickers for the dropdown
+    // ✅ ADD THE FETCH LOGIC FOR OPEN LOTS
     useEffect(() => {
-        if (isOpen) {
-            fetch(`${API_BASE}/api/market/active-tickers`)
+        if (isOpen && formData.type === 'SELL' && formData.ticker) {
+            fetch(`${API_BASE}/api/strategy/open-inventory/${formData.ticker}`)
                 .then(res => res.json())
-                .then(data => setActiveTickers(data))
-                .catch(err => console.error("Error loading tickers", err));
+                .then(data => setOpenLots(data))
+                .catch(err => console.error("Error fetching lots:", err));
         }
-    }, [isOpen, API_BASE]);
+    }, [formData.type, formData.ticker, isOpen]);
 
     // 2. Sync form when initialData changes (for Editing)
     useEffect(() => {
@@ -42,6 +45,36 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                 <h2 className="text-3xl font-black uppercase mb-6 italic tracking-tighter">Manage Trade</h2>
 
                 <div className="space-y-5">
+                    {formData.type === 'SELL' && (
+                        <div className="mt-4 border-4 border-black p-4 bg-gray-50">
+                            <label className="block font-black uppercase text-[10px] mb-2">Link to Buy Lot (1:1)</label>
+                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                                {openLots.length === 0 ? (
+                                    <p className="text-xs italic text-red-500 font-bold">No open buy lots found for this ticker.</p>
+                                ) : (
+                                    openLots.map(lot => (
+                                        <div
+                                            key={lot.transaction_id}
+                                            onClick={() => {
+                                                setSelectedLotIds([lot.transaction_id]);
+                                                setFormData({
+                                                    ...formData,
+                                                    parent_buy_id: lot.transaction_id,
+                                                    quantity: lot.quantity // Auto-fill quantity as per your requirement
+                                                });
+                                            }}
+                                            className={`p-2 border-2 border-black cursor-pointer text-xs font-bold flex justify-between ${formData.parent_buy_id === lot.transaction_id ? 'bg-black text-white' : 'bg-white'
+                                                }`}
+                                        >
+                                            <span>{new Date(lot.date).toLocaleDateString()}</span>
+                                            <span>Qty: {lot.quantity} @ ₹{lot.price}</span>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {/* BUY/SELL TOGGLE */}
                     <div>
                         <label className="block font-black uppercase text-[10px] mb-1">Transaction Type</label>
@@ -71,7 +104,6 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                             {activeTickers.map(t => <option key={t} value={t}>{t}</option>)}
                         </select>
                     </div>
-// Inside the SELL mapping logic
                     <div className="space-y-4">
                         <label className="block font-black uppercase text-[10px] underline">Select The Specific Buy Lot Being Sold</label>
                         <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto">
