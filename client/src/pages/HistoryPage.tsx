@@ -24,9 +24,10 @@ export const HistoryPage = () => {
   const fetchTransactions = async (page = 1) => {
     try {
       const res = await fetch(`${API_BASE}/api/transactions?page=${page}&limit=10`);
-      const data = await res.json();
+      const responseData = await res.json();
+      const data = responseData.data
 
-      setTransactions(data.data);
+      setTransactions(data);
       // Match these keys exactly to your backend response
       setPagination({
         currentPage: data.currentPage,
