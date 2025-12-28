@@ -56,15 +56,15 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
     }, [isOpen, API_BASE]);
 
     const handleConfirm = () => {
-  const submissionData = {
-    ...formData,
-    quantity: Number(formData.quantity),
-    price: Number(formData.price),
-    // Ensure parent_buy_id is sent for 1:1 matching
-    parent_buy_id: formData.type === 'SELL' ? formData.parent_buy_id : null
-  };
-  onSave(submissionData);
-};
+        const submissionData = {
+            ...formData,
+            quantity: Number(formData.quantity),
+            price: Number(formData.price),
+            // Ensure parent_buy_id is sent for 1:1 matching
+            parent_buy_id: formData.type === 'SELL' ? formData.parent_buy_id : null
+        };
+        onSave(submissionData);
+    };
 
     if (!isOpen) return null;
 
@@ -97,7 +97,7 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                             <label className={uiTheme.form.label}>Type</label>
                             <div className={uiTheme.form.toggleGroup}>
                                 <button
-                                    onClick={() => setFormData({ ...formData, type: 'BUY' })}
+                                    onClick={() => setFormData({ ...formData, type: 'BUY', parent_buy_id: null, quantity: '' })}
                                     className={formData.type === 'BUY' ? uiTheme.form.toggleBtnActive : uiTheme.form.toggleBtnInactive}>
                                     BUY
                                 </button>
@@ -108,6 +108,23 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 </button>
                             </div>
                         </div>
+                        {/* QUANTITY FIELD */}
+                        <div>
+                            <label className={uiTheme.form.label}>Quantity (Units)</label>
+                            <input
+                                type="number"
+                                className={`${uiTheme.form.input} ${formData.type === 'SELL' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                                value={formData.quantity}
+                                onChange={(e) => formData.type === 'BUY' && setFormData({ ...formData, quantity: e.target.value })}
+                                readOnly={formData.type === 'SELL'}
+                                placeholder="Enter units"
+                            />
+                            {formData.type === 'SELL' && (
+                                <p className="text-[10px] font-black text-blue-600 mt-1 uppercase italic">
+                                    * Quantity is locked to matched buy lot
+                                </p>
+                            )}
+                        </div>
 
                         <div>
                             <label className={uiTheme.form.label}>Execution Price</label>
@@ -116,38 +133,31 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 step="0.01"
                                 className={uiTheme.form.input}
                                 value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: e.target.value })} // Fixed: Added onChange
+                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                 placeholder="0.00"
                             />
                         </div>
                     </div>
 
-                    {/* 1:1 LOT SELECTION AREA */}
+                    {/* 1:1 LOT SELECTION (Only for SELL) */}
                     {formData.type === 'SELL' && (
                         <div className="space-y-2">
                             <label className={uiTheme.form.label}>Select Parent Buy Lot</label>
-                            <div className="max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                            <div className="max-h-60 overflow-y-auto pr-2 border-2 border-black p-2 bg-gray-50">
                                 {openLots.map(lot => (
                                     <div
                                         key={lot.transaction_id}
                                         onClick={() => setFormData({
                                             ...formData,
                                             parent_buy_id: lot.transaction_id,
-                                            // Map open_quantity to quantity and buy_price to price for the Sell entry
-                                            quantity: lot.open_quantity,
-                                            price: lot.buy_price
+                                            quantity: lot.open_quantity, // Correct mapping from your JSON
+                                            ticker: formData.ticker // Ensure ticker matches
                                         })}
                                         className={`${uiTheme.list.item} ${formData.parent_buy_id === lot.transaction_id ? uiTheme.list.itemSelected : uiTheme.list.itemUnselected}`}
                                     >
                                         <div className="flex justify-between items-center text-xs">
-                                            <div className="flex flex-col">
-                                                <span className="font-black uppercase">{lot.date}</span> {/* Date is already formatted as 3/10/2024 */}
-                                                <span className="opacity-70">Price: ₹{lot.buy_price}</span>
-                                            </div>
-                                            <div className="text-right">
-                                                <span className="text-sm font-black">{lot.open_quantity}</span>
-                                                <span className="block text-[8px] uppercase">Units</span>
-                                            </div>
+                                            <span className="font-black">{lot.date}</span>
+                                            <span className="font-bold">{lot.open_quantity} Units @ ₹{lot.buy_price}</span>
                                         </div>
                                     </div>
                                 ))}
