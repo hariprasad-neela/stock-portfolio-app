@@ -10,6 +10,7 @@ import {
     updateTransaction,
     deleteTransaction,
     addTransaction,
+    createTransaction
     // ... other imports like getTransactions, createTransaction
 } from './controllers/transactionController.js';
 
@@ -131,7 +132,7 @@ router.post('/old', async (req, res) => {
     }
 });
 
-router.post('/', addTransaction);
+router.post('/', createTransaction);
 router.put('/:id', updateTransaction); 
 router.delete('/:id', deleteTransaction);
 
