@@ -55,6 +55,17 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
         }
     }, [isOpen, API_BASE]);
 
+    const handleConfirm = () => {
+  const submissionData = {
+    ...formData,
+    quantity: Number(formData.quantity),
+    price: Number(formData.price),
+    // Ensure parent_buy_id is sent for 1:1 matching
+    parent_buy_id: formData.type === 'SELL' ? formData.parent_buy_id : null
+  };
+  onSave(submissionData);
+};
+
     if (!isOpen) return null;
 
     return (<div className={uiTheme.modal.overlay}>
@@ -147,7 +158,7 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
             </div>
 
             <div className={uiTheme.modal.footer}>
-                <button onClick={() => onSave(formData)} className={uiTheme.button.primary}>Confirm</button>
+                <button onClick={handleConfirm} className={uiTheme.button.primary}>Confirm</button>
                 <button onClick={onClose} className={uiTheme.button.secondary}>Cancel</button>
             </div>
         </div>
