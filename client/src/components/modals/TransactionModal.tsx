@@ -4,7 +4,6 @@ import { uiTheme } from '../../theme/uiTheme';
 export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
     const [activeTickers, setActiveTickers] = useState<string[]>([]);
     const [openLots, setOpenLots] = useState<any[]>([]);
-    const [selectedLotIds, setSelectedLotIds] = useState<string[]>([]);
     const [formData, setFormData] = useState({
         transaction_id: null,
         ticker: '',
@@ -113,6 +112,16 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 </button>
                             </div>
                         </div>
+                        {/* DATE FIELD */}
+<div>
+  <label className={uiTheme.form.label}>Transaction Date</label>
+  <input 
+    type="date" 
+    className={uiTheme.form.input} 
+    value={formData.date}
+    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+  />
+</div>
                         {/* QUANTITY FIELD */}
                         <div>
                             <label className={uiTheme.form.label}>Quantity (Units)</label>

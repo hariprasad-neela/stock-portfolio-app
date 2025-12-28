@@ -10,16 +10,11 @@ export const HistoryPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState<any>(null);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
-  const [filters, setFilters] = useState({ ticker: '', fromDate: '', toDate: '' });
   const API_BASE = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
-    fetchTransactions();
-  }, [page, filterTicker]);
-
-  useEffect(() => {
     fetchTransactions(1);
-  }, [filters]); // Re-fetch when filters change
+  }, [page, filterTicker]);
 
   const fetchTransactions = async (page = 1) => {
     try {
@@ -161,18 +156,6 @@ export const HistoryPage = () => {
         </table>
       </div>
 
-      {/* PAGINATION */}
-      <div className="flex justify-center gap-2">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i + 1}
-            onClick={() => setPage(i + 1)}
-            className={`w-10 h-10 border-2 border-black font-black ${page === i + 1 ? 'bg-yellow-400' : 'bg-white'}`}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
       <TransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
