@@ -99,7 +99,7 @@ export const getLedger = async (req, res) => {
         params.push(limit, offset);
 
         const result = await pool.query(query, params);
-        
+
         const totalRecords = result.rows.length > 0 ? parseInt(result.rows[0].total_count) : 0;
 
         res.json({
@@ -119,22 +119,22 @@ export const getLedger = async (req, res) => {
 
 export const addTransaction = async (req, res) => {
     // 1. Destructure with explicit names
-    const { 
-        stock_id, 
-        type, 
-        quantity, 
-        price, 
+    const {
+        stock_id,
+        type,
+        quantity,
+        price,
         date,
-        portfolio_id 
+        portfolio_id
     } = req.body;
-    
+
     // V2 Stability Fix: Explicit check for undefined/null 
     // This allows quantity or price to be 0 without failing
     if (
-        stock_id === undefined || 
-        type === undefined || 
-        quantity === undefined || 
-        price === undefined || 
+        stock_id === undefined ||
+        type === undefined ||
+        quantity === undefined ||
+        price === undefined ||
         date === undefined
     ) {
         console.log("Validation Failed. Received:", req.body); // Check your terminal!
@@ -148,27 +148,27 @@ export const addTransaction = async (req, res) => {
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *;
         `;
-        
+
         const isOpen = (type === 'BUY');
-        
+
         // 3. Log exactly what is being sent to the DB for debugging
         console.log("DB INSERT PARAMS:", [stock_id, type, quantity, price, date, isOpen]);
 
         const result = await pool.query(insertQuery, [
             stock_id,
-            type, 
-            quantity, 
-            price, 
-            date, 
+            type,
+            quantity,
+            price,
+            date,
             isOpen,
             portfolio_id || "75d19a27-a0e2-4f19-b223-9c86b16e133e", // Fallback to 1 if not provided
         ]);
-        
+
         const newRecord = result.rows[0];
 
         // 4. Join the ticker so the frontend can verify visually
         const verification = await pool.query(
-            'SELECT ticker FROM stocks WHERE stock_id = $1', 
+            'SELECT ticker FROM stocks WHERE stock_id = $1',
             [newRecord.stock_id]
         );
 
@@ -235,10 +235,10 @@ export const getTransactions = async (req, res) => {
         params.push(limit, offset);
 
         const result = await pool.query(query, params);
-        
+
         // Also get total count for pagination math
         const countResult = await pool.query("SELECT COUNT(*) FROM transactions");
-        
+
         res.json({
             data: result.rows,
             total: parseInt(countResult.rows[0].count),
@@ -251,15 +251,15 @@ export const getTransactions = async (req, res) => {
 
 export const saveTransaction = async (req, res) => {
     const { ticker, quantity, price, date, type } = req.body;
-    
+
     try {
         // 1. Get the stock_id for the given ticker
         const stockResult = await pool.query("SELECT id FROM stocks WHERE ticker = $1", [ticker]);
-        
+
         if (stockResult.rows.length === 0) {
             return res.status(400).json({ message: `Ticker ${ticker} not found in stocks table.` });
         }
-        
+
         const stock_id = stockResult.rows[0].id;
 
         // 2. Insert the new transaction
@@ -268,7 +268,7 @@ export const saveTransaction = async (req, res) => {
             VALUES ($1, $2, $3, $4, $5, TRUE, 'your-default-portfolio-id')
             RETURNING *
         `;
-        
+
         const result = await pool.query(insertQuery, [stock_id, quantity, price, date, type]);
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -279,48 +279,48 @@ export const saveTransaction = async (req, res) => {
 export const createTransaction = async (req, res) => {
     const { ticker, quantity, price, date, type, parent_buy_id } = req.body;
 
-    // 1. Validate basic fields
-    if (!ticker || !quantity || !price || !date || !type) {
-        return res.status(400).json({ error: "Missing required transaction fields." });
-    }
-
+    const client = await pool.connect();
     try {
-        // 2. Lookup the stock_id using the ticker
-        const stockResult = await pool.query("SELECT id FROM stocks WHERE ticker = $1", [ticker]);
-        if (stockResult.rows.length === 0) {
-            return res.status(404).json({ error: `Ticker ${ticker} not found.` });
-        }
-        const stock_id = stockResult.rows[0].id;
+        await client.query('BEGIN');
 
-        // 3. Get your default portfolio ID (or pass it from frontend)
-        const portfolioResult = await pool.query("SELECT id FROM portfolios LIMIT 1");
-        const portfolio_id = portfolioResult.rows[0].id;
+        // 1. Get Stock ID
+        const stockRes = await client.query("SELECT id FROM stocks WHERE ticker = $1", [ticker]);
+        if (stockRes.rows.length === 0) throw new Error("Ticker not found");
+        const stock_id = stockRes.rows[0].id;
 
-        // 4. Insert Transaction
-        const query = `
+        // 2. Get Portfolio ID
+        const portRes = await client.query("SELECT id FROM portfolios LIMIT 1");
+        const portfolio_id = portRes.rows[0].id;
+
+        // 3. Insert the Transaction
+        // For BUY: parent_buy_id is NULL, is_open is TRUE
+        // For SELL: parent_buy_id is provided, is_open is FALSE
+        const is_open = (type === 'BUY');
+
+        const insertQuery = `
             INSERT INTO transactions 
             (portfolio_id, stock_id, type, date, quantity, price, parent_buy_id, is_open)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *
         `;
-        
-        // Logical check: A BUY is always 'open', a SELL is always 'closed'
-        const is_open = (type === 'BUY');
-
-        const result = await pool.query(query, [
-            portfolio_id, 
-            stock_id, 
-            type, 
-            date, 
-            quantity, 
-            price, 
-            parent_buy_id || null, 
-            is_open
+        const result = await client.query(insertQuery, [
+            portfolio_id, stock_id, type, date, quantity, price, parent_buy_id || null, is_open
         ]);
 
+        // 4. If it's a SELL, close the parent BUY lot
+        if (type === 'SELL' && parent_buy_id) {
+            await client.query(
+                "UPDATE transactions SET is_open = FALSE WHERE transaction_id = $1",
+                [parent_buy_id]
+            );
+        }
+
+        await client.query('COMMIT');
         res.status(201).json(result.rows[0]);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Internal Server Error" });
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err.message });
+    } finally {
+        client.release();
     }
 };
