@@ -135,7 +135,7 @@ const fetchTransactions = async (page = 1) => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((tx: any) => (
+            {transactions && transactions.map((tx: any) => (
               <tr key={tx.transaction_id} className="border-b-2 border-black hover:bg-gray-50">
                 <td className="p-4 font-bold text-sm">{formatDate(tx.date)}</td>
                 <td className="p-4 font-black text-blue-600">{tx.ticker}</td>
