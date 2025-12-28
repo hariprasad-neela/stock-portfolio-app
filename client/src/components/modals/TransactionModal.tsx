@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { uiTheme } from '../../theme/uiTheme';
 
 export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
     const [activeTickers, setActiveTickers] = useState<string[]>([]);
