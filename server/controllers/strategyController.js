@@ -44,7 +44,7 @@ export const getConsolidatedPortfolio = async (req, res) => {
             FROM transactions t
             JOIN stocks s ON t.stock_id = s.stock_id
             WHERE t.type = 'BUY'
-            AND t.is_open = FALSE
+            AND t.is_open = TRUE
             GROUP BY s.ticker
             ORDER BY total_cost DESC
         `;
