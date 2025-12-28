@@ -275,3 +275,52 @@ export const saveTransaction = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const createTransaction = async (req, res) => {
+    const { ticker, quantity, price, date, type, parent_buy_id } = req.body;
+
+    // 1. Validate basic fields
+    if (!ticker || !quantity || !price || !date || !type) {
+        return res.status(400).json({ error: "Missing required transaction fields." });
+    }
+
+    try {
+        // 2. Lookup the stock_id using the ticker
+        const stockResult = await pool.query("SELECT id FROM stocks WHERE ticker = $1", [ticker]);
+        if (stockResult.rows.length === 0) {
+            return res.status(404).json({ error: `Ticker ${ticker} not found.` });
+        }
+        const stock_id = stockResult.rows[0].id;
+
+        // 3. Get your default portfolio ID (or pass it from frontend)
+        const portfolioResult = await pool.query("SELECT id FROM portfolios LIMIT 1");
+        const portfolio_id = portfolioResult.rows[0].id;
+
+        // 4. Insert Transaction
+        const query = `
+            INSERT INTO transactions 
+            (portfolio_id, stock_id, type, date, quantity, price, parent_buy_id, is_open)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING *
+        `;
+        
+        // Logical check: A BUY is always 'open', a SELL is always 'closed'
+        const is_open = (type === 'BUY');
+
+        const result = await pool.query(query, [
+            portfolio_id, 
+            stock_id, 
+            type, 
+            date, 
+            quantity, 
+            price, 
+            parent_buy_id || null, 
+            is_open
+        ]);
+
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};

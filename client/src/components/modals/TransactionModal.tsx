@@ -56,14 +56,17 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
     }, [isOpen, API_BASE]);
 
     const handleConfirm = () => {
-        const submissionData = {
-            ...formData,
+        // Construct the exact payload expected by the refined controller
+        const payload = {
+            ticker: formData.ticker,
             quantity: Number(formData.quantity),
             price: Number(formData.price),
-            // Ensure parent_buy_id is sent for 1:1 matching
+            date: formData.date,
+            type: formData.type,
             parent_buy_id: formData.type === 'SELL' ? formData.parent_buy_id : null
         };
-        onSave(submissionData);
+
+        onSave(payload);
     };
 
     if (!isOpen) return null;
