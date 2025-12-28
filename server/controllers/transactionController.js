@@ -195,24 +195,6 @@ export const deleteTransaction = async (req, res) => {
     }
 };
 
-// 2. Update Transaction
-export const updateTransaction = async (req, res) => {
-    const { id } = req.params;
-    const { stock_id, type, quantity, price, date } = req.body;
-    try {
-        const query = `
-            UPDATE transactions 
-            SET stock_id = $1, type = $2, quantity = $3, price = $4, date = $5
-            WHERE transaction_id = $6
-            RETURNING *;
-        `;
-        const result = await pool.query(query, [stock_id, type, quantity, price, date, id]);
-        res.json(result.rows[0]);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};
-
 export const getTransactions = async (req, res) => {
     const { page = 1, limit = 10, ticker, type } = req.query;
     const offset = (page - 1) * limit;
@@ -328,6 +310,58 @@ export const createTransaction = async (req, res) => {
 
         await client.query('COMMIT');
         res.status(transaction_id ? 200 : 201).json(result.rows[0]);
+
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err.message });
+    } finally {
+        client.release();
+    }
+};
+
+export const updateTransaction = async (req, res) => {
+    const { id } = req.params; // ID from the URL
+    const { ticker, quantity, price, date, type, parent_buy_id } = req.body;
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        // 1. Resolve IDs
+        const stockRes = await client.query("SELECT stock_id FROM stocks WHERE ticker = $1", [ticker]);
+        const stock_id = stockRes.rows[0].stock_id;
+
+        // 2. Cleanup Logic: Find the OLD parent_buy_id before updating
+        const oldTxRes = await client.query(
+            "SELECT parent_buy_id FROM transactions WHERE transaction_id = $1", 
+            [id]
+        );
+        const oldParentId = oldTxRes.rows[0]?.parent_buy_id;
+
+        // 3. Update the transaction
+        const updateQuery = `
+            UPDATE transactions 
+            SET stock_id = $1, type = $2, date = $3, quantity = $4, price = $5, parent_buy_id = $6
+            WHERE transaction_id = $7
+            RETURNING *
+        `;
+        const result = await client.query(updateQuery, [
+            stock_id, type, date, quantity, price, parent_buy_id || null, id
+        ]);
+
+        // 4. Manage Buy Lot Status
+        // If the parent buy lot changed, reopen the old one
+        if (oldParentId && oldParentId !== parent_buy_id) {
+            await client.query("UPDATE transactions SET is_open = TRUE WHERE transaction_id = $1", [oldParentId]);
+        }
+        
+        // Mark the new parent buy lot as closed
+        if (parent_buy_id) {
+            await client.query("UPDATE transactions SET is_open = FALSE WHERE transaction_id = $1", [parent_buy_id]);
+        }
+
+        await client.query('COMMIT');
+        res.json(result.rows[0]);
 
     } catch (err) {
         await client.query('ROLLBACK');
