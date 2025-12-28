@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TransactionModal } from '../components/modals/TransactionModal';
+import { uiTheme } from '../theme/uiTheme';
 
 export const HistoryPage = () => {
   const [transactions, setTransactions] = useState([]);
@@ -8,17 +9,36 @@ export const HistoryPage = () => {
   const [filterTicker, setFilterTicker] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState<any>(null);
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
+  const [filters, setFilters] = useState({ ticker: '', fromDate: '', toDate: '' });
   const API_BASE = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
     fetchTransactions();
   }, [page, filterTicker]);
 
-  const fetchTransactions = async () => {
-    const res = await fetch(`${API_BASE}/api/transactions?page=${page}&ticker=${filterTicker}`);
-    const json = await res.json();
-    setTransactions(json.data);
-    setTotalPages(json.pages);
+  useEffect(() => {
+    fetchTransactions(1);
+  }, [filters]); // Re-fetch when filters change
+
+  const fetchTransactions = async (page = 1) => {
+    const query = new URLSearchParams({
+      page: page.toString(),
+      limit: '10',
+      ticker: filters.ticker,
+      fromDate: filters.fromDate,
+      toDate: filters.toDate
+    }).toString();
+
+    const res = await fetch(`${API_BASE}/api/transactions?${query}`);
+    const data = await res.json();
+
+    // Based on your backend response structure:
+    setTransactions(data.records || data.data || []);
+    setPagination({
+      currentPage: data.currentPage,
+      totalPages: data.totalPages
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -162,6 +182,44 @@ export const HistoryPage = () => {
         onSave={handleSave}
         initialData={editingData}
       />
+      {/* PAGINATION CONTROLS */}
+      <div className="mt-8 flex items-center justify-between bg-white border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="font-black uppercase text-xs">
+          Page {pagination.currentPage} of {pagination.totalPages}
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            disabled={pagination.currentPage === 1}
+            onClick={() => fetchTransactions(pagination.currentPage - 1)}
+            className={`${uiTheme.button.secondary} py-2 px-4 disabled:opacity-30`}
+          >
+            PREV
+          </button>
+
+          {/* Page Numbers */}
+          <div className="hidden md:flex gap-1">
+            {[...Array(pagination.totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => fetchTransactions(i + 1)}
+                className={`w-10 h-10 border-4 border-black font-black transition-colors ${pagination.currentPage === i + 1 ? 'bg-black text-white' : 'hover:bg-yellow-400'
+                  }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <button
+            disabled={pagination.currentPage === pagination.totalPages}
+            onClick={() => fetchTransactions(pagination.currentPage + 1)}
+            className={`${uiTheme.button.secondary} py-2 px-4 disabled:opacity-30`}
+          >
+            NEXT
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
