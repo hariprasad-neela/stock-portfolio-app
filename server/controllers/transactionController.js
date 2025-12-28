@@ -277,37 +277,48 @@ export const saveTransaction = async (req, res) => {
 };
 
 export const createTransaction = async (req, res) => {
-    const { ticker, quantity, price, date, type, parent_buy_id } = req.body;
-
+    // Note: transaction_id comes from the body when editing
+    const { transaction_id, ticker, quantity, price, date, type, parent_buy_id } = req.body;
     const client = await pool.connect();
+
     try {
         await client.query('BEGIN');
 
-        // 1. Get Stock ID
+        // 1. Resolve stock_id and portfolio_id (Same as before)
         const stockRes = await client.query("SELECT stock_id FROM stocks WHERE ticker = $1", [ticker]);
-        if (stockRes.rows.length === 0) throw new Error("Ticker not found");
         const stock_id = stockRes.rows[0].stock_id;
-
-        // 2. Get Portfolio ID
         const portRes = await client.query("SELECT portfolio_id FROM portfolios LIMIT 1");
         const portfolio_id = portRes.rows[0].portfolio_id;
 
-        // 3. Insert the Transaction
-        // For BUY: parent_buy_id is NULL, is_open is TRUE
-        // For SELL: parent_buy_id is provided, is_open is FALSE
-        const is_open = (type === 'BUY');
+        let result;
 
-        const insertQuery = `
-            INSERT INTO transactions 
-            (portfolio_id, stock_id, type, date, quantity, price, parent_buy_id, is_open)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            RETURNING *
-        `;
-        const result = await client.query(insertQuery, [
-            portfolio_id, stock_id, type, date, quantity, price, parent_buy_id || null, is_open
-        ]);
+        if (transaction_id) {
+            // ✅ CASE A: UPDATE existing record
+            const updateQuery = `
+                UPDATE transactions 
+                SET stock_id = $1, portfolio_id = $2, type = $3, date = $4, 
+                    quantity = $5, price = $6, parent_buy_id = $7
+                WHERE transaction_id = $8
+                RETURNING *
+            `;
+            result = await client.query(updateQuery, [
+                stock_id, portfolio_id, type, date, quantity, price, parent_buy_id || null, transaction_id
+            ]);
+        } else {
+            // ✅ CASE B: INSERT new record
+            const insertQuery = `
+                INSERT INTO transactions 
+                (portfolio_id, stock_id, type, date, quantity, price, parent_buy_id, is_open)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                RETURNING *
+            `;
+            const is_open = (type === 'BUY');
+            result = await client.query(insertQuery, [
+                portfolio_id, stock_id, type, date, quantity, price, parent_buy_id || null, is_open
+            ]);
+        }
 
-        // 4. If it's a SELL, close the parent BUY lot
+        // 2. Handle 1:1 Matching Logic for SELLs
         if (type === 'SELL' && parent_buy_id) {
             await client.query(
                 "UPDATE transactions SET is_open = FALSE WHERE transaction_id = $1",
@@ -316,7 +327,8 @@ export const createTransaction = async (req, res) => {
         }
 
         await client.query('COMMIT');
-        res.status(201).json(result.rows[0]);
+        res.status(transaction_id ? 200 : 201).json(result.rows[0]);
+
     } catch (err) {
         await client.query('ROLLBACK');
         res.status(500).json({ error: err.message });

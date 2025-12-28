@@ -6,6 +6,7 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
     const [openLots, setOpenLots] = useState<any[]>([]);
     const [selectedLotIds, setSelectedLotIds] = useState<string[]>([]);
     const [formData, setFormData] = useState({
+        transaction_id: null,
         ticker: '',
         type: 'BUY',
         quantity: '',
@@ -56,8 +57,9 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
     }, [isOpen, API_BASE]);
 
     const handleConfirm = () => {
-        // Construct the exact payload expected by the refined controller
         const payload = {
+            // Include ID if it exists (crucial for updating!)
+            transaction_id: formData.transaction_id || null,
             ticker: formData.ticker,
             quantity: Number(formData.quantity),
             price: Number(formData.price),
