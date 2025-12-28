@@ -26,7 +26,8 @@ const fetchTransactions = async (page = 1) => {
     const res = await fetch(`${API_BASE}/api/transactions?page=${page}&limit=10`);
     const data = await res.json();
     
-    setTransactions(data.records); 
+    setTransactions(data.records);
+    console.log("Pagination Data:", data);
     // Match these keys exactly to your backend response
     setPagination({
       currentPage: data.currentPage,
@@ -37,6 +38,8 @@ const fetchTransactions = async (page = 1) => {
     console.error("Pagination fetch failed", err);
   }
 };
+
+console.log("Transactions:", transactions);
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this transaction?")) return;
