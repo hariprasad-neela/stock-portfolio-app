@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 export const Navbar = () => {
   const activeStyle = "bg-yellow-400 translate-x-[2px] translate-y-[2px] shadow-none";
@@ -16,12 +16,12 @@ export const Navbar = () => {
           BATCH<span className="text-yellow-400">.</span>PRO
         </div>
 
-        <nav className="flex gap-8 font-black uppercase tracking-tighter">
-          <Link to="/" className="hover:text-yellow-400">Tracker</Link>
-          <Link to="/inventory" className="hover:text-yellow-400">Inventory</Link>
-          <Link to="/batches" className="hover:text-yellow-400 text-blue-600 underline decoration-4">Batches</Link>
-          <Link to="/history" className="hover:text-yellow-400">History</Link>
-        </nav>
+        <div className="flex gap-4">
+          <NavLink to="/" className={getLinkClass}>Tracker</NavLink>
+          <NavLink to="/inventory" className={getLinkClass}>Inventory</NavLink>
+          <NavLink to="/batches" className={getLinkClass}>Batches</NavLink>
+          <NavLink to="/history" className={getLinkClass}>History</NavLink>
+        </div>
       </div>
     </nav>
   );
