@@ -284,13 +284,13 @@ export const createTransaction = async (req, res) => {
         await client.query('BEGIN');
 
         // 1. Get Stock ID
-        const stockRes = await client.query("SELECT id FROM stocks WHERE ticker = $1", [ticker]);
+        const stockRes = await client.query("SELECT stock_id FROM stocks WHERE ticker = $1", [ticker]);
         if (stockRes.rows.length === 0) throw new Error("Ticker not found");
-        const stock_id = stockRes.rows[0].id;
+        const stock_id = stockRes.rows[0].stock_id;
 
         // 2. Get Portfolio ID
-        const portRes = await client.query("SELECT id FROM portfolios LIMIT 1");
-        const portfolio_id = portRes.rows[0].id;
+        const portRes = await client.query("SELECT portfolio_id FROM portfolios LIMIT 1");
+        const portfolio_id = portRes.rows[0].portfolio_id;
 
         // 3. Insert the Transaction
         // For BUY: parent_buy_id is NULL, is_open is TRUE
