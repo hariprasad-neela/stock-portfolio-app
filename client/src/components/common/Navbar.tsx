@@ -1,28 +1,36 @@
-import React from 'react';
+import { uiThemeNew } from '../../theme/uiTheme';
 import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
 
 export const Navbar = () => {
-  const activeStyle = "bg-yellow-400 translate-x-[2px] translate-y-[2px] shadow-none";
-  const inactiveStyle = "bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-gray-50";
-
-  const getLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `px-6 py-2 border-2 border-black font-black uppercase text-sm transition-all ${isActive ? activeStyle : inactiveStyle
-    }`;
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-white border-b-4 border-black sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-        <div className="text-3xl font-black tracking-tighter italic">
-          BATCH<span className="text-yellow-400">.</span>PRO
+    <nav className={uiThemeNew.nav.bar}>
+      <div className="flex justify-between items-center max-w-7xl mx-auto">
+        <h1 className={uiThemeNew.nav.logo}>StockTracker</h1>
+        
+        {/* Desktop */}
+        <div className="hidden md:flex gap-8">
+          <NavLink to="/history" className={uiThemeNew.nav.desktopLink}>History</NavLink>
+          <NavLink to="/inventory" className={uiThemeNew.nav.desktopLink}>Inventory</NavLink>
+          <NavLink to="/batches" className={uiThemeNew.nav.desktopLink}>Batches</NavLink>
         </div>
 
-        <div className="flex gap-4">
-          <NavLink to="/" className={getLinkClass}>Tracker</NavLink>
-          <NavLink to="/inventory" className={getLinkClass}>Inventory</NavLink>
-          <NavLink to="/batches" className={getLinkClass}>Batches</NavLink>
-          <NavLink to="/history" className={getLinkClass}>History</NavLink>
-        </div>
+        {/* Mobile Toggle */}
+        <button onClick={() => setIsOpen(!isOpen)} className={uiThemeNew.nav.mobileToggle}>
+          {isOpen ? 'Close [X]' : 'Menu [=]'}
+        </button>
       </div>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div className={uiThemeNew.nav.mobileOverlay}>
+          <NavLink to="/history" onClick={() => setIsOpen(false)} className={uiThemeNew.nav.mobileLink}>History</NavLink>
+          <NavLink to="/inventory" onClick={() => setIsOpen(false)} className={uiThemeNew.nav.mobileLink}>Inventory</NavLink>
+          <NavLink to="/batches" onClick={() => setIsOpen(false)} className={uiThemeNew.nav.mobileLink}>Batches</NavLink>
+        </div>
+      )}
     </nav>
   );
 };

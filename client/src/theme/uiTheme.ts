@@ -64,3 +64,53 @@ export const uiTheme = {
   }
 
 };
+
+export const uiThemeNew = {
+  // Global Layout
+  layout: {
+    main: "min-h-screen bg-gray-50 text-black font-sans pb-20",
+    container: "max-w-7xl mx-auto p-4 md:p-8",
+    section: "bg-white border-4 border-black p-6 mb-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
+  },
+
+  // Navigation (Responsive)
+  nav: {
+    bar: "border-b-8 border-black bg-yellow-400 p-4 sticky top-0 z-[100]",
+    logo: "text-2xl font-black italic uppercase tracking-tighter",
+    desktopLink: "font-black hover:underline uppercase text-sm tracking-widest",
+    mobileToggle: "md:hidden border-4 border-black bg-black text-white px-3 py-1 font-black uppercase text-xs",
+    mobileOverlay: "md:hidden absolute top-[100%] left-0 w-full bg-yellow-400 border-b-8 border-black flex flex-col p-6 gap-4",
+    mobileLink: "text-xl font-black border-4 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-center",
+  },
+
+  // Buttons
+  button: {
+    primary: "bg-black text-white p-4 font-black uppercase hover:bg-green-500 hover:text-black transition-all active:translate-y-1 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+    secondary: "border-4 border-black p-2 font-black uppercase bg-white hover:bg-gray-100 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+    danger: "bg-red-500 text-white border-4 border-black p-4 font-black uppercase hover:bg-black transition-all",
+  },
+
+  // Form Elements
+  form: {
+    label: "block font-black uppercase text-xs mb-2 tracking-widest",
+    input: "w-full border-4 border-black p-3 font-bold focus:bg-yellow-50 outline-none transition-colors",
+    select: "w-full border-4 border-black p-3 font-bold bg-white appearance-none cursor-pointer",
+    grid: "grid grid-cols-1 md:grid-cols-2 gap-6",
+  },
+
+  // Modals (Responsive)
+  modal: {
+    overlay: "fixed inset-0 z-[200] flex items-end md:items-center justify-center p-0 md:p-4 bg-black/70 backdrop-blur-sm",
+    container: "bg-white border-t-8 md:border-4 border-black w-full max-w-2xl h-[90dvh] md:h-auto md:max-h-[90vh] overflow-hidden flex flex-col shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]",
+    header: "sticky top-0 bg-white border-b-4 border-black p-6 z-10 flex justify-between items-center shrink-0",
+    body: "p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar",
+    footer: "sticky bottom-0 bg-gray-100 border-t-4 border-black p-6 flex gap-4 shrink-0",
+  },
+
+  // Typography
+  text: {
+    h1: "text-4xl md:text-6xl font-black uppercase mb-8 tracking-tighter",
+    h2: "text-2xl font-black uppercase mb-4",
+    p: "font-bold text-gray-700 leading-tight",
+  }
+};
