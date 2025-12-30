@@ -1,7 +1,3 @@
-This is the final, clean version of your **DESIGN_DOC.md**. I have consolidated all the suggestions from our development process into a logical structure, removed redundant sections, and ensured that the 1:1 matching and batching rules are clearly defined.
-
----
-
 # Design Document: Stock Portfolio Tracker (v5.0)
 
 ## 1. Overview
