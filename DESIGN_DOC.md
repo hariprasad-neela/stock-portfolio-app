@@ -91,6 +91,12 @@ All components must consume `uiTheme.ts`. Direct Tailwind utility usage in compo
 
 * **Date Input:** Native date picker integrated with standard theme styles.
 
+> **Styling Governance:**
+> * **Zero-Utility Policy:** Components must not contain raw Tailwind strings for structural styling.
+> * **Theme Injection:** All styling must be consumed from `uiTheme.ts`.
+> * **Consistency:** Any visual update (e.g., changing shadow depth) must be performed in `uiTheme.ts` to ensure application-wide synchronization.
+
+
 ---
 
 ## 6. Business Logic & Constraints
