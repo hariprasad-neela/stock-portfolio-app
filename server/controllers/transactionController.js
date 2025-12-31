@@ -19,14 +19,14 @@ export const bulkSell = async (req, res) => {
         for (const buyId of selectedBuyIds) {
             // Get the quantity of this specific BUY lot to record the link accurately
             const buyLotRes = await client.query(
-                'SELECT open_quantity FROM transactions WHERE transaction_id = $1',
+                'SELECT quantity FROM transactions WHERE transaction_id = $1',
                 [buyId]
             );
-            const qtyToClose = buyLotRes.rows[0].open_quantity;
+            const qtyToClose = buyLotRes.rows[0].quantity;
 
             // Ensure the array of IDs is treated as a UUID array in the query
             await client.query(
-                'UPDATE transactions SET is_open = false, open_quantity = 0 WHERE transaction_id = ANY($1::uuid[])',
+                'UPDATE transactions SET is_open = false, quantity = 0 WHERE transaction_id = ANY($1::uuid[])',
                 [selectedBuyIds]
             );
 
@@ -56,8 +56,8 @@ export const getOpenInventory = async (req, res) => {
             SELECT 
                 transaction_id, 
                 date, 
-                quantity AS open_quantity, 
-                price AS buy_price 
+                quantity, 
+                price 
             FROM transactions 
             WHERE ticker = $1 AND type = 'BUY' AND is_open = true
             ORDER BY date ASC

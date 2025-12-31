@@ -11,18 +11,40 @@ interface LotProps {
   lot: {
     transaction_id: string; // Matches your JSON
     date: string;           // Matches your JSON
-    open_quantity: number;  // Matches your JSON
-    buy_price: number;      // Matches your JSON
+    quantity: number;  // Matches your JSON
+    price: number;      // Matches your JSON
   };
   cmp: number;
   isSelected: boolean;
   onToggle: () => void;
 }
 
+
+
+                    props
+
+                    cmp:
+                    27.73
+                    isSelected:
+                    false
+
+                    lot:
+                    {price: 29.91, date: "22/10/2024", open_quantit…}
+                    price:
+                    29.91
+                    date:
+                    "22/10/2024"
+                    quantity:
+                    35
+                    transaction_id:
+                    "3d643223-7e63-4dd6-a319-92bc82333104"
+                    onToggle:
+                    onToggle() {}
+
 export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }: LotProps) => {
   // 1. Calculate using the correct property names
-  const cost = lot.buy_price * lot.open_quantity;
-  const currentVal = cmp * lot.open_quantity;
+  const cost = lot.price * lot.quantity;
+  const currentVal = cmp * lot.quantity;
   const isPositive = currentVal - cost >= 0;
   const profitValue = currentVal - cost;
   
@@ -41,9 +63,6 @@ export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }: LotProps) =>
     <div key={lot.transaction_id} className={uiTheme.inventory.card}>
               <div className={uiTheme.inventory.cardHeader}>
                 <div>
-                  <span className="text-xs font-black uppercase bg-black text-white px-2 py-1 mr-2">
-                    {lot.ticker}
-                  </span>
                   <span className="text-xs font-bold text-gray-500">{lot.date}</span>
                 </div>
                 {/* CHECKBOX FIX */}

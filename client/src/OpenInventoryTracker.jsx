@@ -28,9 +28,9 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
         if (selectedIds.length === 0) return null;
 
         const selectedLotsData = openLots.filter(lot => selectedIds.includes(lot.transaction_id));
-        const totalQty = selectedLotsData.reduce((sum, lot) => sum + parseFloat(lot.open_quantity), 0);
+        const totalQty = selectedLotsData.reduce((sum, lot) => sum + parseFloat(lot.quantity), 0);
         const totalInvestment = selectedLotsData.reduce((sum, lot) => 
-            sum + (parseFloat(lot.open_quantity) * parseFloat(lot.buy_price)), 0);
+            sum + (parseFloat(lot.quantity) * parseFloat(lot.price)), 0);
         const avgBuyPrice = totalInvestment / totalQty;
 
         // Current Calculations
@@ -98,8 +98,8 @@ const OpenInventoryTracker = ({ ticker, openLots }) => {
                                     <input type="checkbox" className="w-5 h-5 rounded-lg" checked={selectedIds.includes(lot.transaction_id)} onChange={() => toggleSelect(lot.transaction_id)} />
                                 </td>
                                 <td className="px-6 py-3 text-xs font-bold text-slate-500">{lot.date}</td>
-                                <td className="px-6 py-3 text-sm font-black text-slate-800 text-center">{lot.open_quantity}</td>
-                                <td className="px-6 py-3 text-sm font-mono text-right text-slate-400">₹{parseFloat(lot.buy_price).toFixed(2)}</td>
+                                <td className="px-6 py-3 text-sm font-black text-slate-800 text-center">{lot.quantity}</td>
+                                <td className="px-6 py-3 text-sm font-mono text-right text-slate-400">₹{parseFloat(lot.price).toFixed(2)}</td>
                             </tr>
                         ))}
                     </tbody>

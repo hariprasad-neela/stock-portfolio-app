@@ -22,8 +22,8 @@ router.get('/open-inventory/:ticker', async (req, res) => {
             SELECT 
                 t.transaction_id,
                 t.date,
-                t.quantity AS open_quantity,
-                t.price AS buy_price
+                t.quantity,
+                t.price
             FROM transactions t
             JOIN stocks s ON t.stock_id = s.stock_id
             WHERE t.portfolio_id = $1 
@@ -39,8 +39,8 @@ router.get('/open-inventory/:ticker', async (req, res) => {
         const openLots = result.rows.map(row => ({
             transaction_id: row.transaction_id,
             date: new Date(row.date).toLocaleDateString('en-IN', { timeZone: 'UTC' }),
-            open_quantity: parseFloat(row.open_quantity),
-            buy_price: parseFloat(row.buy_price),
+            quantity: parseFloat(row.quantity),
+            price: parseFloat(row.price),
         }));
 
         res.json(openLots);

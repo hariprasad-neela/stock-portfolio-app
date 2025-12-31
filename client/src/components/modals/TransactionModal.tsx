@@ -165,14 +165,14 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                                         onClick={() => setFormData({
                                             ...formData,
                                             parent_buy_id: lot.transaction_id,
-                                            quantity: lot.open_quantity, // Correct mapping from your JSON
+                                            quantity: lot.quantity, // Correct mapping from your JSON
                                             ticker: formData.ticker // Ensure ticker matches
                                         })}
                                         className={`${uiTheme.list.item} ${formData.parent_buy_id === lot.transaction_id ? uiTheme.list.itemSelected : uiTheme.list.itemUnselected}`}
                                     >
                                         <div className="flex justify-between items-center text-xs">
                                             <span className="font-black">{lot.date}</span>
-                                            <span className="font-bold">{lot.open_quantity} Units @ ₹{lot.buy_price}</span>
+                                            <span className="font-bold">{lot.quantity} Units @ ₹{lot.price}</span>
                                         </div>
                                     </div>
                                 ))}

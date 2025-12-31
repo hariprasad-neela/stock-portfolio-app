@@ -39,8 +39,8 @@ export interface BatchSelection {
 export interface OpenLot {
   transaction_id: string;
   date: string;
-  open_quantity: number;
-  buy_price: number;
+  quantity: number;
+  price: number;
   ticker: string;
   // We add these for UI state logic
   current_price?: number; 

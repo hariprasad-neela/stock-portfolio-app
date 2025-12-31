@@ -68,7 +68,7 @@ export const InventoryPage = () => {
 
     // Calculations
     const selectedLotsData = lots.filter(lot => selectedLotIds.includes(lot.id));
-    const totalCost = selectedLotsData.reduce((acc, lot) => acc + (lot.buy_price * lot.quantity), 0);
+    const totalCost = selectedLotsData.reduce((acc, lot) => acc + (lot.price * lot.quantity), 0);
     const currentVal = selectedLotsData.reduce((acc, lot) => acc + (cmp * lot.quantity), 0);
     const profitAmt = currentVal - totalCost;
     const profitPct = totalCost > 0 ? (profitAmt / totalCost) * 100 : 0;

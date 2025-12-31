@@ -9,8 +9,8 @@ interface Props {
 }
 
 export const BatchBuilder: React.FC<Props> = ({ selectedLots, onClear, onCreateBatch }) => {
-  const totalQty = selectedLots.reduce((sum, lot) => sum + lot.open_quantity, 0);
-  const totalCost = selectedLots.reduce((sum, lot) => sum + (lot.open_quantity * lot.buy_price), 0);
+  const totalQty = selectedLots.reduce((sum, lot) => sum + lot.quantity, 0);
+  const totalCost = selectedLots.reduce((sum, lot) => sum + (lot.quantity * lot.price), 0);
   const avgPrice = totalQty > 0 ? totalCost / totalQty : 0;
 
   return (

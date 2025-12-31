@@ -27,7 +27,7 @@ console.log("Rendering InventoryTable with lots:", lots);
         <tbody>
           {lots.map((lot) => {
             const isSelected = selectedIds.includes(lot.transaction_id);
-            const totalCost = lot.open_quantity * lot.buy_price;
+            const totalCost = lot.quantity * lot.price;
 
             return (
               <tr 
@@ -50,10 +50,10 @@ console.log("Rendering InventoryTable with lots:", lots);
                 </td>
                 <td className={uiTheme.tableCell}>{lot.date}</td>
                 <td className={uiTheme.tableCell + " text-right font-black"}>
-                  {lot.open_quantity}
+                  {lot.quantity}
                 </td>
                 <td className={uiTheme.tableCell + " text-right"}>
-                  ₹{lot.buy_price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  ₹{lot.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </td>
                 <td className={uiTheme.tableCell + " text-right font-black"}>
                   ₹{totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
