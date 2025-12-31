@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LotSelectorCard } from '../features/inventory/LotSelectorCard';
+import { InventorySummary } from '../features/inventory/InventorySummary';
 import { uiTheme } from '../theme/uiTheme';
 
 export const InventoryPage = () => {
@@ -67,7 +68,7 @@ export const InventoryPage = () => {
     };
 
     // Calculations
-    const selectedLotsData = lots.filter(lot => selectedLotIds.includes(lot.id));
+    const selectedLotsData = lots.filter(lot => selectedLotIds.includes(lot.transaction_id));
     const totalCost = selectedLotsData.reduce((acc, lot) => acc + (lot.price * lot.quantity), 0);
     const currentVal = selectedLotsData.reduce((acc, lot) => acc + (cmp * lot.quantity), 0);
     const profitAmt = currentVal - totalCost;
@@ -102,6 +103,11 @@ export const InventoryPage = () => {
                     {loading ? '⏳' : '▼'}
                 </div>
             </div>
+
+            {/* The New Summary Section */}
+            {selectedTicker && (
+                <InventorySummary ticker={selectedTicker} lots={selectedLotsData} />
+            )}
 
             {/* LOTS DISPLAY AREA */}
             <div className={uiTheme.inventory.grid}>

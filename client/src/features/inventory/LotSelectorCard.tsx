@@ -58,8 +58,8 @@ export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }: LotProps) =>
               </div>
 
               <div className={uiTheme.inventory.statRow}>
-                <span>CMP:</span>
-                <span className="font-black">₹{lot.cmp}</span>
+                <span>Investment Amount:</span>
+                <span className="font-black">₹{lot.price * lot.quantity}</span>
               </div>
 
               <div className="mt-2 pt-2 border-t-2 border-dashed border-black flex justify-between items-end">
