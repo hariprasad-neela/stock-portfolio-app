@@ -370,3 +370,28 @@ export const updateTransaction = async (req, res) => {
         client.release();
     }
 };
+
+export const getOpenTrades = async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        t.transaction_id, 
+        s.ticker, 
+        t.stock_id,
+        t.type, 
+        t.quantity, 
+        t.price, 
+        t.date, 
+        t.is_open
+      FROM transactions t
+      JOIN stocks s ON t.stock_id = s.stock_id
+      WHERE t.is_open = TRUE AND t.type = 'BUY'
+      ORDER BY t.date DESC
+    `;
+    const result = await pool.query(query);
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Server error fetching open trades" });
+  }
+};

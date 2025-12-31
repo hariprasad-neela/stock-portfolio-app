@@ -9,6 +9,8 @@ import batchRoutes from './routes/batchRoutes.js';
 import marketRoutes from './routes/marketRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import { kite } from './services/zerodhaService.js';
+import { getStocksList } from './controllers/stockController.js';
+import { getOpenTrades } from './controllers/transactionController.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,6 +46,8 @@ app.use('/api/strategy', strategyRoutes);
 app.use('/api/batches', batchRoutes);
 app.use('/api/market', marketRoutes);
 // app.use('/api/data', dataRoutes);
+app.get('/api/stocks', getStocksList);
+app.get('/api/transactions/open', getOpenTrades);
 
 
 // Mount the auth routes
