@@ -1,6 +1,6 @@
 import { uiTheme } from '../../theme/uiTheme';
 
-export const InventorySummary = ({ ticker, lots }) => {
+export const InventorySummary = ({ ticker, lots, cmp }) => {
   if (!lots || lots.length === 0) return null;
 
   // 1. Calculate Aggregates
@@ -9,7 +9,7 @@ export const InventorySummary = ({ ticker, lots }) => {
   const weightedAvg = totalCost / totalQty;
   
   // 2. Use CMP from the first lot (assuming all lots for same ticker have same CMP)
-  const currentPrice = lots[0].cmp || 0;
+  const currentPrice = cmp || 0;
   const currentTotalValue = totalQty * currentPrice;
   const totalPnL = currentTotalValue - totalCost;
   const totalPnLPercent = ((currentPrice - weightedAvg) / weightedAvg) * 100;
@@ -24,7 +24,7 @@ export const InventorySummary = ({ ticker, lots }) => {
             Active Position: {ticker}
           </h2>
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black italic">₹{weightedAvg.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
+            <span className="text-4xl font-black italic">₹{weightedAvg.toFixed(2)}</span>
             <span className="text-gray-400 font-bold text-sm uppercase">Weighted Avg</span>
           </div>
         </div>
@@ -36,7 +36,7 @@ export const InventorySummary = ({ ticker, lots }) => {
           </div>
           <div>
             <p className="text-[10px] text-gray-500 font-black uppercase">Current Value</p>
-            <p className="text-lg font-black">₹{currentTotalValue.toLocaleString()}</p>
+            <p className="text-lg font-black">₹{currentTotalValue.toFixed(2)}</p>
           </div>
           <div className="col-span-2 md:col-span-1">
             <p className="text-[10px] text-gray-500 font-black uppercase">Total P&L</p>

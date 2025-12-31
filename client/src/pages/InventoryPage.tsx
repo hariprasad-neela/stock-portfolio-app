@@ -106,7 +106,7 @@ export const InventoryPage = () => {
 
             {/* The New Summary Section */}
             {selectedTicker && (
-                <InventorySummary ticker={selectedTicker} lots={selectedLotsData} />
+                <InventorySummary ticker={selectedTicker} lots={lots} cmp={cmp} />
             )}
 
             {/* LOTS DISPLAY AREA */}
