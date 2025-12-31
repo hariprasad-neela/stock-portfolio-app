@@ -19,28 +19,6 @@ interface LotProps {
   onToggle: () => void;
 }
 
-
-
-                    props
-
-                    cmp:
-                    27.73
-                    isSelected:
-                    false
-
-                    lot:
-                    {price: 29.91, date: "22/10/2024", open_quantit…}
-                    price:
-                    29.91
-                    date:
-                    "22/10/2024"
-                    quantity:
-                    35
-                    transaction_id:
-                    "3d643223-7e63-4dd6-a319-92bc82333104"
-                    onToggle:
-                    onToggle() {}
-
 export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }: LotProps) => {
   // 1. Calculate using the correct property names
   const cost = lot.price * lot.quantity;
