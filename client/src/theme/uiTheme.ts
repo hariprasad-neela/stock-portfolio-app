@@ -24,7 +24,6 @@ export const uiTheme = {
 
   // Table styles (Clean & Sharp)
   tableWrapper: "w-full overflow-hidden border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-  table: "w-full border-collapse text-left",
   tableHeader: "bg-gray-50 border-b-2 border-black p-4 text-[10px] font-black uppercase tracking-[0.15em] text-gray-400",
   tableRow: "border-b border-gray-200 hover:bg-blue-50/30 transition-colors cursor-pointer",
   tableCell: "p-4 text-sm font-bold text-slate-900",
@@ -92,5 +91,22 @@ export const uiTheme = {
     h1: "text-4xl md:text-6xl font-black uppercase mb-8 tracking-tighter",
     h2: "text-2xl font-black uppercase mb-4",
     p: "font-bold text-gray-700 leading-tight",
+  },
+
+  table: {
+    // Allows the table to scroll horizontally without breaking the page layout
+    wrapper: "w-full overflow-x-auto border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white mb-8",
+    base: "w-full text-left border-collapse min-w-[600px]", // min-w ensures it doesn't squish too much
+    th: "border-b-4 border-black p-4 font-black uppercase text-xs bg-gray-100",
+    td: "border-b-2 border-gray-200 p-4 font-bold text-sm",
+    row: "hover:bg-yellow-50 transition-colors",
+  },
+
+  history: {
+    // Header layout that stacks on mobile, rows on desktop
+    header: "flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8",
+    title: "text-4xl font-black uppercase tracking-tighter",
+    // Full width button on mobile for better touch target
+    addButton: "w-full md:w-auto bg-black text-white p-4 font-black uppercase hover:bg-green-500 hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
   }
 };

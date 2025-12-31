@@ -81,6 +81,11 @@ All components must consume `uiTheme.ts`. Direct Tailwind utility usage in compo
 
 * **Brutalist Style:** Thick black borders (`border-4`), heavy shadows, and high-contrast colors (Black, White, Yellow, Green).
 
+> **Responsive Data Display:**
+> * **Data Grids:** All tables must be wrapped in an `overflow-x-auto` container to support mobile swiping.
+> * **Action Headers:** Primary action buttons (Add/Confirm) must transition to `width: 100%` on screens smaller than 768px to ensure accessibility.
+
+
 ### 5.2 TransactionModal
 
 * **Responsive Layout:** Uses `max-h-[95vh]` with internal scrolling and sticky headers/footers to support mobile viewports.
@@ -123,4 +128,3 @@ All components must consume `uiTheme.ts`. Direct Tailwind utility usage in compo
 | `/api/transactions/:id` | PUT | Same as POST | Updates record and handles lot cleanup. |
 | `/api/market/active-tickers` | GET | `["TICKER1", "TICKER2"]` | Returns stocks where `display = TRUE`. |
 | `/api/batches/unbatched` | GET | `[{ pair_id, profit, ... }]` | Returns pairs ready for grouping. |
-  

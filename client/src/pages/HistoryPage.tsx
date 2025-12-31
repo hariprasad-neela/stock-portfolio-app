@@ -100,48 +100,49 @@ export const HistoryPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* TOOLBAR */}
-      <div className="flex justify-between items-center bg-white border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+    <div className={uiTheme.layout.container}>
+      {/* Responsive Header */}
+      <div className={uiTheme.history.header}>
+        <h1 className={uiTheme.history.title}>Transaction History</h1>
+        <button 
+          onClick={openAddModal}
+          className={uiTheme.history.addButton}
+        >
+          + Add Transaction
+        </button>
         <input
           type="text"
           placeholder="Filter Ticker..."
           className="border-2 border-black p-2 font-bold uppercase outline-none focus:bg-yellow-50"
           onChange={(e) => setFilterTicker(e.target.value)}
         />
-        <button
-          onClick={openAddModal}
-          className="bg-black text-white px-6 py-2 font-black uppercase hover:bg-yellow-400 hover:text-black transition-colors"
-        >
-          + Add Transaction
-        </button>
       </div>
 
-      {/* DATA TABLE */}
-      <div className="bg-white border-4 border-black overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-        <table className="w-full text-left border-collapse">
+{/* Responsive Table Wrapper */}
+      <div className={uiTheme.table.wrapper}>
+        <table className={uiTheme.table.base}>
           <thead>
-            <tr className="bg-gray-100 border-b-4 border-black">
-              <th className="p-4 font-black uppercase text-sm">Date</th>
-              <th className="p-4 font-black uppercase text-sm">Ticker</th>
-              <th className="p-4 font-black uppercase text-sm text-right">Type</th>
-              <th className="p-4 font-black uppercase text-sm text-right">Qty</th>
-              <th className="p-4 font-black uppercase text-sm text-right">Price</th>
-              <th className="p-4 font-black uppercase text-sm text-center">Actions</th>
+            <tr>
+              <th className={uiTheme.table.th}>Date</th>
+              <th className={uiTheme.table.th}>Ticker</th>
+              <th className={uiTheme.table.th}>Type</th>
+              <th className={uiTheme.table.th}>Qty</th>
+              <th className={uiTheme.table.th}>Price</th>
+              <th className={uiTheme.table.th}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {transactions && transactions.map((tx: any) => (
-              <tr key={tx.transaction_id} className="border-b-2 border-black hover:bg-gray-50">
-                <td className="p-4 font-bold text-sm">{formatDate(tx.date)}</td>
-                <td className="p-4 font-black text-blue-600">{tx.ticker}</td>
-                <td className="p-4 font-black text-blue-600">{tx.type}</td>
-                <td className="p-4 font-bold text-right">{parseFloat(tx.quantity).toLocaleString('en-IN')}</td>
-                <td className="p-4 font-bold text-right">₹{parseFloat(tx.price).toFixed(2)}</td>
-                <td className="p-4 text-center space-x-2">
+              <tr key={tx.transaction_id} className={uiTheme.table.row}>
+                <td className={uiTheme.table.td}>{formatDate(tx.date)}</td>
+                <td className={uiTheme.table.td}>{tx.ticker}</td>
+                <td className={uiTheme.table.td}>{tx.type}</td>
+                <td className={uiTheme.table.td}>{parseFloat(tx.quantity).toLocaleString('en-IN')}</td>
+                <td className={uiTheme.table.td}>₹{parseFloat(tx.price).toFixed(2)}</td>
+                <td className={uiTheme.table.td}>
                   <button
                     onClick={() => openEditModal(tx)}
-                    className="text-xs font-black uppercase underline hover:text-blue-600"
+                    className="underline font-black"
                   >
                     Edit
                   </button>
