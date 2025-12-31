@@ -1,4 +1,5 @@
 import React from 'react';
+import { uiTheme } from '../../theme/uiTheme';
 
 // Helper to handle DD/MM/YYYY format
 const parseDate = (dateStr: string) => {
@@ -22,9 +23,12 @@ export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }: LotProps) =>
   // 1. Calculate using the correct property names
   const cost = lot.buy_price * lot.open_quantity;
   const currentVal = cmp * lot.open_quantity;
+  const isPositive = currentVal - cost >= 0;
+  const profitValue = currentVal - cost;
   
   // 2. Prevent division by zero if cmp isn't loaded yet
   const pnlPct = cmp > 0 ? ((currentVal - cost) / cost) * 100 : 0;
+
   
   // 3. Format Date correctly
   const formattedDate = parseDate(lot.date).toLocaleDateString('en-IN', {
@@ -34,33 +38,45 @@ export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }: LotProps) =>
   });
 
   return (
-    <div 
-      onClick={onToggle}
-      className={`cursor-pointer border-2 border-black p-4 flex justify-between items-center transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 ${
-        isSelected ? 'bg-yellow-50 border-yellow-500' : 'bg-white'
-      }`}
-    >
-      <div className="flex items-center gap-4">
-        <div className={`w-6 h-6 border-2 border-black flex items-center justify-center ${isSelected ? 'bg-black' : 'bg-white'}`}>
-          {isSelected && <span className="text-white text-xs">✓</span>}
-        </div>
-        <div>
-          <p className="font-black text-lg">₹{cost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
-          <p className="text-[10px] uppercase font-bold text-gray-400">{formattedDate}</p>
-        </div>
-      </div>
+    <div key={lot.transaction_id} className={uiTheme.inventory.card}>
+              <div className={uiTheme.inventory.cardHeader}>
+                <div>
+                  <span className="text-xs font-black uppercase bg-black text-white px-2 py-1 mr-2">
+                    {lot.ticker}
+                  </span>
+                  <span className="text-xs font-bold text-gray-500">{lot.date}</span>
+                </div>
+                {/* CHECKBOX FIX */}
+                <input 
+                  type="checkbox" 
+                  className={uiTheme.inventory.checkbox}
+                  checked={isSelected}
+                  onChange={() => onToggle()}
+                />
+              </div>
 
-      <div className="text-center">
-        <p className="text-[10px] uppercase font-bold text-gray-400">Qty @ Buy</p>
-        <p className="font-bold">{lot.open_quantity} @ ₹{lot.buy_price}</p>
-      </div>
+              <div className={uiTheme.inventory.statRow}>
+                <span>Qty: {lot.quantity}</span>
+                <span>Avg: ₹{lot.price}</span>
+              </div>
 
-      <div className="text-right">
-        <p className={`text-xl font-black ${pnlPct >= 3 ? 'text-green-600' : pnlPct < 0 ? 'text-red-600' : 'text-black'}`}>
-          {cmp > 0 ? `${pnlPct.toFixed(2)}%` : '---'}
-        </p>
-        <p className="text-[10px] uppercase font-bold text-gray-400">Current P&L</p>
-      </div>
-    </div>
+              <div className={uiTheme.inventory.statRow}>
+                <span>CMP:</span>
+                <span className="font-black">₹{lot.cmp}</span>
+              </div>
+
+              <div className="mt-2 pt-2 border-t-2 border-dashed border-black flex justify-between items-end">
+                <span className="text-xs font-black uppercase">P&L</span>
+                <div className="text-right">
+                  {/* DUAL PROFIT DISPLAY */}
+                  <div className={isPositive ? uiTheme.inventory.profitPositive : uiTheme.inventory.profitNegative}>
+                    {isPositive ? '+' : ''}₹{profitValue.toLocaleString()}
+                  </div>
+                  <div className={`text-xs font-black ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                    ({pnlPct.toFixed(2)}%)
+                  </div>
+                </div>
+              </div>
+            </div>
   );
 };

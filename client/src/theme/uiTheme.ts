@@ -108,5 +108,16 @@ export const uiTheme = {
     title: "text-4xl font-black uppercase tracking-tighter",
     // Full width button on mobile for better touch target
     addButton: "w-full md:w-auto bg-black text-white p-4 font-black uppercase hover:bg-green-500 hover:text-black transition-all border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+  },
+
+  inventory: {
+    grid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+    card: "border-4 border-black p-4 bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-2 relative",
+    cardHeader: "flex justify-between items-start border-b-2 border-black pb-2 mb-2",
+    statRow: "flex justify-between text-sm font-bold",
+    profitPositive: "text-green-600 font-black",
+    profitNegative: "text-red-600 font-black",
+    checkbox: "w-6 h-6 border-4 border-black cursor-pointer accent-black",
   }
+
 };

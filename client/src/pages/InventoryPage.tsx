@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LotSelectorCard } from '../features/inventory/LotSelectorCard';
+import { uiTheme } from '../theme/uiTheme';
 
 export const InventoryPage = () => {
     const [availableTickers, setAvailableTickers] = useState<string[]>([]);
@@ -7,6 +8,7 @@ export const InventoryPage = () => {
     const [activeTicker, setActiveTicker] = useState(''); // The ticker we are actually tracking
     const [lots, setLots] = useState([]);
     const [selectedLotIds, setSelectedLotIds] = useState<number[]>([]);
+    const [selectedLots, setSelectedLots] = useState<string[]>([]);
     const [cmp, setCmp] = useState<number>(0);
     const [loading, setLoading] = useState(false);
 
@@ -58,6 +60,11 @@ export const InventoryPage = () => {
         loadTickerData();
     }, [selectedTicker, API_BASE]);
 
+    const toggleLot = (id: string) => {
+    setSelectedLots(prev => 
+      prev.includes(id) ? prev.filter(lotId => lotId !== id) : [...prev, id]
+    );
+  };
 
     // Calculations
     const selectedLotsData = lots.filter(lot => selectedLotIds.includes(lot.id));
@@ -68,12 +75,11 @@ export const InventoryPage = () => {
     const isTargetMet = profitPct >= 3.0;
 
     return (
-        <div className="space-y-8">
-            <section className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                <h2 className="text-2xl font-black uppercase mb-4 italic flex justify-between">
-                    Workbench
+        <div className={uiTheme.layout.container}>
+            <div className="flex justify-between items-center mb-8">
+        <h1 className={uiTheme.text.h1}>Open Inventory
                     {loading && <span className="text-sm normal-case font-bold animate-pulse">Syncing...</span>}
-                </h2>
+                </h1>
 
                 <div className="relative">
                     <select

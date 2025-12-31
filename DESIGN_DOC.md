@@ -59,6 +59,12 @@ The analysis and simulation layer.
 * Calculates Unrealized P&L based on Live CMP (Current Market Price).
 * Lot-based cards showing acquisition date, cost, and percentage gain.
 
+> **Inventory Analytics:**
+> * **Profit Visualization:** All open lots must display dual P&L metrics: Absolute Value (₹) and Percentage (%).
+> * **Selection Logic:** Multi-select checkboxes must be available for lot aggregation (batching).
+> * **Mobile UI:** Inventory must switch from a table to a **Card Grid** layout on small screens to ensure readability of P&L metrics.
+> 
+> 
 
 
 ### 4.3 BatchesPage
