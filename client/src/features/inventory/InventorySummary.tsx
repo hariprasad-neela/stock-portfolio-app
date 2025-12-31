@@ -24,7 +24,7 @@ export const InventorySummary = ({ ticker, lots, cmp }) => {
             Active Position: {ticker}
           </h2>
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black italic">₹{weightedAvg.toFixed(2)}</span>
+            <span className="text-4xl font-black italic text-black">₹{weightedAvg.toFixed(2)}</span>
             <span className="text-gray-400 font-bold text-sm uppercase">Weighted Avg</span>
           </div>
         </div>
@@ -32,11 +32,11 @@ export const InventorySummary = ({ ticker, lots, cmp }) => {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 w-full md:w-auto border-t md:border-t-0 md:border-l border-gray-700 pt-4 md:pt-0 md:pl-8">
           <div>
             <p className="text-[10px] text-gray-500 font-black uppercase">Total Qty</p>
-            <p className="text-lg font-black">{totalQty}</p>
+            <p className="text-lg font-black text-black">{totalQty}</p>
           </div>
           <div>
             <p className="text-[10px] text-gray-500 font-black uppercase">Current Value</p>
-            <p className="text-lg font-black">₹{currentTotalValue.toFixed(2)}</p>
+            <p className="text-lg font-black text-black">₹{currentTotalValue.toFixed(2)}</p>
           </div>
           <div className="col-span-2 md:col-span-1">
             <p className="text-[10px] text-gray-500 font-black uppercase">Total P&L</p>

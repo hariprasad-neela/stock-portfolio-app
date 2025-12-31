@@ -134,3 +134,6 @@ All components must consume `uiTheme.ts`. Direct Tailwind utility usage in compo
 | `/api/transactions/:id` | PUT | Same as POST | Updates record and handles lot cleanup. |
 | `/api/market/active-tickers` | GET | `["TICKER1", "TICKER2"]` | Returns stocks where `display = TRUE`. |
 | `/api/batches/unbatched` | GET | `[{ pair_id, profit, ... }]` | Returns pairs ready for grouping. |
+
+
+

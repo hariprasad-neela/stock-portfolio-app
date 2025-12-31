@@ -8,7 +8,7 @@ export const Navbar = () => {
   return (
     <nav className={uiTheme.nav.bar}>
       <div className="flex justify-between items-center max-w-7xl mx-auto">
-        <h1 className={uiTheme.nav.logo}>StockTracker</h1>
+        <NavLink to="/"><h1 className={uiTheme.nav.logo}>StockTracker</h1></NavLink>
         
         {/* Desktop */}
         <div className="hidden md:flex gap-8">

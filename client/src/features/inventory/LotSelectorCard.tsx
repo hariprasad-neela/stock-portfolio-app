@@ -53,8 +53,8 @@ export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }: LotProps) =>
               </div>
 
               <div className={uiTheme.inventory.statRow}>
-                <span>Qty: {lot.quantity}</span>
-                <span>Avg: ₹{lot.price}</span>
+                <span>Quantity: {lot.quantity}</span>
+                <span>Price: ₹{lot.price}</span>
               </div>
 
               <div className={uiTheme.inventory.statRow}>
