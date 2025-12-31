@@ -61,10 +61,10 @@ export const InventoryPage = () => {
     }, [selectedTicker, API_BASE]);
 
     const toggleLot = (id: string) => {
-    setSelectedLots(prev => 
-      prev.includes(id) ? prev.filter(lotId => lotId !== id) : [...prev, id]
-    );
-  };
+        setSelectedLots(prev =>
+            prev.includes(id) ? prev.filter(lotId => lotId !== id) : [...prev, id]
+        );
+    };
 
     // Calculations
     const selectedLotsData = lots.filter(lot => selectedLotIds.includes(lot.id));
@@ -77,29 +77,34 @@ export const InventoryPage = () => {
     return (
         <div className={uiTheme.layout.container}>
             <div className="flex justify-between items-center mb-8">
-        <h1 className={uiTheme.text.h1}>Open Inventory
+                <h1 className={uiTheme.text.h1}>Open Inventory
                     {loading && <span className="text-sm normal-case font-bold animate-pulse">Syncing...</span>}
                 </h1>
+                {selectedLots.length > 0 && (
+                    <button className={uiTheme.button.primary}>
+                        Batch Selected ({selectedLots.length})
+                    </button>
+                )}
+            </div>
 
-                <div className="relative">
-                    <select
-                        value={selectedTicker}
-                        onChange={(e) => setSelectedTicker(e.target.value)}
-                        className="w-full appearance-none border-4 border-black p-4 font-black uppercase bg-white focus:bg-yellow-50 outline-none cursor-pointer transition-colors"
-                    >
-                        <option value="">-- SELECT FROM STOCKS TABLE --</option>
-                        {availableTickers.map(t => (
-                            <option key={t} value={t}>{t}</option>
-                        ))}
-                    </select>
-                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none font-black">
-                        {loading ? '⏳' : '▼'}
-                    </div>
+            <div className="relative">
+                <select
+                    value={selectedTicker}
+                    onChange={(e) => setSelectedTicker(e.target.value)}
+                    className="w-full appearance-none border-4 border-black p-4 font-black uppercase bg-white focus:bg-yellow-50 outline-none cursor-pointer transition-colors"
+                >
+                    <option value="">-- SELECT FROM STOCKS TABLE --</option>
+                    {availableTickers.map(t => (
+                        <option key={t} value={t}>{t}</option>
+                    ))}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none font-black">
+                    {loading ? '⏳' : '▼'}
                 </div>
-            </section>
+            </div>
 
             {/* LOTS DISPLAY AREA */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className={uiTheme.inventory.grid}>
                 {/* LOTS LIST */}
                 <div className="lg:col-span-2 space-y-4">
                     <div className="flex justify-between items-center">
@@ -161,6 +166,6 @@ export const InventoryPage = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
