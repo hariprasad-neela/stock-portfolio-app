@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { MainLayout } from './components/common/MainLayout';
+import { fetchStocks } from './store/slices/stocksSlice';
+import { fetchOpenTrades } from './store/slices/tradesSlice';
 
 // Page Imports (Ensure filenames match your recent renames)
 import { LiveTrackerPage } from './pages/LiveTrackerPage';
@@ -9,6 +12,19 @@ import { BatchesPage } from './pages/BatchesPage';
 import { HistoryPage } from './pages/HistoryPage';
 
 const App = () => {
+  const dispatch = useDispatch();
+  const stocksStatus = useSelector((state) => state.stocks.status);
+  const tradesStatus = useSelector((state) => state.trades.status);
+
+  useEffect(() => {
+    if (stocksStatus === 'idle') {
+      dispatch(fetchStocks());
+    }
+    if (tradesStatus === 'idle') {
+      dispatch(fetchOpenTrades());
+    }
+  }, [dispatch, stocksStatus, tradesStatus]);
+
   return (
     <BrowserRouter>
       <Routes>
