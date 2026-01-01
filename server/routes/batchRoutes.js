@@ -1,8 +1,8 @@
 import express from 'express';
-import { createSelectiveBatch } from '../controllers/batchController.js';
-
 const router = express.Router();
+import { getUnbatchedPairs, createBatch } from '../controllers/batchController.js';
 
-router.post('/create-selective', createSelectiveBatch);
+router.get('/unbatched', getUnbatchedPairs);
+router.post('/create', createBatch);
 
 export default router;
