@@ -1,4 +1,4 @@
-import { pool } from '../db.js';
+import pool from '../db.js';
 
 // GET: Fetch closed 1:1 pairs that don't have a batch_id
 export const getUnbatchedPairs = async (req, res) => {
