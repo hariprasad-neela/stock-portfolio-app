@@ -1,13 +1,48 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUnbatchedPairs } from '../store/slices/batchesSlice';
+import { createBatch, fetchUnbatchedPairs } from '../store/slices/batchesSlice';
 import { uiTheme } from '../theme/uiTheme';
+import { store } from '../store/index';
 
 export const BatchesPage = () => {
   const dispatch = useDispatch();
-  const { unbatchedPairs, status } = useSelector((state: RootState) => state.batches);
+  const { unbatchedPairs, status } = useSelector((state) => state.batches);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState('');
+
+  // src/pages/BatchesPage.tsx
+
+  const handleCreateBatch = async () => {
+    // 1. Validation check
+    if (!batchName.trim() || selectedIds.length === 0) {
+      alert("Please provide a batch name and select at least one pair.");
+      return;
+    }
+
+    try {
+      // 2. Dispatch the thunk
+      // .unwrap() allows us to use standard try/catch logic on the thunk result
+      await dispatch(createBatch({
+        batch_name: batchName,
+        transaction_ids: selectedIds
+      })).unwrap();
+
+      // 3. Success Feedback
+      alert(`Success: Batch "${batchName}" has been locked into the ledger.`);
+
+      // 4. Reset Local UI State
+      setBatchName('');
+      setSelectedIds([]);
+
+      // 5. Sync Redux State
+      // We re-fetch unbatched pairs to remove the ones we just grouped
+      dispatch(fetchUnbatchedPairs());
+
+    } catch (error) {
+      console.error("Batch Creation Failed:", error);
+      alert(`Error: ${error}`);
+    }
+  };
 
   // Fetch only if not already loaded
   useEffect(() => {
@@ -36,7 +71,7 @@ export const BatchesPage = () => {
   return (
     <div className={uiTheme.layout.container}>
       <h1 className={uiTheme.text.h1}>Batching Room</h1>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className={uiTheme.table.wrapper}>
@@ -54,8 +89,8 @@ export const BatchesPage = () => {
                 {unbatchedPairs.map((pair) => (
                   <tr key={pair.sell_id} className={uiTheme.table.row}>
                     <td className={uiTheme.table.td}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         className={uiTheme.inventory.checkbox}
                         checked={selectedIds.includes(pair.buy_id)}
                         onChange={() => handleToggle(pair.buy_id, pair.sell_id)}
@@ -77,9 +112,9 @@ export const BatchesPage = () => {
         {/* Action Panel */}
         <div className={uiTheme.layout.section + " h-fit sticky top-24"}>
           <h2 className={uiTheme.text.h2}>Group Selection</h2>
-          <input 
-            className={uiTheme.form.input + " mb-4"} 
-            placeholder="Batch Name (e.g. Q1_Recovery)" 
+          <input
+            className={uiTheme.form.input + " mb-4"}
+            placeholder="Batch Name (e.g. Q1_Recovery)"
             value={batchName}
             onChange={(e) => setBatchName(e.target.value)}
           />
@@ -94,10 +129,10 @@ export const BatchesPage = () => {
               </span>
             </div>
           </div>
-          <button 
-            className={uiTheme.button.primary + " w-full disabled:opacity-50"}
+          <button
+            className={uiTheme.button.primary + " w-full disabled:opacity-50 disabled:cursor-not-allowed"}
             disabled={!batchName || selectedIds.length === 0}
-            onClick={() => handleCreateBatch()} // We'll implement this next
+            onClick={handleCreateBatch}
           >
             CONFIRM BATCH
           </button>

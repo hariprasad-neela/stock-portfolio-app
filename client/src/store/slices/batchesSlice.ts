@@ -12,6 +12,21 @@ export const fetchUnbatchedPairs = createAsyncThunk(
   }
 );
 
+// src/store/batchesSlice.ts
+
+export const createBatch = createAsyncThunk(
+  'batches/createBatch',
+  async (payload: { batch_name: string; transaction_ids: string[] }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_BASE}/api/batches/create`, payload);
+      return response.data;
+    } catch (err: any) {
+      // Return the error message from the backend if available
+      return rejectWithValue(err.response?.data?.error || "Failed to create batch");
+    }
+  }
+);
+
 const batchesSlice = createSlice({
   name: 'batches',
   initialState: {
@@ -30,7 +45,9 @@ const batchesSlice = createSlice({
       .addCase(fetchUnbatchedPairs.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
-      });
+      })
+      .addCase(createBatch.pending, (state) => { state.isSubmitting = true; })
+      .addCase(createBatch.fulfilled, (state) => { state.isSubmitting = false; });
   },
 });
 
