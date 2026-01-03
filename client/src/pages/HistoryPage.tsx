@@ -18,7 +18,7 @@ export const HistoryPage = () => {
 
   const fetchTransactions = async (page = 1) => {
     try {
-      const res = await fetch(`${API_BASE}/api/transactions?page=${page}&limit=10`);
+      const res = await fetch(`${API_BASE}/api/transactions?page=${page}&limit=10&ticker=${filterTicker}`);
       const {data, pagination} = await res.json();
 
       setTransactions(data);

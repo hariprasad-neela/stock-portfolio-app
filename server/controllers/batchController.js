@@ -21,7 +21,7 @@ export const getUnbatchedPairs = async (req, res) => {
       AND sel.batch_id IS NULL
       ORDER BY sel.date DESC;
     `;
-    
+
     const result = await pool.query(query);
     res.status(200).json(result.rows);
   } catch (err) {
@@ -32,30 +32,32 @@ export const getUnbatchedPairs = async (req, res) => {
 
 // POST: Group selected transaction IDs into a named batch
 export const createBatch = async (req, res) => {
-  const { batch_name, transaction_ids } = req.body; // transaction_ids is an array of UUIDs
-
-  if (!batch_name || !transaction_ids || transaction_ids.length === 0) {
-    return res.status(400).json({ error: "Batch name and transaction IDs are required." });
-  }
-
+  const { batch_name, transaction_ids } = req.body;
   const client = await pool.connect();
-  try {
-    await client.query('BEGIN'); // Start Transaction for data integrity
 
+  try {
+    await client.query('BEGIN');
+
+    // Step 1: Insert into batches table and get the new UUID
+    const batchResult = await client.query(
+      'INSERT INTO batches (batch_name) VALUES ($1) RETURNING batch_id',
+      [batch_name]
+    );
+    const newBatchId = batchResult.rows[0].batch_id;
+
+    // Step 2: Update transactions with the actual UUID, not the name string
     const updateQuery = `
       UPDATE transactions 
       SET batch_id = $1 
       WHERE transaction_id = ANY($2::uuid[])
     `;
+    await client.query(updateQuery, [newBatchId, transaction_ids]);
 
-    await client.query(updateQuery, [batch_name, transaction_ids]);
-    
     await client.query('COMMIT');
-    res.status(201).json({ message: `Batch '${batch_name}' created successfully.` });
+    res.status(201).json({ message: "Batch created", batch_id: newBatchId });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error("Error creating batch:", err.message);
-    res.status(500).json({ error: "Failed to create batch." });
+    res.status(500).json({ error: err.message });
   } finally {
     client.release();
   }
