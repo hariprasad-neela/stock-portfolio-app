@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { uiTheme } from '../../theme/uiTheme';
 import { fetchTradeById } from '../../store/slices/tradesSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { formatDate } from '../../utils';
 
 export const TransactionModal = ({ isOpen, onClose, onSave, initialData, mode }) => {
     const dispatch = useDispatch();
@@ -71,15 +72,6 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData, mode })
             setFormData(defaultValue);
         }
     }, [isOpen, initialData, mode, dispatch]);
-
-    // Helper to format ISO Date to Readable Indian Format
-    const formatDate = (isoString: string) => {
-        return new Date(isoString).toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-        });
-    };
 
     const handleParentLotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedId = e.target.value;

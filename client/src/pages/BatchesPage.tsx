@@ -3,19 +3,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createBatch, fetchUnbatchedPairs } from '../store/slices/batchesSlice';
 import { uiTheme } from '../theme/uiTheme';
 import { store } from '../store/index';
+import { formatDate } from '../utils';
 
 export const BatchesPage = () => {
   const dispatch = useDispatch();
   const { unbatchedPairs, status } = useSelector((state) => state.batches);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState('');
+  const [batchDate, setBatchDate] = useState(new Date().toISOString().split('T')[0]);
 
   // src/pages/BatchesPage.tsx
 
   const handleCreateBatch = async () => {
     // 1. Validation check
-    if (!batchName.trim() || selectedIds.length === 0) {
-      alert("Please provide a batch name and select at least one pair.");
+    if (!batchName.trim() || !batchDate || selectedIds.length === 0) {
+      alert("Please provide a batch name, date and select at least one pair.");
       return;
     }
 
@@ -24,6 +26,7 @@ export const BatchesPage = () => {
       // .unwrap() allows us to use standard try/catch logic on the thunk result
       await dispatch(createBatch({
         batch_name: batchName,
+        batch_date: batchDate,
         transaction_ids: selectedIds
       })).unwrap();
 
@@ -80,7 +83,9 @@ export const BatchesPage = () => {
                 <tr className={uiTheme.table.th}>
                   <th className="p-4">Select</th>
                   <th className="p-4">Ticker</th>
+                  <th className="p-4">Buy Date</th>
                   <th className="p-4">Buy Price</th>
+                  <th className="p-4">Sell Date</th>
                   <th className="p-4">Sell Price</th>
                   <th className="p-4">Realized P&L</th>
                 </tr>
@@ -97,7 +102,9 @@ export const BatchesPage = () => {
                       />
                     </td>
                     <td className={uiTheme.table.td + " font-black"}>{pair.ticker}</td>
+                    <td className={uiTheme.table.td}>{formatDate(pair.buy_date)}</td>
                     <td className={uiTheme.table.td}>₹{pair.buy_price}</td>
+                    <td className={uiTheme.table.td}>{formatDate(pair.sell_date)}</td>
                     <td className={uiTheme.table.td}>₹{pair.sell_price}</td>
                     <td className={`${uiTheme.table.td} ${Number(pair.realized_pnl) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       ₹{Number(pair.realized_pnl).toLocaleString()}
@@ -112,12 +119,26 @@ export const BatchesPage = () => {
         {/* Action Panel */}
         <div className={uiTheme.layout.section + " h-fit sticky top-24"}>
           <h2 className={uiTheme.text.h2}>Group Selection</h2>
-          <input
-            className={uiTheme.form.input + " mb-4"}
-            placeholder="Batch Name (e.g. Q1_Recovery)"
-            value={batchName}
-            onChange={(e) => setBatchName(e.target.value)}
-          />
+          {/* DATE FIELD */}
+          <div>
+            <label className={uiTheme.form.label}>Batch Name</label>
+            <input
+              className={uiTheme.form.input + " mb-4"}
+              placeholder="Batch Name (SILVERBEES JUL21)"
+              value={batchName}
+              onChange={(e) => setBatchName(e.target.value)}
+            />
+          </div>
+          {/* DATE FIELD */}
+          <div>
+            <label className={uiTheme.form.label}>Transaction Date</label>
+            <input
+              type="date"
+              className={uiTheme.form.input}
+              value={batchDate}
+              onChange={(e) => setBatchDate(e.target.value)}
+            />
+          </div>
           <div className="bg-gray-100 p-4 border-2 border-black mb-4">
             <div className="flex justify-between font-bold">
               <span>Pairs:</span> <span>{selectedIds.length / 2}</span>

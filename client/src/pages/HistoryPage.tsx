@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TransactionModal } from '../components/modals/TransactionModal';
 import { uiTheme } from '../theme/uiTheme';
+import { formatDate } from '../utils';
 
 export const HistoryPage = () => {
   const [transactions, setTransactions] = useState([]);
@@ -37,15 +38,6 @@ export const HistoryPage = () => {
     if (!window.confirm("Delete this transaction?")) return;
     await fetch(`${API_BASE}/api/transactions/${id}`, { method: 'DELETE' });
     fetchTransactions();
-  };
-
-  // Helper to format ISO Date to Readable Indian Format
-  const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
   };
 
   const handleSave = async (formData: any) => {
@@ -139,7 +131,11 @@ export const HistoryPage = () => {
               <tr key={tx.transaction_id} className={uiTheme.table.row}>
                 <td className={uiTheme.table.td}>{formatDate(tx.date)}</td>
                 <td className={uiTheme.table.td}>{tx.ticker}</td>
-                <td className={uiTheme.table.td}>{tx.type} {tx.parent_buy_id ? <a title={tx.parent_buy_id}>P</a> : ''}</td>
+                <td className={uiTheme.table.td}>
+                  {tx.type} {' '}
+                  {tx.parent_buy_id ? <a title={tx.parent_buy_id}>P</a> : ''}{' '}
+                  {tx.is_open ? 'O' : 'C'}
+                </td>
                 <td className={uiTheme.table.td}>{parseFloat(tx.quantity).toLocaleString('en-IN')}</td>
                 <td className={uiTheme.table.td}>₹{parseFloat(tx.price).toFixed(2)}</td>
                 <td className={uiTheme.table.td}>
