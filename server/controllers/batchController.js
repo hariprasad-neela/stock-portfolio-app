@@ -32,7 +32,7 @@ export const getUnbatchedPairs = async (req, res) => {
 
 // POST: Group selected transaction IDs into a named batch
 export const createBatch = async (req, res) => {
-  const { batch_name, date, transaction_ids } = req.body;
+  const { batch_name, batch_date, transaction_ids } = req.body;
   const client = await pool.connect();
 
   try {
