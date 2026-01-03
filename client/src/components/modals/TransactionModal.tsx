@@ -66,7 +66,6 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
             type: formData.type,
             parent_buy_id: formData.type === 'SELL' ? formData.parent_buy_id : null
         };
-
         onSave(payload);
     };
 

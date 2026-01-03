@@ -65,7 +65,8 @@ export const HistoryPage = () => {
           quantity: parseFloat(formData.quantity),
           price: parseFloat(formData.price),
           date: formData.date,
-          type: formData.type
+          type: formData.type,
+          parent_buy_id: formData.parent_buy_id
         }),
       });
 
