@@ -395,3 +395,23 @@ export const getOpenTrades = async (req, res) => {
     res.status(500).json({ error: "Server error fetching open trades" });
   }
 };
+
+export const getTransactionById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const query = `
+      SELECT t.*, s.ticker 
+      FROM transactions t 
+      JOIN stocks s ON t.stock_id = s.stock_id 
+      WHERE t.transaction_id = $1
+    `;
+    const result = await pool.query(query, [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Transaction not found" });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

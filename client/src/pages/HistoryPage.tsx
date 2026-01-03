@@ -4,10 +4,10 @@ import { uiTheme } from '../theme/uiTheme';
 
 export const HistoryPage = () => {
   const [transactions, setTransactions] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [filterTicker, setFilterTicker] = useState('');
+  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("add");
   const [editingData, setEditingData] = useState<any>(null);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
   const API_BASE = import.meta.env.VITE_API_URL || '';
@@ -86,6 +86,7 @@ export const HistoryPage = () => {
 
   const openAddModal = () => {
     setEditingData(null); // Ensure form is empty for new entries
+    setModalMode("add");
     setIsModalOpen(true);
   };
 
@@ -97,6 +98,7 @@ export const HistoryPage = () => {
       ...tx,
       date: formattedDate
     });
+    setModalMode("edit");
     setIsModalOpen(true);
   };
 
@@ -137,7 +139,7 @@ export const HistoryPage = () => {
               <tr key={tx.transaction_id} className={uiTheme.table.row}>
                 <td className={uiTheme.table.td}>{formatDate(tx.date)}</td>
                 <td className={uiTheme.table.td}>{tx.ticker}</td>
-                <td className={uiTheme.table.td}>{tx.type}</td>
+                <td className={uiTheme.table.td}>{tx.type} {tx.parent_buy_id ? <a title={tx.parent_buy_id}>P</a> : ''}</td>
                 <td className={uiTheme.table.td}>{parseFloat(tx.quantity).toLocaleString('en-IN')}</td>
                 <td className={uiTheme.table.td}>₹{parseFloat(tx.price).toFixed(2)}</td>
                 <td className={uiTheme.table.td}>
@@ -146,7 +148,7 @@ export const HistoryPage = () => {
                     className="underline font-black"
                   >
                     Edit
-                  </button>
+                  </button> |{' '}
                   <button
                     onClick={() => handleDelete(tx.transaction_id)}
                     className="text-xs font-black uppercase text-red-600 underline decoration-2"
@@ -165,6 +167,7 @@ export const HistoryPage = () => {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSave}
         initialData={editingData}
+        mode={modalMode}
       />
 
       {/* PAGINATION CONTROLS */}

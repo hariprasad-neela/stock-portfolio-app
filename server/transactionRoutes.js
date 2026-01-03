@@ -135,6 +135,7 @@ router.post('/old', async (req, res) => {
 router.post('/', createTransaction);
 router.put('/:id', updateTransaction); 
 router.delete('/:id', deleteTransaction);
+router.get('/:id', getTransactionById);
 
 // GET all transactions for the ledger
 router.get('/', getLedger);

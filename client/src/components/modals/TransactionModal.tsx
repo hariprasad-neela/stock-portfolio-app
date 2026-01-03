@@ -1,59 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { uiTheme } from '../../theme/uiTheme';
+import { fetchTradeById } from '../../store/slices/tradesSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
-export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
-    const [activeTickers, setActiveTickers] = useState<string[]>([]);
-    const [openLots, setOpenLots] = useState<any[]>([]);
-    const [formData, setFormData] = useState({
-        transaction_id: null,
-        ticker: '',
+export const TransactionModal = ({ isOpen, onClose, onSave, initialData, mode }) => {
+    const dispatch = useDispatch();
+    const { openTrades } = useSelector((state: any) => state.trades);
+    const stocks = useSelector((state: any) => state.stocks.list);
+    const [parentLot, setParentLot] = useState<any>(null);
+    const defaultValue = {
         type: 'BUY',
-        quantity: '',
-        price: '',
-        date: new Date().toISOString().split('T')[0],
-        parent_buy_id: null // Added to track the 1:1 link
-    });
-
-    const API_BASE = import.meta.env.VITE_API_URL || '';
-
-    // ✅ ADD THE FETCH LOGIC FOR OPEN LOTS
-    useEffect(() => {
-        if (isOpen && formData.type === 'SELL' && formData.ticker) {
-            fetch(`${API_BASE}/api/strategy/open-inventory/${formData.ticker}`)
-                .then(res => res.json())
-                .then(data => setOpenLots(data))
-                .catch(err => console.error("Error fetching lots:", err));
-        }
-    }, [formData.type, formData.ticker, isOpen]);
-
-    // 2. Sync form when initialData changes (for Editing)
-    useEffect(() => {
-        if (initialData) {
-            setFormData({
-                ...initialData,
-                date: new Date(initialData.date).toISOString().split('T')[0]
-            });
-        } else {
-            setFormData({ ticker: '', type: 'BUY', quantity: '', price: '', date: new Date().toISOString().split('T')[0] });
-        }
-    }, [initialData, isOpen]);
-
-    // Inside TransactionModal.tsx
-    useEffect(() => {
-        if (isOpen) {
-            const fetchTickers = async () => {
-                try {
-                    const res = await fetch(`${API_BASE}/api/market/active-tickers`);
-                    const data = await res.json();
-                    // Backend returns an array of strings like ["GOLDBEES", "SILVERBEES"]
-                    setActiveTickers(data);
-                } catch (err) {
-                    console.error("Error fetching tickers in modal:", err);
-                }
-            };
-            fetchTickers();
-        }
-    }, [isOpen, API_BASE]);
+        ticker: '',
+        price: 0,
+        quantity: 0,
+        date: new Date().toISOString().split('T')[0]
+    };
+    const [formData, setFormData] = useState(defaultValue);
 
     const handleConfirm = () => {
         const payload = {
@@ -69,13 +31,81 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
         onSave(payload);
     };
 
+    // If editing a SELL, fetch the currently linked BUY lot
+    useEffect(() => {
+        if (mode === 'edit' && initialData?.parent_buy_id) {
+            dispatch(fetchTradeById(initialData.parent_buy_id))
+                .unwrap()
+                .then((data) => setParentLot(data));
+        }
+    }, [mode, initialData, dispatch]);
+
+    // Combine Open Trades + The Current Parent Lot (Synthetic List)
+    const lotOptions = useMemo(() => {
+        const filteredOpen = openTrades.filter(t => t.ticker === formData.ticker);
+
+        // Inject the parent lot if it's not already in the openTrades list
+        if (parentLot && !filteredOpen.find(t => t.transaction_id === parentLot.transaction_id)) {
+            return [parentLot, ...filteredOpen];
+        }
+        return filteredOpen;
+    }, [openTrades, formData.ticker, parentLot]);
+
+    useEffect(() => {
+        if (isOpen && mode === 'edit' && initialData?.parent_buy_id) {
+            // 1. First set the form with the SELL data we have
+            setFormData(initialData);
+
+            // 2. Fetch the Parent BUY lot details to fill the dropdown 
+            // and confirm the quantity matches
+            dispatch(fetchTradeById(initialData.parent_buy_id))
+                .unwrap()
+                .then((buyLot) => {
+                    setParentLot(buyLot);
+                    // Ensure the quantity is synced in case of any data drift
+                    setFormData(prev => ({ ...prev, quantity: buyLot.quantity }));
+                });
+        } else if (isOpen && mode === 'edit') {
+            setFormData(initialData);
+        } else if (isOpen && mode === 'add') {
+            setFormData(defaultValue);
+        }
+    }, [isOpen, initialData, mode, dispatch]);
+
+    // Helper to format ISO Date to Readable Indian Format
+    const formatDate = (isoString: string) => {
+        return new Date(isoString).toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+        });
+    };
+
+    const handleParentLotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedId = e.target.value;
+
+        // 1. Find the actual lot object from your options list
+        const selectedLot = lotOptions.find(lot => lot.transaction_id === selectedId);
+
+        setFormData(prev => ({
+            ...prev,
+            parent_buy_id: selectedId,
+            // 2. Automatically populate the quantity from the selected BUY lot
+            quantity: selectedLot ? selectedLot.quantity : prev.quantity,
+
+            // Optional: You could also calculate a "Target Sell Price" 
+            // here based on your +3% strategy rule
+            // price: selectedLot ? selectedLot.price * 1.03 : prev.price
+        }));
+    };
+
     if (!isOpen) return null;
 
     return (<div className={uiTheme.modal.overlay}>
         <div className={uiTheme.modal.container}>
             {/* Sticky Header */}
             <div className={uiTheme.modal.header}>
-                <h2 className={uiTheme.text.h2}>Record Trade</h2>
+                <h2 className={uiTheme.text.h2}>{mode === 'edit' ? 'EDIT' : 'NEW'} TRANSACTION</h2>
                 <button onClick={onClose} className="font-black text-2xl">×</button>
             </div>
             {/* Scrollable Body */}
@@ -90,7 +120,7 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                             onChange={(e) => setFormData({ ...formData, ticker: e.target.value })}
                         >
                             <option value="">-- SELECT TICKER --</option>
-                            {activeTickers.map(t => <option key={t} value={t}>{t}</option>)}
+                            {stocks.map(t => <option key={t.ticker} value={t.ticker}>{t.ticker}</option>)}
                         </select>
                     </div>
 
@@ -155,27 +185,21 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData }) => {
                     </div>
                     {/* 1:1 LOT SELECTION (Only for SELL) */}
                     {formData.type === 'SELL' && (
-                        <div className="space-y-2">
-                            <label className={uiTheme.form.label}>Select Parent Buy Lot</label>
-                            <div className="max-h-60 overflow-y-auto pr-2 border-2 border-black p-2 bg-gray-50">
-                                {openLots.map(lot => (
-                                    <div
-                                        key={lot.transaction_id}
-                                        onClick={() => setFormData({
-                                            ...formData,
-                                            parent_buy_id: lot.transaction_id,
-                                            quantity: lot.quantity, // Correct mapping from your JSON
-                                            ticker: formData.ticker // Ensure ticker matches
-                                        })}
-                                        className={`${uiTheme.list.item} ${formData.parent_buy_id === lot.transaction_id ? uiTheme.list.itemSelected : uiTheme.list.itemUnselected}`}
-                                    >
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="font-black">{lot.date}</span>
-                                            <span className="font-bold">{lot.quantity} Units @ ₹{lot.price}</span>
-                                        </div>
-                                    </div>
+                        <div>
+                            <label className={uiTheme.form.label}>Link to Buy Lot (Parent)</label>
+                            <select
+                                className={uiTheme.form.select}
+                                value={formData.parent_buy_id || ''}
+                                onChange={handleParentLotChange}
+                            >
+                                <option value="">Select a Lot...</option>
+                                {lotOptions.map(lot => (
+                                    <option key={lot.transaction_id} value={lot.transaction_id}>
+                                        {lot.transaction_id === initialData?.parent_buy_id ? '✓ CURRENT: ' : ''}
+                                        {formatDate(lot.date)} | ₹{lot.price} | Qty: {lot.quantity}
+                                    </option>
                                 ))}
-                            </div>
+                            </select>
                         </div>
                     )}
                 </div>

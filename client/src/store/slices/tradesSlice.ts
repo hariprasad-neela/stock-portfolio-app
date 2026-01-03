@@ -8,6 +8,14 @@ export const fetchOpenTrades = createAsyncThunk('trades/fetchOpenTrades', async 
   return response.data;
 });
 
+export const fetchTradeById = createAsyncThunk(
+  'trades/fetchById',
+  async (id: string) => {
+    const response = await axios.get(`${API_BASE}/api/transactions/${id}`);
+    return response.data;
+  }
+);
+
 const tradesSlice = createSlice({
   name: 'trades',
   initialState: { openTrades: [], status: 'idle' },
