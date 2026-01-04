@@ -87,11 +87,16 @@ export const getBatches = async (req, res) => {
 
         // Also get total count for pagination math
         const countResult = await pool.query("SELECT COUNT(*) FROM batches");
+        const totalRecords = result.rows.length > 0 ? parseInt(result.rows[0].total_count) : 0;
 
         res.json({
             data: result.rows,
-            total: parseInt(countResult.rows[0].count),
-            pages: Math.ceil(countResult.rows[0].count / limit)
+            pagination: {
+              totalRecords,
+              totalPages: Math.ceil(totalRecords / limit) || 1,
+              currentPage: page,
+              limit: limit
+            }
         });
     } catch (err) {
         res.status(500).json({ error: err.message });

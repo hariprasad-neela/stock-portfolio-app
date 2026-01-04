@@ -11,8 +11,9 @@ export const BatchesPage = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState('');
   const [batchDate, setBatchDate] = useState(new Date().toISOString().split('T')[0]);
-  const [page, setPage] = useState(1);
+  const [batches, setBatches] = useState([]);
   const [filterTicker, setFilterTicker] = useState('');
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
   const API_BASE = import.meta.env.VITE_API_URL || '';
 
   const handleCreateBatch = async () => {
@@ -68,14 +69,14 @@ export const BatchesPage = () => {
 
   useEffect(() => {
     fetchTransactions(1);
-  }, [page, filterTicker]);
+  }, [pagination.currentPage, filterTicker]);
 
   const fetchTransactions = async (page = 1) => {
     try {
-      const res = await fetch(`${API_BASE}/api/transactions?page=${page}&limit=10&ticker=${filterTicker}`);
+      const res = await fetch(`${API_BASE}/api/batches/batches?page=${page}&limit=10&ticker=${filterTicker}`);
       const { data, pagination } = await res.json();
 
-      setTransactions(data);
+      setBatches(data);
       // Match these keys exactly to your backend response
       setPagination({
         currentPage: pagination.currentPage,
@@ -140,46 +141,39 @@ export const BatchesPage = () => {
         </div>
 
         <h2 className={uiTheme.text.h2}>Batches</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className={uiTheme.table.wrapper}>
-              <table className={uiTheme.table.base}>
-                <thead>
-                  <tr className={uiTheme.table.th}>
-                    <th className="p-4">Select</th>
-                    <th className="p-4">Ticker</th>
-                    <th className="p-4">Buy Date</th>
-                    <th className="p-4">Buy Price</th>
-                    <th className="p-4">Sell Date</th>
-                    <th className="p-4">Sell Price</th>
-                    <th className="p-4">Realized P&L</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {unbatchedPairs.map((pair) => (
-                    <tr key={pair.sell_id} className={uiTheme.table.row}>
-                      <td className={uiTheme.table.td}>
-                        <input
-                          type="checkbox"
-                          className={uiTheme.inventory.checkbox}
-                          checked={selectedIds.includes(pair.buy_id)}
-                          onChange={() => handleToggle(pair.buy_id, pair.sell_id)}
-                        />
-                      </td>
-                      <td className={uiTheme.table.td + " font-black"}>{pair.ticker}</td>
-                      <td className={uiTheme.table.td}>{formatDate(pair.buy_date)}</td>
-                      <td className={uiTheme.table.td}>₹{pair.buy_price}</td>
-                      <td className={uiTheme.table.td}>{formatDate(pair.sell_date)}</td>
-                      <td className={uiTheme.table.td}>₹{pair.sell_price}</td>
-                      <td className={`${uiTheme.table.td} ${Number(pair.realized_pnl) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        ₹{Number(pair.realized_pnl).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+        {/* Responsive Table Wrapper */}
+        <div className={uiTheme.table.wrapper}>
+          <table className={uiTheme.table.base}>
+            <thead>
+              <tr>
+                <th className={uiTheme.table.th}>Batch Name</th>
+                <th className={uiTheme.table.th}>Date</th>
+                <th className={uiTheme.table.th}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {batches && batches.map((batch: any) => (
+                <tr key={batch.batch_id} className={uiTheme.table.row}>
+                  <td className={uiTheme.table.td}>{batch.batch_name}</td>
+                  <td className={uiTheme.table.td}>{formatDate(batch.batch_date)}</td>
+                  <td className={uiTheme.table.td}>
+                    <button
+                      onClick={() => openEditModal(tx)}
+                      className="underline font-black"
+                    >
+                      Edit
+                    </button> |{' '}
+                    <button
+                      onClick={() => handleDelete(tx.transaction_id)}
+                      className="text-xs font-black uppercase text-red-600 underline decoration-2"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Action Panel */}

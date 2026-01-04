@@ -20,10 +20,13 @@ const App = () => {
     if (stocksStatus === 'idle') {
       dispatch(fetchStocks());
     }
+  }, [dispatch, stocksStatus]);
+
+  useEffect(() => {
     if (tradesStatus === 'idle') {
       dispatch(fetchOpenTrades());
     }
-  }, [dispatch, stocksStatus, tradesStatus]);
+  }, [dispatch, tradesStatus]);
 
   return (
     <BrowserRouter>

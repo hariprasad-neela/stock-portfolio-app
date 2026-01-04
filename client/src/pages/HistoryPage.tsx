@@ -6,7 +6,6 @@ import { formatDate } from '../utils';
 export const HistoryPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [filterTicker, setFilterTicker] = useState('');
-  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [editingData, setEditingData] = useState<any>(null);
@@ -113,7 +112,7 @@ export const HistoryPage = () => {
         />
       </div>
 
-{/* Responsive Table Wrapper */}
+      {/* Responsive Table Wrapper */}
       <div className={uiTheme.table.wrapper}>
         <table className={uiTheme.table.base}>
           <thead>
@@ -207,6 +206,8 @@ export const HistoryPage = () => {
           </button>
         </div>
       </div>
+
+      
     </div>
   );
 };
