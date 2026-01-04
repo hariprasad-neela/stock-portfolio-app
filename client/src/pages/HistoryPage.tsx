@@ -15,7 +15,7 @@ export const HistoryPage = () => {
 
   useEffect(() => {
     fetchTransactions(1);
-  }, [page, filterTicker]);
+  }, [pagination.currentPage, filterTicker]);
 
   const fetchTransactions = async (page = 1) => {
     try {

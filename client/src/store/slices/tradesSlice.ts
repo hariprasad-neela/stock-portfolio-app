@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export const fetchOpenTrades = createAsyncThunk('trades/fetchOpenTrades', async () => {
-  const response = await axios.get(`${API_BASE}/api/transactions/open`);
+  const response = await axios.get(`${API_BASE}/api/openTransactions`);
   return response.data;
 });
 

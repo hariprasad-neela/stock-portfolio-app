@@ -47,7 +47,7 @@ app.use('/api/batches', batchRoutes);
 app.use('/api/market', marketRoutes);
 // app.use('/api/data', dataRoutes);
 app.get('/api/stocks', getStocksList);
-app.get('/api/transactions/open', getOpenTrades);
+app.get('/api/openTransactions', getOpenTrades);
 
 
 // Mount the auth routes

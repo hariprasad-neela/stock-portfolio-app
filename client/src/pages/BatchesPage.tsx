@@ -11,8 +11,9 @@ export const BatchesPage = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState('');
   const [batchDate, setBatchDate] = useState(new Date().toISOString().split('T')[0]);
-
-  // src/pages/BatchesPage.tsx
+  const [page, setPage] = useState(1);
+  const [filterTicker, setFilterTicker] = useState('');
+  const API_BASE = import.meta.env.VITE_API_URL || '';
 
   const handleCreateBatch = async () => {
     // 1. Validation check
@@ -65,6 +66,27 @@ export const BatchesPage = () => {
     });
   };
 
+  useEffect(() => {
+    fetchTransactions(1);
+  }, [page, filterTicker]);
+
+  const fetchTransactions = async (page = 1) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/transactions?page=${page}&limit=10&ticker=${filterTicker}`);
+      const { data, pagination } = await res.json();
+
+      setTransactions(data);
+      // Match these keys exactly to your backend response
+      setPagination({
+        currentPage: pagination.currentPage,
+        totalPages: pagination.totalPages,
+        totalRecords: pagination.totalRecords
+      });
+    } catch (err) {
+      console.error("Pagination fetch failed", err);
+    }
+  };
+
   const totalPnL = unbatchedPairs
     .filter(p => selectedIds.includes(p.buy_id))
     .reduce((sum, p) => sum + Number(p.realized_pnl), 0);
@@ -75,6 +97,7 @@ export const BatchesPage = () => {
     <div className={uiTheme.layout.container}>
       <h1 className={uiTheme.text.h1}>Batching Room</h1>
 
+      <h2 className={uiTheme.text.h2}>Unbatched Pairs</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className={uiTheme.table.wrapper}>
@@ -113,6 +136,49 @@ export const BatchesPage = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <h2 className={uiTheme.text.h2}>Batches</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <div className={uiTheme.table.wrapper}>
+              <table className={uiTheme.table.base}>
+                <thead>
+                  <tr className={uiTheme.table.th}>
+                    <th className="p-4">Select</th>
+                    <th className="p-4">Ticker</th>
+                    <th className="p-4">Buy Date</th>
+                    <th className="p-4">Buy Price</th>
+                    <th className="p-4">Sell Date</th>
+                    <th className="p-4">Sell Price</th>
+                    <th className="p-4">Realized P&L</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {unbatchedPairs.map((pair) => (
+                    <tr key={pair.sell_id} className={uiTheme.table.row}>
+                      <td className={uiTheme.table.td}>
+                        <input
+                          type="checkbox"
+                          className={uiTheme.inventory.checkbox}
+                          checked={selectedIds.includes(pair.buy_id)}
+                          onChange={() => handleToggle(pair.buy_id, pair.sell_id)}
+                        />
+                      </td>
+                      <td className={uiTheme.table.td + " font-black"}>{pair.ticker}</td>
+                      <td className={uiTheme.table.td}>{formatDate(pair.buy_date)}</td>
+                      <td className={uiTheme.table.td}>₹{pair.buy_price}</td>
+                      <td className={uiTheme.table.td}>{formatDate(pair.sell_date)}</td>
+                      <td className={uiTheme.table.td}>₹{pair.sell_price}</td>
+                      <td className={`${uiTheme.table.td} ${Number(pair.realized_pnl) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        ₹{Number(pair.realized_pnl).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
