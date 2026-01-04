@@ -18,7 +18,7 @@ export const getLivePrices = async (req, res) => {
         Object.keys(quotes).forEach(key => {
             priceMap[key] = quotes[key].last_price;
         });
-        res.json(priceMap);
+        res.json(quotes);
     } catch (err) {
         res.status(500).json({ error: "Kite API Error", detail: err.message });
     }
