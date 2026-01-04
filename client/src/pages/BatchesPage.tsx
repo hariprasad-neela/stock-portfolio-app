@@ -140,42 +140,6 @@ export const BatchesPage = () => {
           </div>
         </div>
 
-        <h2 className={uiTheme.text.h2}>Batches</h2>
-        {/* Responsive Table Wrapper */}
-        <div className={uiTheme.table.wrapper}>
-          <table className={uiTheme.table.base}>
-            <thead>
-              <tr>
-                <th className={uiTheme.table.th}>Batch Name</th>
-                <th className={uiTheme.table.th}>Date</th>
-                <th className={uiTheme.table.th}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {batches && batches.map((batch: any) => (
-                <tr key={batch.batch_id} className={uiTheme.table.row}>
-                  <td className={uiTheme.table.td}>{batch.batch_name}</td>
-                  <td className={uiTheme.table.td}>{formatDate(batch.batch_date)}</td>
-                  <td className={uiTheme.table.td}>
-                    <button
-                      onClick={() => openEditModal(tx)}
-                      className="underline font-black"
-                    >
-                      Edit
-                    </button> |{' '}
-                    <button
-                      onClick={() => handleDelete(tx.transaction_id)}
-                      className="text-xs font-black uppercase text-red-600 underline decoration-2"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
         {/* Action Panel */}
         <div className={uiTheme.layout.section + " h-fit sticky top-24"}>
           <h2 className={uiTheme.text.h2}>Group Selection</h2>
@@ -219,6 +183,42 @@ export const BatchesPage = () => {
           </button>
         </div>
       </div>
-    </div>
+
+        <h2 className={uiTheme.text.h2}>Batches</h2>
+        {/* Responsive Table Wrapper */}
+        <div className={uiTheme.table.wrapper}>
+          <table className={uiTheme.table.base}>
+            <thead>
+              <tr>
+                <th className={uiTheme.table.th}>Batch Name</th>
+                <th className={uiTheme.table.th}>Date</th>
+                <th className={uiTheme.table.th}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {batches && batches.map((batch: any) => (
+                <tr key={batch.batch_id} className={uiTheme.table.row}>
+                  <td className={uiTheme.table.td}>{batch.batch_name}</td>
+                  <td className={uiTheme.table.td}>{formatDate(batch.batch_date)}</td>
+                  <td className={uiTheme.table.td}>
+                    <button
+                      onClick={() => openEditModal(tx)}
+                      className="underline font-black"
+                    >
+                      Edit
+                    </button> |{' '}
+                    <button
+                      onClick={() => handleDelete(tx.transaction_id)}
+                      className="text-xs font-black uppercase text-red-600 underline decoration-2"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
   );
 };
