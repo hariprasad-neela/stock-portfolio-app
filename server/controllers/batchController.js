@@ -69,7 +69,7 @@ export const getBatches = async (req, res) => {
 
     try {
         let query = `
-            SELECT batch_id, batch_name, batch_date 
+            SELECT batch_id, batch_name, batch_date, count(*) OVER() AS total_count
             FROM batches
             WHERE 1=1
         `;
@@ -85,8 +85,6 @@ export const getBatches = async (req, res) => {
 
         const result = await pool.query(query, params);
 
-        // Also get total count for pagination math
-        const countResult = await pool.query("SELECT COUNT(*) FROM batches");
         const totalRecords = result.rows.length > 0 ? parseInt(result.rows[0].total_count) : 0;
 
         res.json({
