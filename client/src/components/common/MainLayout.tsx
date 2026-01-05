@@ -5,10 +5,10 @@ import { ZerodhaManager } from '../../features/market/ZerodhaManager';
 
 export const MainLayout = () => {
   return (
-    <div className="min-h-screen bg-[#F4F4F4] font-mono text-black">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 min-h-0"> {/* The 'min-h-0' is the secret fix for Recharts */}
         {/* Global Zerodha Status: Visible on every page */}
         <ZerodhaManager />
         
