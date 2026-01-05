@@ -1,5 +1,5 @@
 import React from 'react';
-import { TickerCard } from './TickerCard';
+import { TickerCardComponent } from './TickerCardComponent';
 
 export const TickerGrid = ({ data }: { data: any[] }) => {
     return (
@@ -16,7 +16,7 @@ export const TickerGrid = ({ data }: { data: any[] }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {data.length > 0 ? (
                     data.map((item) => (
-                        <TickerCard key={item.name} item={item} />
+                        <TickerCardComponent key={item.name} item={item} />
                     ))
                 ) : (
                     <div className="col-span-full border-4 border-black border-dashed p-12 text-center">

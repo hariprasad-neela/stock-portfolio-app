@@ -1,7 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Zap, Target } from 'lucide-react';
 
-export const TickerCard = ({ item }: { item: any }) => {
+export const TickerCardComponent = ({ item }: { item: any }) => {
     // Safety checks to prevent crashes if data is missing
     const roi = item.roi ?? 0;
     const isPositive = roi >= 0;
