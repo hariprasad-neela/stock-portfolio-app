@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { AnalyticsHeatmap } from '../features/live/AnalyticsHeatmap';
 import { PortfolioSummary } from '../features/live/PortfolioSummary';
 import { TickerGrid } from '../features/live/TickerGrid';
+import { fetchQuotes } from '../store/slices/stocksSlice';
 
 // DUMMY DATA FOR TESTING
 const DUMMY_ANALYTICS = [
@@ -15,53 +16,86 @@ export const LiveTrackerPage = () => {
   // Toggle this to switch between Dummy and Actual data once layout is confirmed
   const dispatch = useDispatch();
   const rawLots = useSelector((state) => state.trades.openTrades);
-  const liveData = useSelector((state) => state.stocks.quotes);
   const [useDummy, setUseDummy] = useState(false); // Default to Live now
+  const [liveData, setLiveData] = useState(null);
 
+useEffect(() => {
+  const getQuotes = async () => {
+    // 1. Guard against empty data
+    if (!rawLots || rawLots.length === 0) return;
+
+    // 2. Derive symbols inside the effect so it's not a dependency
+    const symbols = [...new Set(rawLots.map(lot => `NSE:${lot.ticker}`))].join(',');
+    const url = `https://stock-portfolio-api-f38f.onrender.com/api/market/quotes?symbols=${symbols}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setLiveData(data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  };
+
+  getQuotes();
+  
+  // 3. Keep the dependency array simple and constant in size
+}, [rawLots]); // Only re-run when the list of trades changes
 
   const analytics = useMemo(() => {
-    // 1. Check if rawLots exist. If not, return empty array [cite: 2025-12-24].
     if (!rawLots || rawLots.length === 0) return [];
+
+    // FIX: Access the nested 'data' property from the Kite response
+    const quotes = liveData || {};
+    console.log("Live Quotes:", liveData);
 
     const groups: Record<string, any> = {};
 
-    // 2. IMPORTANT: Use an empty object fallback for liveData to prevent the "undefined" error.
-    const quotes = liveData || {};
-
     rawLots.forEach(lot => {
       const ticker = lot.ticker;
-      // 3. Look up the specific quote, falling back to an empty object if not found.
-      const quote = quotes[`NSE:${ticker}`] || {};
+      const instrumentKey = `NSE:${ticker}`;
+      const quote = quotes[instrumentKey] || {};
 
-      const ltp = Number(quote.last_price) || Number(lot.price) || 0;
+      const ltp = Number(quote.last_price) || 0;
+      const lotPrice = Number(lot.price) || 0;
       const qty = Number(lot.quantity) || 0;
-      const cost = Number(lot.price) || 0;
+
+      // Calculate Day Change % using (LTP - Previous Close) / Previous Close
+      const prevClose = Number(quote.ohlc?.close) || 0;
+      const dayChange = prevClose > 0 ? ((ltp - prevClose) / prevClose) * 100 : 0;
 
       if (!groups[ticker]) {
         groups[ticker] = {
           name: ticker,
           totalCost: 0,
           totalQty: 0,
+          lowestBuyPrice: lotPrice,
+          latestBuyPrice: lotPrice,
           currentPrice: ltp,
-          dayChangePct: Number(quote.pChange) || 0
+          dayChangePct: dayChange
         };
       }
 
-      groups[ticker].totalCost += (cost * qty);
+      groups[ticker].totalCost += (lotPrice * qty);
       groups[ticker].totalQty += qty;
       groups[ticker].currentPrice = ltp;
+
+      if (lotPrice < groups[ticker].lowestBuyPrice) groups[ticker].lowestBuyPrice = lotPrice;
+      groups[ticker].latestBuyPrice = lotPrice; // Assumes lots are processed in order
     });
 
     return Object.values(groups).map((g: any) => {
       const marketValue = g.currentPrice * g.totalQty;
-      const avgCost = g.totalCost / g.totalQty;
-      const roi = g.totalCost > 0 ? ((marketValue - g.totalCost) / g.totalCost) * 100 : 0;
+      const wap = g.totalCost / g.totalQty;
 
       return {
         ...g,
         size: marketValue || 1,
-        roi: isNaN(roi) ? 0 : roi,
-        wap: avgCost
+        roi: g.totalCost > 0 ? ((marketValue - g.totalCost) / g.totalCost) * 100 : 0,
+        wap: wap,
+        vsWap: wap > 0 ? ((g.currentPrice - wap) / wap) * 100 : 0,
+        vsLowest: g.lowestBuyPrice > 0 ? ((g.currentPrice - g.lowestBuyPrice) / g.lowestBuyPrice) * 100 : 0,
+        vsLatest: g.latestBuyPrice > 0 ? ((g.currentPrice - g.latestBuyPrice) / g.latestBuyPrice) * 100 : 0
       };
     });
   }, [rawLots, liveData]);
