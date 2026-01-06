@@ -1,5 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Zap, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const LotHeatmap = ({ lots }: { lots: any[] }) => {
     const getLotColor = (roi: number) => {
@@ -54,6 +55,13 @@ export const TickerCardComponent = ({ item }: { item: any }) => {
     const size = item.size ?? 0;
     const ltp = item.currentPrice ?? 0;
     const wap = item.wap ?? 0;
+
+    const navigate = useNavigate();
+
+    const handleViewLots = () => {
+        // Navigate to inventory and pass the ticker as state
+        navigate('/inventory', { state: { ticker: item.name } });
+    };
 
     return (
         <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col">
@@ -122,8 +130,11 @@ export const TickerCardComponent = ({ item }: { item: any }) => {
                 <button className="flex items-center gap-2 font-black text-xs uppercase hover:underline">
                     <Zap size={14} /> Buy More
                 </button>
-                <button className="flex items-center gap-2 font-black text-xs uppercase hover:underline">
-                    <Target size={14} /> View Batches
+                <button 
+                    className="flex items-center gap-2 font-black text-xs uppercase hover:underline"
+                    onClick={handleViewLots}
+                >
+                    <Target size={14} /> View Lots
                 </button>
             </div>
         </div>
