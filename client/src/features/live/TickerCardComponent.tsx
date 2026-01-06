@@ -1,6 +1,52 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Zap, Target } from 'lucide-react';
 
+const LotHeatmap = ({ lots }: { lots: any[] }) => {
+    const getLotColor = (roi: number) => {
+        if (roi > 10) return 'bg-green-600';
+        if (roi > 0) return 'bg-green-400';
+        if (roi > -5) return 'bg-red-300';
+        return 'bg-red-600';
+    };
+
+    return (
+        <div className="mt-4 border-t-2 border-black pt-3">
+            <p className="text-[10px] font-black uppercase mb-2 italic">Lot breakdown</p>
+            <div className="flex flex-wrap gap-2">
+                {lots.map((lot, index) => {
+                    const profitAmount = (lot.qty * (lot.ltp - lot.price)).toFixed(2);
+                    const isProfit = lot.roi >= 0;
+
+                    return (
+                        <div key={index} className="group relative">
+                            {/* Individual Lot Square */}
+                            <div
+                                className={`w-6 h-6 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all cursor-help ${getLotColor(lot.roi)}`}
+                            />
+
+                            {/* Neobrutalist Tooltip */}
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50 w-32 border-2 border-black bg-white p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-center pointer-events-none">
+                                <p className="text-[9px] font-black uppercase text-gray-500">Lot {index + 1}</p>
+                                <p className="text-xs font-black">₹{lot.price.toLocaleString()}</p>
+                                <div className={`mt-1 text-[10px] font-black py-0.5 border-t border-black ${isProfit ? 'bg-green-200' : 'bg-red-200'}`}>
+                                    {isProfit ? '+' : ''}{lot.roi.toFixed(2)}%
+                                </div>
+                                <p className="text-[9px] font-bold mt-1">
+                                    P/L: <span className={isProfit ? 'text-green-700' : 'text-red-700'}>
+                                        ₹{profitAmount}
+                                    </span>
+                                </p>
+                                {/* Tooltip Arrow */}
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 border-x-8 border-x-transparent border-t-8 border-t-black" />
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
 export const TickerCardComponent = ({ item }: { item: any }) => {
     // Safety checks to prevent crashes if data is missing
     const roi = item.roi ?? 0;
@@ -45,6 +91,31 @@ export const TickerCardComponent = ({ item }: { item: any }) => {
                     </div>
                 </div>
             </div>
+
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t-2 border-black border-dashed">
+                <div className="text-center">
+                    <p className="text-[8px] font-black uppercase text-gray-400">vs WAP</p>
+                    <p className="text-[10px] font-bold">₹{item.wap.toFixed(1)}</p>
+                    <p className={`text-xs font-black ${item.vsWap >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {item.vsWap >= 0 ? '+' : ''}{item.vsWap.toFixed(2)}%
+                    </p>
+                </div>
+                <div className="text-center border-x-2 border-black border-dotted">
+                    <p className="text-[8px] font-black uppercase text-gray-400">vs Lowest</p>
+                    <p className="text-[10px] font-bold">₹{item.lowestBuyPrice.toFixed(1)}</p>
+                    <p className={`text-xs font-black ${item.vsLowest >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {item.vsLowest >= 0 ? '+' : ''}{item.vsLowest.toFixed(2)}%
+                    </p>
+                </div>
+                <div className="text-center">
+                    <p className="text-[8px] font-black uppercase text-gray-400">vs Latest</p>
+                    <p className="text-[10px] font-bold">₹{item.latestBuyPrice.toFixed(1)}</p>
+                    <p className={`text-xs font-black ${item.vsLatest >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {item.vsLatest >= 0 ? '+' : ''}{item.vsLatest.toFixed(2)}%
+                    </p>
+                </div>
+            </div>
+            <div className="p-4"><LotHeatmap lots={item.lots} /></div>
 
             {/* Footer Actions */}
             <div className="p-4 border-t-4 border-black bg-yellow-400 flex justify-between">

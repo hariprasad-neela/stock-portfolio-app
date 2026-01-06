@@ -19,36 +19,34 @@ export const LiveTrackerPage = () => {
   const [useDummy, setUseDummy] = useState(false); // Default to Live now
   const [liveData, setLiveData] = useState(null);
 
-useEffect(() => {
-  const getQuotes = async () => {
-    // 1. Guard against empty data
-    if (!rawLots || rawLots.length === 0) return;
+  useEffect(() => {
+    const getQuotes = async () => {
+      // 1. Guard against empty data
+      if (!rawLots || rawLots.length === 0) return;
 
-    // 2. Derive symbols inside the effect so it's not a dependency
-    const symbols = [...new Set(rawLots.map(lot => `NSE:${lot.ticker}`))].join(',');
-    const url = `https://stock-portfolio-api-f38f.onrender.com/api/market/quotes?symbols=${symbols}`;
+      // 2. Derive symbols inside the effect so it's not a dependency
+      const symbols = [...new Set(rawLots.map(lot => `NSE:${lot.ticker}`))].join(',');
+      const url = `https://stock-portfolio-api-f38f.onrender.com/api/market/quotes?symbols=${symbols}`;
 
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      setLiveData(data);
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
-  };
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setLiveData(data);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
 
-  getQuotes();
-  
-  // 3. Keep the dependency array simple and constant in size
-}, [rawLots]); // Only re-run when the list of trades changes
+    getQuotes();
+
+    // 3. Keep the dependency array simple and constant in size
+  }, [rawLots]); // Only re-run when the list of trades changes
 
   const analytics = useMemo(() => {
     if (!rawLots || rawLots.length === 0) return [];
 
     // FIX: Access the nested 'data' property from the Kite response
     const quotes = liveData || {};
-    console.log("Live Quotes:", liveData);
-
     const groups: Record<string, any> = {};
 
     rawLots.forEach(lot => {
@@ -72,9 +70,24 @@ useEffect(() => {
           lowestBuyPrice: lotPrice,
           latestBuyPrice: lotPrice,
           currentPrice: ltp,
-          dayChangePct: dayChange
+          dayChangePct: dayChange,
+          lots: []
         };
       }
+
+      // Calculate this specific lot's performance
+      const lot_quote = liveData?.[`NSE:${ticker}`] || {};
+      const lot_ltp = Number(quote.last_price) || 0;
+      const lot_lotPrice = Number(lot.price) || 0;
+      const lot_lotRoi = lotPrice > 0 ? ((ltp - lotPrice) / lotPrice) * 100 : 0;
+
+      groups[ticker].lots.push({
+        price: lot_lotPrice,
+        qty: lot.quantity,
+        roi: lot_lotRoi,
+        date: lot.date,
+        ltp: lot_ltp
+      });
 
       groups[ticker].totalCost += (lotPrice * qty);
       groups[ticker].totalQty += qty;
