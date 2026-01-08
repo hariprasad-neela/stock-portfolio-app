@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LotSelectorCard } from '../features/inventory/LotSelectorCard';
 import { InventorySummary } from '../features/inventory/InventorySummary';
 import { uiTheme } from '../theme/uiTheme';
+import { useLocation } from 'react-router-dom';
 
 export const InventoryPage = () => {
     const [availableTickers, setAvailableTickers] = useState([]);
@@ -11,6 +12,7 @@ export const InventoryPage = () => {
     const [cmp, setCmp] = useState(0);
     const [loading, setLoading] = useState(false);
 
+    const location = useLocation(); // Access the navigation state
     const API_BASE = import.meta.env.VITE_API_URL || '';
 
     // 1. Initial Load: Get allowed tickers
@@ -20,6 +22,11 @@ export const InventoryPage = () => {
                 const res = await fetch(`${API_BASE}/api/market/active-tickers`);
                 const data = await res.json();
                 setAvailableTickers(data);
+
+                // CHECK FOR INCOMING TICKER FROM NAVIGATION
+                if (location.state?.ticker) {
+                    setSelectedTicker(location.state.ticker);
+                }
             } catch (err) {
                 console.error("Failed to load ticker list");
             }
@@ -72,6 +79,10 @@ export const InventoryPage = () => {
     
     const currentVal = selectedLotsData.reduce((acc, lot) => 
         acc + (cmp * parseFloat(lot.quantity)), 0
+    );
+
+    const currentQuantity = selectedLotsData.reduce((acc, lot) => 
+        acc + parseFloat(lot.quantity), 0
     );
     
     const profitAmt = currentVal - totalCost;
@@ -178,6 +189,10 @@ export const InventoryPage = () => {
                         </div>
 
                         <div className="space-y-6 border-t-4 border-black pt-6">
+                            <div className="flex justify-between items-end">
+                                <span className="font-bold text-xs uppercase text-gray-500">Selected Units</span>
+                                <span className="font-black text-xl">{currentQuantity}</span>
+                            </div>
                             <div className="flex justify-between items-end">
                                 <span className="font-bold text-xs uppercase text-gray-500">Selected Value</span>
                                 <span className="font-black text-xl">₹{currentVal.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>

@@ -1,79 +1,92 @@
 import React from 'react';
 import { uiTheme } from '../../theme/uiTheme';
 
-// Helper to handle DD/MM/YYYY format
 const parseDate = (dateStr: string) => {
   const [day, month, year] = dateStr.split('/');
   return new Date(`${year}-${month}-${day}`);
 };
 
-interface LotProps {
-  lot: {
-    transaction_id: string; // Matches your JSON
-    date: string;           // Matches your JSON
-    quantity: number;  // Matches your JSON
-    price: number;      // Matches your JSON
-  };
-  cmp: number;
-  isSelected: boolean;
-  onToggle: () => void;
-}
-
 export const LotSelectorCard = ({ lot, cmp, isSelected, onToggle }: LotProps) => {
-  // 1. Calculate using the correct property names
-  const cost = lot.price * lot.quantity;
-  const currentVal = cmp * lot.quantity;
-  const isPositive = currentVal - cost >= 0;
+  const buyPrice = Number(lot.price);
+  const qty = Number(lot.quantity);
+  const cost = buyPrice * qty;
+  const currentVal = cmp * qty;
   const profitValue = currentVal - cost;
-  
-  // 2. Prevent division by zero if cmp isn't loaded yet
-  const pnlPct = cmp > 0 ? ((currentVal - cost) / cost) * 100 : 0;
+  const isPositive = profitValue >= 0;
+  const pnlPct = cost > 0 ? (profitValue / cost) * 100 : 0;
 
-  
-  // 3. Format Date correctly
-  const formattedDate = parseDate(lot.date).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
+  // Swing Logic: Calculate price needed for 3% profit
+  const targetPrice = buyPrice * 1.03;
+  const distanceToTarget = targetPrice - cmp;
+  const isTargetMet = pnlPct >= 3.0;
+
+  // Age for context only
+  const acquisitionDate = parseDate(lot.date);
+  const daysHeld = Math.floor((new Date().getTime() - acquisitionDate.getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <div key={lot.transaction_id} className={uiTheme.inventory.card}>
-              <div className={uiTheme.inventory.cardHeader}>
-                <div>
-                  <span className="text-xs font-bold text-gray-500">{lot.date}</span>
-                </div>
-                {/* CHECKBOX FIX */}
-                <input 
-                  type="checkbox" 
-                  className={uiTheme.inventory.checkbox}
-                  checked={isSelected}
-                  onChange={() => onToggle()}
-                />
-              </div>
+    <div 
+      onClick={onToggle}
+      className={`${uiTheme.inventory.card} cursor-pointer transition-all active:scale-[0.98] p-3 ${
+        isSelected ? 'bg-yellow-200 ring-4 ring-black shadow-none translate-x-1' : 'bg-white'
+      }`}
+    >
+      {/* Top Info Row: Date and Days Held */}
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-[10px] font-black uppercase italic bg-black text-white px-1.5">
+          {lot.date}
+        </span>
+        <span className="text-[10px] font-black uppercase text-gray-500">
+          Age: {daysHeld}d
+        </span>
+      </div>
 
-              <div className={uiTheme.inventory.statRow}>
-                <span>Quantity: {lot.quantity}</span>
-                <span>Price: ₹{lot.price}</span>
-              </div>
+      {/* Main Data Grid: Tightened Padding */}
+      <div className="grid grid-cols-2 gap-2 border-b-2 border-black border-dotted pb-2 mb-2">
+        <div className="flex flex-col">
+          <span className="text-[8px] font-black uppercase text-gray-400">Quantity</span>
+          <span className="text-sm font-black italic">{qty} @ ₹{buyPrice.toLocaleString()}</span>
+        </div>
+        <div className="flex flex-col text-right">
+          <span className="text-[8px] font-black uppercase text-gray-400 text-green-600">3% Target</span>
+          <span className="text-sm font-black text-green-600 underline decoration-2">
+            ₹{targetPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </span>
+        </div>
+      </div>
 
-              <div className={uiTheme.inventory.statRow}>
-                <span>Investment Amount:</span>
-                <span className="font-black">₹{lot.price * lot.quantity}</span>
-              </div>
+      {/* Target Progress Bar: Visual Swing Indicator */}
+      {!isTargetMet && (
+        <div className="w-full h-3 bg-gray-200 border border-black mb-3 overflow-hidden">
+          <div 
+            className="h-full bg-cyan-400 border-r border-black" 
+            style={{ width: `${Math.max(0, Math.min(100, (pnlPct / 3) * 100))}%` }}
+          />
+        </div>
+      )}
 
-              <div className="mt-2 pt-2 border-t-2 border-dashed border-black flex justify-between items-end">
-                <span className="text-xs font-black uppercase">P&L</span>
-                <div className="text-right">
-                  {/* DUAL PROFIT DISPLAY */}
-                  <div className={isPositive ? uiTheme.inventory.profitPositive : uiTheme.inventory.profitNegative}>
-                    {isPositive ? '+' : ''}₹{profitValue.toLocaleString()}
-                  </div>
-                  <div className={`text-xs font-black ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                    ({pnlPct.toFixed(2)}%)
-                  </div>
-                </div>
-              </div>
+      {/* P&L Zone: Reduced padding, high information density */}
+      <div className={`p-1.5 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center ${isTargetMet ? 'bg-green-400' : isPositive ? 'bg-green-50' : 'bg-red-50'}`}>
+        <div className="flex flex-col">
+          <span className="text-[8px] font-black uppercase">
+            {isTargetMet ? '🎯 TARGET HIT' : 'CURRENT P&L'}
+          </span>
+          <span className={`text-lg font-black leading-tight ${isPositive ? 'text-green-800' : 'text-red-800'}`}>
+            {isPositive ? '+' : ''}₹{Math.abs(profitValue).toLocaleString()}
+          </span>
+        </div>
+        
+        <div className="text-right">
+          <div className={`text-xl font-black italic tracking-tighter ${isPositive ? 'text-green-800' : 'text-red-800'}`}>
+            {pnlPct.toFixed(2)}%
+          </div>
+          {!isTargetMet && (
+            <div className="text-[8px] font-black uppercase text-gray-500">
+              Gap: ₹{distanceToTarget.toFixed(2)}
             </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
