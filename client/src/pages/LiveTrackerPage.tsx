@@ -4,6 +4,7 @@ import { AnalyticsHeatmap } from '../features/live/AnalyticsHeatmap';
 import { TickerGrid } from '../features/live/TickerGrid';
 import { fetchMarketQuotes } from '../store/slices/stocksSlice';
 import { calculatePortfolioAnalytics } from '../utils/portfolioAnalytics';
+import { PortfolioHealth } from '../features/live/PortfolioHealth';
 
 // DUMMY DATA FOR TESTING
 const DUMMY_ANALYTICS = [
@@ -42,6 +43,7 @@ export const LiveTrackerPage = () => {
 return (
     <div className="p-8 space-y-8">
       {loading && <div className="animate-pulse font-black">REFRESHING PRICES...</div>}
+      <PortfolioHealth analytics={analytics} />
       <AnalyticsHeatmap data={analytics} />
       <TickerGrid data={analytics} />
     </div>
