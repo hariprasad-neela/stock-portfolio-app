@@ -56,6 +56,7 @@ export const getActiveTickers = async (req, res) => {
 
 export const getTodaysOrders = async (req, res) => {
     try {
+        res.json(kite.access_token);
         // If there's no token at all, it's definitely disconnected
         if (!kite.access_token) {
             return res.json({ status: 'disconnected' });
