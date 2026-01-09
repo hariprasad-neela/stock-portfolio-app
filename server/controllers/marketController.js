@@ -56,6 +56,11 @@ export const getActiveTickers = async (req, res) => {
 
 export const getTodaysOrders = async (req, res) => {
     try {
+        // If there's no token at all, it's definitely disconnected
+        if (!kite.access_token) {
+            return res.json({ status: 'disconnected' });
+        }
+
         // Note: This requires the 'orders' permission in your Kite Connect App
         const response = await fetch('https://api.kite.trade/orders', {
             headers: {
