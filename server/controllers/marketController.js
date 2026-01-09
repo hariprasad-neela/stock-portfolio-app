@@ -69,6 +69,6 @@ export const getTodaysOrders = async (req, res) => {
         const completedOrders = data.data.filter(order => order.status === 'COMPLETE');
         res.json(completedOrders);
     } catch (err) {
-        res.status(500).json({ error: "Failed to fetch Zerodha orders" });
+        res.status(500).json({ error: `${err} Failed to fetch Zerodha orders` });
     }
 };
