@@ -59,7 +59,7 @@ export const getTodaysOrders = async (req, res) => {
         // If there's no token at all, it's definitely disconnected
         if (!kite.access_token) {
             return res.json({ status: 'disconnected' });
-        } 
+        }
 
         // Note: This requires the 'orders' permission in your Kite Connect App
         const response = await fetch('https://api.kite.trade/orders', {
@@ -69,6 +69,7 @@ export const getTodaysOrders = async (req, res) => {
             }
         });
         const data = await response.json();
+        res.json(data);
 
         // Filter for 'COMPLETE' orders only to avoid noise
         const completedOrders = data.data.filter(order => order.status === 'COMPLETE');
