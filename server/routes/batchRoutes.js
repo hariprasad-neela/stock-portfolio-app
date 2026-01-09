@@ -5,7 +5,7 @@ import { getUnbatchedPairs, createBatch, getBatches, updateBatch, getBatchById }
 router.get('/unbatched', getUnbatchedPairs);
 router.post('/create', createBatch);
 router.get('/batches', getBatches);
-router.put('/:id', updateBatch);
+router.put('/batch/:id', updateBatch);
 router.get('/batch/:id', getBatchById);
 
 export default router;
