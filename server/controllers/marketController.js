@@ -59,7 +59,7 @@ export const getTodaysOrders = async (req, res) => {
         // Note: This requires the 'orders' permission in your Kite Connect App
         const response = await fetch('https://api.kite.trade/orders', {
             headers: {
-                'Authorization': `token ${process.env.KITE_API_KEY}:${req.session.access_token}`,
+                'Authorization': `token ${process.env.KITE_API_KEY}:${kite.access_token}`,
                 'X-Kite-Version': '3'
             }
         });
