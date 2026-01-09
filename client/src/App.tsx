@@ -11,6 +11,7 @@ import { InventoryPage } from './pages/InventoryPage';
 import { BatchesPage } from './pages/BatchesPage';
 import { BatchEditPage } from './features/batches/BatchEditPage';
 import { HistoryPage } from './pages/HistoryPage';
+import { OrderStagingPage } from './features/market/OrderStagingPage';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -43,6 +44,9 @@ const App = () => {
           
           {/* Batch Management */}
           <Route path="batches" element={<BatchesPage />} />
+
+          <Route path="orders" element={<OrderStagingPage />} />
+
           {/* This :id allows BatchEditPage to use useParams() to get the UUID */}
           <Route path="/batches/edit/:id" element={<BatchEditPage />} />
 

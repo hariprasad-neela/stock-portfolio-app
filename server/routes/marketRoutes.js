@@ -1,5 +1,5 @@
 import express from 'express';
-import { getLivePrices, checkZerodhaStatus, getActiveTickers } from '../controllers/marketController.js';
+import { getLivePrices, checkZerodhaStatus, getActiveTickers, getTodaysOrders } from '../controllers/marketController.js';
 
 const router = express.Router();
 
@@ -7,5 +7,6 @@ const router = express.Router();
 router.get('/quotes', getLivePrices);
 router.get('/status', checkZerodhaStatus);
 router.get('/active-tickers', getActiveTickers);
+router.get('/todays-orders', getTodaysOrders);
 
 export default router;

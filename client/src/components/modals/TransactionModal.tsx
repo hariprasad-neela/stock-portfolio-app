@@ -66,7 +66,7 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData, mode })
                     // Ensure the quantity is synced in case of any data drift
                     setFormData(prev => ({ ...prev, quantity: buyLot.quantity }));
                 });
-        } else if (isOpen && mode === 'edit') {
+        } else if (isOpen && (mode === 'edit' || mode === 'sync')) {
             setFormData(initialData);
         } else if (isOpen && mode === 'add') {
             setFormData(defaultValue);

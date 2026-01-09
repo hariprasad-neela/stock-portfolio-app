@@ -53,3 +53,22 @@ export const getActiveTickers = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch tickers" });
     }
 };
+
+export const getTodaysOrders = async (req, res) => {
+    try {
+        // Note: This requires the 'orders' permission in your Kite Connect App
+        const response = await fetch('https://api.kite.trade/orders', {
+            headers: {
+                'Authorization': `token ${process.env.KITE_API_KEY}:${req.session.access_token}`,
+                'X-Kite-Version': '3'
+            }
+        });
+        const data = await response.json();
+
+        // Filter for 'COMPLETE' orders only to avoid noise
+        const completedOrders = data.data.filter(order => order.status === 'COMPLETE');
+        res.json(completedOrders);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch Zerodha orders" });
+    }
+};
