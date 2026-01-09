@@ -36,7 +36,13 @@ export const getBatches = async (req, res) => {
 
   try {
     let query = `
-            SELECT batch_id, batch_name, batch_date, count(*) OVER() AS total_count
+            SELECT 
+                batch_id, 
+                batch_name, 
+                batch_date, 
+                total_units,     
+                total_days_held, 
+                count(*) OVER() AS total_count
             FROM batches
             WHERE 1=1
         `;
