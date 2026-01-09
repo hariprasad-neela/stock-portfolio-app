@@ -11,7 +11,7 @@ export const OrderStagingPage = () => {
   const fetchOrders = async () => {
     const res = await fetch(`${API_BASE}/api/market/todays-orders`);
     const data = await res.json();
-    setOrders(data);
+    setOrders(data.data);
   };
 
   useEffect(() => { fetchOrders(); }, []);
