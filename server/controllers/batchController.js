@@ -30,39 +30,6 @@ export const getUnbatchedPairs = async (req, res) => {
   }
 };
 
-// POST: Group selected transaction IDs into a named batch
-export const createBatch = async (req, res) => {
-  const { batch_name, batch_date, transaction_ids } = req.body;
-  const client = await pool.connect();
-
-  try {
-    await client.query('BEGIN');
-
-    // Step 1: Insert into batches table and get the new UUID
-    const batchResult = await client.query(
-      'INSERT INTO batches (batch_name, batch_date) VALUES ($1, $2) RETURNING batch_id',
-      [batch_name, batch_date]
-    );
-    const newBatchId = batchResult.rows[0].batch_id;
-
-    // Step 2: Update transactions with the actual UUID, not the name string
-    const updateQuery = `
-      UPDATE transactions 
-      SET batch_id = $1 
-      WHERE transaction_id = ANY($2::uuid[])
-    `;
-    await client.query(updateQuery, [newBatchId, transaction_ids]);
-
-    await client.query('COMMIT');
-    res.status(201).json({ message: "Batch created", batch_id: newBatchId });
-  } catch (err) {
-    await client.query('ROLLBACK');
-    res.status(500).json({ error: err.message });
-  } finally {
-    client.release();
-  }
-};
-
 export const getBatches = async (req, res) => {
     const { page = 1, limit = 10, ticker, type } = req.query;
     const offset = (page - 1) * limit;
@@ -99,4 +66,81 @@ export const getBatches = async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+};
+
+// Helper to calculate Batch Stats
+const calculateBatchStats = async (client, transactionIds) => {
+    const statsQuery = `
+        SELECT 
+            SUM(sel.quantity) as units,
+            SUM(sel.quantity * (sel.date - b.date)) as weighted_days
+        FROM transactions sel
+        JOIN transactions b ON sel.parent_buy_id = b.transaction_id
+        WHERE sel.transaction_id = ANY($1::uuid[])
+    `;
+    const result = await client.query(statsQuery, [transactionIds]);
+    return {
+        units: parseFloat(result.rows[0].units || 0),
+        days_held: parseInt(result.rows[0].weighted_days || 0)
+    };
+};
+
+export const createBatch = async (req, res) => {
+    const { batch_name, batch_date, transaction_ids } = req.body;
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Calculate stats before storing
+        const stats = await calculateBatchStats(client, transaction_ids);
+
+        const batchResult = await client.query(
+            'INSERT INTO batches (batch_name, batch_date, total_units, total_days_held) VALUES ($1, $2, $3, $4) RETURNING batch_id',
+            [batch_name, batch_date, stats.units, stats.days_held]
+        );
+        const newBatchId = batchResult.rows[0].batch_id;
+
+        await client.query(
+            'UPDATE transactions SET batch_id = $1 WHERE transaction_id = ANY($2::uuid[])',
+            [newBatchId, transaction_ids]
+        );
+
+        await client.query('COMMIT');
+        res.status(201).json({ message: "Batch created", batch_id: newBatchId });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err.message });
+    } finally { client.release(); }
+};
+
+export const updateBatch = async (req, res) => {
+    const { id } = req.params;
+    const { batch_name, batch_date, transaction_ids } = req.body;
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const stats = await calculateBatchStats(client, transaction_ids);
+
+        // 1. Reset all transactions currently tied to this batch
+        await client.query('UPDATE transactions SET batch_id = NULL WHERE batch_id = $1', [id]);
+
+        // 2. Update Batch metadata
+        await client.query(
+            'UPDATE batches SET batch_name = $1, batch_date = $2, total_units = $3, total_days_held = $4 WHERE batch_id = $5',
+            [batch_name, batch_date, stats.units, stats.days_held, id]
+        );
+
+        // 3. Re-assign new selection
+        await client.query(
+            'UPDATE transactions SET batch_id = $1 WHERE transaction_id = ANY($2::uuid[])',
+            [id, transaction_ids]
+        );
+
+        await client.query('COMMIT');
+        res.json({ message: "Batch updated successfully" });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err.message });
+    } finally { client.release(); }
 };

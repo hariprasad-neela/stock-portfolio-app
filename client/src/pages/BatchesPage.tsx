@@ -56,6 +56,17 @@ export const BatchesPage = () => {
     }
   }, [status, dispatch]);
 
+  // Inside BatchesPage component
+  useEffect(() => {
+    if (selectedIds.length > 0 && !batchName) {
+      const firstPair = unbatchedPairs.find(p => selectedIds.includes(p.buy_id));
+      if (firstPair) {
+        const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        setBatchName(`${firstPair.ticker} ${today}`);
+      }
+    }
+  }, [selectedIds, unbatchedPairs]);
+
   const handleToggle = (buyId: string, sellId: string) => {
     setSelectedIds(prev => {
       const exists = prev.includes(buyId);
@@ -184,41 +195,54 @@ export const BatchesPage = () => {
         </div>
       </div>
 
-        <h2 className={uiTheme.text.h2}>Batches</h2>
-        {/* Responsive Table Wrapper */}
-        <div className={uiTheme.table.wrapper}>
-          <table className={uiTheme.table.base}>
-            <thead>
-              <tr>
-                <th className={uiTheme.table.th}>Batch Name</th>
-                <th className={uiTheme.table.th}>Date</th>
-                <th className={uiTheme.table.th}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {batches && batches.map((batch: any) => (
-                <tr key={batch.batch_id} className={uiTheme.table.row}>
-                  <td className={uiTheme.table.td}>{batch.batch_name}</td>
-                  <td className={uiTheme.table.td}>{formatDate(batch.batch_date)}</td>
-                  <td className={uiTheme.table.td}>
-                    <button
-                      onClick={() => openEditModal(tx)}
-                      className="underline font-black"
-                    >
-                      Edit
-                    </button> |{' '}
-                    <button
-                      onClick={() => handleDelete(tx.transaction_id)}
-                      className="text-xs font-black uppercase text-red-600 underline decoration-2"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <h2 className={uiTheme.text.h2}>Batches</h2>
+      {/* Batch Card Layout (Replace the Batches table body) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        {batches.map((batch) => (
+          <div key={batch.batch_id} className="border-4 border-black p-4 bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:bg-yellow-50 transition-colors">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-black uppercase tracking-tighter">{batch.batch_name}</h3>
+                <p className="text-xs font-bold text-gray-500">{formatDate(batch.batch_date)}</p>
+              </div>
+              <button
+                onClick={() => handleEditClick(batch)}
+                className="bg-black text-white px-3 py-1 text-xs font-black uppercase hover:bg-yellow-400 hover:text-black"
+              >
+                Edit Batch
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 border-t-2 border-black pt-3">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-gray-400 uppercase">Units Traded</span>
+                <span className="font-bold">{batch.total_units}</span>
+              </div>
+              <div className="flex flex-col text-right">
+                <span className="text-[10px] font-black text-gray-400 uppercase">Avg. Duration</span>
+                <span className="font-bold">{Math.round(batch.total_days_held / batch.total_units)} Days</span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
+      <div className="flex gap-4 mt-8">
+        <button
+          disabled={pagination.currentPage === 1}
+          onClick={() => fetchTransactions(pagination.currentPage - 1)}
+          className={uiTheme.button.secondary}
+        >
+          Previous
+        </button>
+        <span className="font-black self-center">Page {pagination.currentPage} of {pagination.totalPages}</span>
+        <button
+          disabled={pagination.currentPage === pagination.totalPages}
+          onClick={() => fetchTransactions(pagination.currentPage + 1)}
+          className={uiTheme.button.secondary}
+        >
+          Next
+        </button>
+      </div>
+    </div>
   );
 };
