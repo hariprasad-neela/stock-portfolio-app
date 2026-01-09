@@ -9,6 +9,7 @@ import { fetchOpenTrades } from './store/slices/tradesSlice';
 import { LiveTrackerPage } from './pages/LiveTrackerPage';
 import { InventoryPage } from './pages/InventoryPage';
 import { BatchesPage } from './pages/BatchesPage';
+import { BatchEditPage } from './features/batches/BatchEditPage';
 import { HistoryPage } from './pages/HistoryPage';
 
 const App = () => {
@@ -42,6 +43,8 @@ const App = () => {
           
           {/* Batch Management */}
           <Route path="batches" element={<BatchesPage />} />
+          {/* This :id allows BatchEditPage to use useParams() to get the UUID */}
+          <Route path="/batches/edit/:id" element={<BatchEditPage />} />
 
           {/* Historical Performance */}
           <Route path="history" element={<HistoryPage />} />

@@ -4,9 +4,12 @@ import { createBatch, fetchUnbatchedPairs } from '../store/slices/batchesSlice';
 import { uiTheme } from '../theme/uiTheme';
 import { store } from '../store/index';
 import { formatDate } from '../utils';
+import { useNavigate } from 'react-router-dom';
 
 export const BatchesPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Hook for navigation
+
   const { unbatchedPairs, status } = useSelector((state) => state.batches);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [batchName, setBatchName] = useState('');
@@ -206,10 +209,10 @@ export const BatchesPage = () => {
                 <p className="text-xs font-bold text-gray-500">{formatDate(batch.batch_date)}</p>
               </div>
               <button
-                onClick={() => handleEditClick(batch)}
-                className="bg-black text-white px-3 py-1 text-xs font-black uppercase hover:bg-yellow-400 hover:text-black"
+                onClick={() => navigate(`/batches/edit/${batch.batch_id}`)}
+                className="underline font-black hover:text-blue-600"
               >
-                Edit Batch
+                Edit
               </button>
             </div>
 
