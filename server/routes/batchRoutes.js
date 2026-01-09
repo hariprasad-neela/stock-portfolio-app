@@ -6,6 +6,6 @@ router.get('/unbatched', getUnbatchedPairs);
 router.post('/create', createBatch);
 router.get('/batches', getBatches);
 router.put('/batches/:id', updateBatch);
-router.get('/batches/:id', getBatchById);
+router.get('/batches/batch/:id', getBatchById);
 
 export default router;
