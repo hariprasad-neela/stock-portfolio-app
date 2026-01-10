@@ -4,31 +4,64 @@ import { TransactionModal } from '../../components/modals/TransactionModal';
 import mockOrders from "../../mocks/orders.json";
 
 export const OrderStagingPage = () => {
-    const [orders, setOrders] = useState([]);
-    const [selectedOrder, setSelectedOrder] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const API_BASE = import.meta.env.VITE_API_URL || '';
 
-    const fetchOrders = async () => {
-        const res = await fetch(`${API_BASE}/api/market/todays-orders`);
-        const data = await res.json();
-        //setOrders(data.data);
-        setOrders(mockOrders.data);
+    const [zerodhaOrders, setZerodhaOrders] = useState([]);
+    const [syncMap, setSyncMap] = useState<Record<string, { quantity: number, lots: number }>>({});
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    // 1. Fetch logic for both Zerodha and our DB Status
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            // Fetch fresh orders from Zerodha
+            const orderRes = await fetch('/api/zerodha/todays-orders');
+            const orders = await orderRes.json();
+
+            // Fetch our sync status map (The API we just created)
+            const syncRes = await fetch('/api/transactions/synced-status');
+            const syncData = await syncRes.json();
+
+            setZerodhaOrders(orders);
+            setSyncMap(syncData);
+        } catch (err) {
+            console.error("Data fetch failed", err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(() => { fetchOrders(); }, []);
+    // 2. Invocation on component mount
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-    const handleSyncClick = (order) => {
-        // Map Zerodha fields to your DB schema
-        const populatedData = {
-            ticker: order.tradingsymbol,
-            type: order.transaction_type, // 'BUY' or 'SELL'
-            quantity: order.quantity,
-            price: order.average_price,
-            date: new Date().toISOString().split('T')[0], // Today
-            external_id: order.order_id // To prevent double-entry later
+    // 3. Logic to calculate what is left to sync
+    const getOrderRemainder = (orderId: string, totalQty: number) => {
+        const synced = syncMap[orderId]?.quantity || 0;
+        const remaining = totalQty - synced;
+        return {
+            remaining,
+            synced,
+            isFullySynced: remaining <= 0,
+            lotCount: syncMap[orderId]?.lots || 0
         };
-        setSelectedOrder(populatedData);
+    };
+
+    const handleSyncClick = (order: any) => {
+        const { remaining } = getOrderRemainder(order.order_id, order.quantity);
+
+        // Population logic with remaining quantity and external_id
+        setSelectedOrder({
+            ticker: order.tradingsymbol,
+            type: order.transaction_type,
+            quantity: remaining, // Suggest the remainder
+            price: order.average_price,
+            date: order.order_timestamp.split(' ')[0],
+            external_id: order.order_id
+        });
         setIsModalOpen(true);
     };
 
@@ -68,44 +101,61 @@ export const OrderStagingPage = () => {
         }
     };
 
+    if (loading) return <div className="p-10 font-black">FETCHING ZERODHA INBOX...</div>;
+
     return (
         <div className={uiTheme.layout.container}>
             <h1 className={uiTheme.text.h1}>Zerodha Order Inbox</h1>
-            <p className="mb-6 text-sm font-bold text-gray-500 italic">Orders placed today on Kite. Review and commit to Ledger.</p>
 
             <div className={uiTheme.table.wrapper}>
                 <table className={uiTheme.table.base}>
                     <thead>
                         <tr className={uiTheme.table.th}>
                             <th className="p-4 text-left">Ticker</th>
-                            <th className="p-4 text-left">Type</th>
-                            <th className="p-4 text-left">Qty</th>
-                            <th className="p-4 text-left">Avg. Price</th>
+                            <th className="p-4 text-left">Order Details</th>
+                            <th className="p-4 text-left">Sync Progress</th>
                             <th className="p-4 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {orders.map((order) => (
-                            <tr key={order.order_id} className={uiTheme.table.row}>
-                                <td className={uiTheme.table.td + " font-black"}>{order.tradingsymbol}</td>
-                                <td className={uiTheme.table.td}>
-                                    <span className={`px-2 py-0.5 font-black text-[10px] border-2 border-black ${order.transaction_type === 'BUY' ? 'bg-blue-100' : 'bg-red-100'
-                                        }`}>
-                                        {order.transaction_type}
-                                    </span>
-                                </td>
-                                <td className={uiTheme.table.td}>{order.quantity}</td>
-                                <td className={uiTheme.table.td}>₹{order.average_price}</td>
-                                <td className={uiTheme.table.td + " text-center"}>
-                                    <button
-                                        onClick={() => handleSyncClick(order)}
-                                        className="bg-black text-white px-4 py-1 text-xs font-black uppercase hover:bg-yellow-400 hover:text-black transition-colors"
-                                    >
-                                        Sync to DB
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {zerodhaOrders.map((order: any) => {
+                            // 4. Invocation of the remainder logic for each row
+                            const { remaining, synced, isFullySynced, lotCount } = getOrderRemainder(order.order_id, order.quantity);
+
+                            return (
+                                <tr key={order.order_id} className={`${uiTheme.table.row} ${isFullySynced ? 'bg-gray-50 opacity-60' : ''}`}>
+                                    <td className={uiTheme.table.td + " font-black"}>{order.tradingsymbol}</td>
+                                    <td className={uiTheme.table.td}>
+                                        <div className="flex flex-col">
+                                            <span className="text-xs font-bold uppercase">{order.transaction_type} @ ₹{order.average_price}</span>
+                                            <span className="text-[10px] text-gray-400">ID: {order.order_id}</span>
+                                        </div>
+                                    </td>
+                                    <td className={uiTheme.table.td}>
+                                        <div className="flex flex-col">
+                                            <span className="font-bold">{synced} / {order.quantity} Units</span>
+                                            {lotCount > 0 && (
+                                                <span className="text-[9px] font-black text-blue-600 uppercase italic">
+                                                    Split into {lotCount} lots (₹5k each)
+                                                </span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td className={uiTheme.table.td + " text-center"}>
+                                        {!isFullySynced ? (
+                                            <button
+                                                onClick={() => handleSyncClick(order)}
+                                                className={uiTheme.button.primary + " py-1 px-4 text-xs"}
+                                            >
+                                                {synced > 0 ? 'Sync Next Lot' : 'Sync to DB'}
+                                            </button>
+                                        ) : (
+                                            <span className="text-green-600 font-black text-xs uppercase italic">✓ Fully Ledgered</span>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
@@ -113,7 +163,10 @@ export const OrderStagingPage = () => {
             {isModalOpen && (
                 <TransactionModal
                     isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => {
+                        setIsModalOpen(false);
+                        fetchData(); // 5. Refresh data after modal closes to update syncMap
+                    }}
                     initialData={selectedOrder} // Pass the Zerodha data here
                     mode="sync"
                     onSave={handleSave}

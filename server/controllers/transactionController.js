@@ -416,3 +416,39 @@ export const getTransactionById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// transactionController.js
+
+export const getSyncedExternalIds = async (req, res) => {
+  try {
+    // We only care about transactions that have an external_id linked
+    // and were created recently (to match today's Zerodha orders)
+    const query = `
+      SELECT 
+        external_id, 
+        SUM(quantity) as synced_quantity,
+        COUNT(*) as lot_count
+      FROM transactions
+      WHERE external_id IS NOT NULL 
+      AND date >= CURRENT_DATE - INTERVAL '1 day'
+      GROUP BY external_id;
+    `;
+
+    const result = await pool.query(query);
+
+    // Convert the array to a Key-Value map for O(1) lookup on frontend
+    // Format: { "order_id_123": 40, "order_id_456": 100 }
+    const syncMap = result.rows.reduce((acc, row) => {
+      acc[row.external_id] = {
+        quantity: parseFloat(row.synced_quantity),
+        lots: parseInt(row.lot_count)
+      };
+      return acc;
+    }, {});
+
+    res.status(200).json(syncMap);
+  } catch (err) {
+    console.error("Error fetching synced IDs:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

@@ -1,7 +1,7 @@
 import express from 'express';
 import pool from './db.js';
 const router = express.Router();
-import { getTransactionById } from './controllers/transactionController.js';
+import { getTransactionById, getSyncedExternalIds } from './controllers/transactionController.js';
 
 // Import the controller functions
 import { 
@@ -137,6 +137,7 @@ router.post('/', createTransaction);
 router.put('/:id', updateTransaction); 
 router.delete('/:id', deleteTransaction);
 router.get('/:id', getTransactionById);
+router.get('/synced-status', getSyncedExternalIds);
 
 // GET all transactions for the ledger
 router.get('/', getLedger);
