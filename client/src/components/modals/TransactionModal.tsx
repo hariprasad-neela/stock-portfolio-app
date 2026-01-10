@@ -27,7 +27,8 @@ export const TransactionModal = ({ isOpen, onClose, onSave, initialData, mode })
             price: Number(formData.price),
             date: formData.date,
             type: formData.type,
-            parent_buy_id: formData.type === 'SELL' ? formData.parent_buy_id : null
+            parent_buy_id: formData.type === 'SELL' ? formData.parent_buy_id : null,
+            external_id: formData.external_id // To prevent double-entry later
         };
         onSave(payload);
     };

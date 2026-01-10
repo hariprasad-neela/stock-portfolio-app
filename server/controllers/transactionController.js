@@ -260,7 +260,7 @@ export const saveTransaction = async (req, res) => {
 
 export const createTransaction = async (req, res) => {
     // Note: transaction_id comes from the body when editing
-    const { transaction_id, ticker, quantity, price, date, type, parent_buy_id } = req.body;
+    const { transaction_id, ticker, quantity, price, date, type, parent_buy_id, external_id } = req.body;
     const client = await pool.connect();
 
     try {
@@ -279,24 +279,25 @@ export const createTransaction = async (req, res) => {
             const updateQuery = `
                 UPDATE transactions 
                 SET stock_id = $1, portfolio_id = $2, type = $3, date = $4, 
-                    quantity = $5, price = $6, parent_buy_id = $7
-                WHERE transaction_id = $8
+                    quantity = $5, price = $6, parent_buy_id = $7,
+                    external_id = $8
+                WHERE transaction_id = $9
                 RETURNING *
             `;
             result = await client.query(updateQuery, [
-                stock_id, portfolio_id, type, date, quantity, price, parent_buy_id || null, transaction_id
+                stock_id, portfolio_id, type, date, quantity, price, parent_buy_id || null, external_id, transaction_id
             ]);
         } else {
             // ✅ CASE B: INSERT new record
             const insertQuery = `
                 INSERT INTO transactions 
-                (portfolio_id, stock_id, type, date, quantity, price, parent_buy_id, is_open)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                (portfolio_id, stock_id, type, date, quantity, price, parent_buy_id, is_open, external_id)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 RETURNING *
             `;
             const is_open = (type === 'BUY');
             result = await client.query(insertQuery, [
-                portfolio_id, stock_id, type, date, quantity, price, parent_buy_id || null, is_open
+                portfolio_id, stock_id, type, date, quantity, price, parent_buy_id || null, is_open, external_id
             ]);
         }
 
