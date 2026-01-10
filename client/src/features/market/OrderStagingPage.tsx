@@ -17,11 +17,11 @@ export const OrderStagingPage = () => {
         setLoading(true);
         try {
             // Fetch fresh orders from Zerodha
-            const orderRes = await fetch('/api/zerodha/todays-orders');
+            const orderRes = await fetch(`${API_BASE}/api/market/todays-orders`);
             const orders = await orderRes.json();
 
             // Fetch our sync status map (The API we just created)
-            const syncRes = await fetch('/api/transactions/synced-status');
+            const syncRes = await fetch(`${API_BASE}/api/transactions/synced-status`);
             const syncData = await syncRes.json();
 
             setZerodhaOrders(orders);
