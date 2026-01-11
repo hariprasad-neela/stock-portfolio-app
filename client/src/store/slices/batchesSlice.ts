@@ -1,13 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
-const API_BASE = import.meta.env.VITE_API_URL || '';
+import { API_URLS } from '../../utils/apiUrls';
 
 // Thunk to fetch pairs from the new backend endpoint
 export const fetchUnbatchedPairs = createAsyncThunk(
   'batches/fetchUnbatched',
   async () => {
-    const response = await axios.get(`${API_BASE}/api/batches/unbatched`);
+    const response = await axios.get(API_URLS.UNBATCHED);
     return response.data;
   }
 );
@@ -18,7 +17,7 @@ export const createBatch = createAsyncThunk(
   'batches/createBatch',
   async (payload: { batch_name: string; batch_date: string; transaction_ids: string[] }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_BASE}/api/batches/create`, payload);
+      const response = await axios.post(API_URLS.CREATE_BATCH, payload);
       return response.data;
     } catch (err: any) {
       // Return the error message from the backend if available
