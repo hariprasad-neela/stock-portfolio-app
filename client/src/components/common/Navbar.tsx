@@ -31,6 +31,8 @@ export const Navbar = () => {
           <NavLink to="/history" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>History</NavLink>
           <NavLink to="/inventory" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>Inventory</NavLink>
           <NavLink to="/batches" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>Batches</NavLink>
+          <NavLink to="/orders" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>Orders</NavLink>
+          <NavLink to="/lots" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>Lots</NavLink>
         </div>
       )}
     </nav>

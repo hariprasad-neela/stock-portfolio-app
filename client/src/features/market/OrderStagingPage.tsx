@@ -24,8 +24,8 @@ export const OrderStagingPage = () => {
             const syncRes = await fetch(`${API_BASE}/api/transactions/synced-status`);
             const syncData = await syncRes.json();
 
-            //setZerodhaOrders(orders.data);
-            setZerodhaOrders(mockOrders.data);
+            setZerodhaOrders(orders.data);
+            // setZerodhaOrders(mockOrders.data);
             setSyncMap(syncData);
         } catch (err) {
             console.error("Data fetch failed", err);
