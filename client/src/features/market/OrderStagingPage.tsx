@@ -92,6 +92,7 @@ export const OrderStagingPage = () => {
             if (response.ok) {
                 setIsModalOpen(false);
                 setSelectedOrder(null);
+                fetchData();  // Refresh the list and sync status
             } else {
                 const errorData = await response.json();
                 alert(`Error: ${errorData.message || 'Failed to save'}`);
