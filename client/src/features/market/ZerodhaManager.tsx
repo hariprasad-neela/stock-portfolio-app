@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URLS } from '../../utils/apiUrls';
 
 export const ZerodhaManager = () => {
     const API_BASE = import.meta.env.VITE_API_URL || '';
@@ -7,7 +8,7 @@ export const ZerodhaManager = () => {
 
     const checkStatus = async () => {
         try {
-            const res = await fetch(`${API_BASE}/api/market/status`);
+            const res = await fetch(API_URLS.MARKET_STATUS);
             const data = await res.json();
 
             if (data.status === 'active') {

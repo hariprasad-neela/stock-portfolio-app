@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createBatch, fetchUnbatchedPairs } from '../store/slices/batchesSlice';
 import { uiTheme } from '../theme/uiTheme';
-import { store } from '../store/index';
 import { formatDate } from '../utils';
 import { useNavigate } from 'react-router-dom';
+import { API_URLS } from '../utils/apiUrls';
 
 export const BatchesPage = () => {
   const dispatch = useDispatch();
@@ -87,7 +87,7 @@ export const BatchesPage = () => {
 
   const fetchTransactions = async (page = 1) => {
     try {
-      const res = await fetch(`${API_BASE}/api/batches/batches?page=${page}&limit=10&ticker=${filterTicker}`);
+      const res = await fetch(`${API_URLS.BATCHES}?page=${page}&limit=10&ticker=${filterTicker}`);
       const { data, pagination } = await res.json();
 
       setBatches(data);

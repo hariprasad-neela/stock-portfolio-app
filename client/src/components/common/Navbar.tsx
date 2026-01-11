@@ -16,6 +16,7 @@ export const Navbar = () => {
           <NavLink to="/inventory" className={uiTheme.nav.desktopLink}>Inventory</NavLink>
           <NavLink to="/batches" className={uiTheme.nav.desktopLink}>Batches</NavLink>
           <NavLink to="/orders" className={uiTheme.nav.desktopLink}>Orders</NavLink>
+          <NavLink to="/lots" className={uiTheme.nav.desktopLink}>Lots</NavLink>
         </div>
 
         {/* Mobile Toggle */}

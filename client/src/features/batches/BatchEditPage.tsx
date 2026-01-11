@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { uiTheme } from '../../theme/uiTheme';
 import { fetchUnbatchedPairs } from '../../store/slices/batchesSlice';
 import { formatDate } from '../../utils';
+import { API_URLS } from '../../utils/apiUrls';
 
 export const BatchEditPage = () => {
   const { id } = useParams();
@@ -19,7 +20,7 @@ export const BatchEditPage = () => {
 
   useEffect(() => {
     const loadBatch = async () => {
-      const res = await fetch(`${API_BASE}/api/batches/batch/${id}`);
+      const res = await fetch(`${API_URLS.BATCH_DETAILS}${id}`);
       const data = await res.json();
       setBatchData(data);
       // Map existing pairs into the selected IDs state
@@ -33,7 +34,7 @@ export const BatchEditPage = () => {
 
   const handleUpdate = async () => {
     try {
-      await fetch(`${API_BASE}/api/batches/batch/${id}`, {
+      await fetch(`${API_URLS.BATCH_DETAILS}${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
