@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { uiTheme } from '../../theme/uiTheme';
 import { TransactionModal } from '../../components/modals/TransactionModal';
 import mockOrders from "../../mocks/orders.json";
+import { API_URLS } from '../../utils/apiUrls';
 
 export const OrderStagingPage = () => {
     const API_BASE = import.meta.env.VITE_API_URL || '';
@@ -17,11 +18,11 @@ export const OrderStagingPage = () => {
         setLoading(true);
         try {
             // Fetch fresh orders from Zerodha
-            const orderRes = await fetch(`${API_BASE}/api/market/todays-orders`);
+            const orderRes = await fetch(API_URLS.TODAY_ORDERS);
             const orders = await orderRes.json();
 
             // Fetch our sync status map (The API we just created)
-            const syncRes = await fetch(`${API_BASE}/api/transactions/synced-status`);
+            const syncRes = await fetch(API_URLS.SYNCED_STATUS);
             const syncData = await syncRes.json();
 
             setZerodhaOrders(orders.data);
@@ -69,8 +70,8 @@ export const OrderStagingPage = () => {
     const handleSave = async (formData: any) => {
         const isEditing = !!formData.transaction_id;
         const url = isEditing
-            ? `${API_BASE}/api/transactions/${formData.transaction_id}`
-            : `${API_BASE}/api/transactions`;
+            ? `${API_URLS.TRANSACTIONS}/${formData.transaction_id}`
+            : `${API_URLS.TRANSACTIONS}`;
 
         const method = isEditing ? 'PUT' : 'POST';
 

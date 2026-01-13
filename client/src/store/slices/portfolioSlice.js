@@ -1,13 +1,14 @@
 // client/src/store/slices/portfolioSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api'; // Your axios instance
+import { API_URLS } from '../../utils/apiUrls';
 
 // Async thunk to fetch open lots for a specific ticker
 export const fetchOpenLots = createAsyncThunk(
   'portfolio/fetchOpenLots',
   async (ticker, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/api/strategy/open-inventory/${ticker}`);
+      const res = await api.get(`${API_URLS.OPEN_INVENTORY}${ticker}`);
       return res.data; 
     } catch (err) {
       return rejectWithValue(err.response.data);
@@ -43,7 +44,7 @@ export const addTransaction = createAsyncThunk(
     'portfolio/addTransaction',
     async (transactionData, { rejectWithValue }) => {
         try {
-            const response = await api.post('/api/transactions', transactionData);
+            const response = await api.post(API_URLS.TRANSACTIONS, transactionData);
             return response.data;
         } catch (err) {
             return rejectWithValue(err.response.data);
@@ -55,7 +56,7 @@ export const editTransaction = createAsyncThunk(
     'portfolio/editTransaction',
     async ({ id, data }, { rejectWithValue }) => {
         try {
-            const response = await api.put(`/api/transactions/${id}`, data);
+            const response = await api.put(`${API_URLS.TRANSACTIONS}/${id}`, data);
             return response.data;
         } catch (err) {
             return rejectWithValue(err.response.data);

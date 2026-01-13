@@ -1,6 +1,7 @@
 // client/src/store/slices/ledgerSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api';
+import { API_URLS } from '../../utils/apiUrls';
 
 export const fetchLedger = createAsyncThunk(
     'ledger/fetchLedger',
@@ -10,7 +11,7 @@ export const fetchLedger = createAsyncThunk(
             const params = new URLSearchParams({ page, limit });
             if (ticker) params.append('ticker', ticker);
 
-            const response = await api.get(`/api/transactions?${params.toString()}`);
+            const response = await api.get(`${API_URLS.TRANSACTIONS}?${params.toString()}`);
             return response.data; // This now contains { data, pagination }
         } catch (err) {
             return rejectWithValue(err.response.data);
@@ -21,7 +22,7 @@ export const fetchLedger = createAsyncThunk(
 export const removeTransaction = createAsyncThunk(
     'transactions/delete',
     async (id, { dispatch }) => {
-        await api.delete(`/api/transactions/${id}`);
+        await api.delete(`${API_URLS.TRANSACTIONS}/${id}`);
         return id;
     }
 );
@@ -29,7 +30,7 @@ export const removeTransaction = createAsyncThunk(
 export const editTransaction = createAsyncThunk(
     'transactions/update',
     async ({ id, data }) => {
-        const response = await api.put(`/api/transactions/${id}`, data);
+        const response = await api.put(`${API_URLS.TRANSACTIONS}/${id}`, data);
         return response.data;
     }
 );

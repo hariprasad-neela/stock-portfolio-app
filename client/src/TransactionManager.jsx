@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import api from './api';
 import { SUPPORTED_STOCKS, APP_CONFIG } from './constants';
+import { API_URLS } from './utils/apiUrls';
 
 const TransactionManager = ({ onEditTriggered }) => {
     const [transactions, setTransactions] = useState([]);
@@ -12,7 +13,7 @@ const TransactionManager = ({ onEditTriggered }) => {
 
     const fetchAllTransactions = async () => {
         try {
-            const response = await api.get('/api/transactions');
+            const response = await api.get(API_URLS.TRANSACTIONS);
             setTransactions(response.data);
         } catch (err) { console.error("Fetch failed", err); }
     };
@@ -22,7 +23,7 @@ const TransactionManager = ({ onEditTriggered }) => {
     const handleDelete = async (id) => {
         if (window.confirm("Permanent delete? This cannot be undone.")) {
             try {
-                await api.delete(`/api/transactions/${id}`);
+                await api.delete(`${API_URLS.TRANSACTIONS}/${id}`);
                 fetchAllTransactions();
             } catch (err) { alert("Delete failed"); }
         }

@@ -1,6 +1,7 @@
 // client/src/SellTransactionForm.jsx
 import React, { useState } from 'react';
 import api from './api';
+import { API_URLS } from './utils/apiUrls';
 
 const SellTransactionForm = ({ ticker, selectedLots, cumulativeQuantity, onSellSuccess }) => {
     const initialFormState = {
@@ -35,7 +36,7 @@ const SellTransactionForm = ({ ticker, selectedLots, cumulativeQuantity, onSellS
         };
 
         try {
-            const response = await api.post('/api/transactions', sellData);
+            const response = await api.post(API_URLS.TRANSACTIONS, sellData);
             
             setStatus(`✅ Success! ${sellData.quantity} shares of ${ticker} sold.`);
             setFormData(initialFormState);

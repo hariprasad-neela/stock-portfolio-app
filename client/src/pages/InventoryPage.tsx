@@ -3,6 +3,7 @@ import { LotSelectorCard } from '../features/inventory/LotSelectorCard';
 import { InventorySummary } from '../features/inventory/InventorySummary';
 import { uiTheme } from '../theme/uiTheme';
 import { useLocation } from 'react-router-dom';
+import { API_URLS } from '../utils/apiUrls';
 
 export const InventoryPage = () => {
     const [availableTickers, setAvailableTickers] = useState([]);
@@ -19,7 +20,7 @@ export const InventoryPage = () => {
     useEffect(() => {
         const fetchTickers = async () => {
             try {
-                const res = await fetch(`${API_BASE}/api/market/active-tickers`);
+                const res = await fetch(API_URLS.ACTIVE_TICKERS);
                 const data = await res.json();
                 setAvailableTickers(data);
 
@@ -47,8 +48,8 @@ export const InventoryPage = () => {
             setLoading(true);
             try {
                 const [invRes, priceRes] = await Promise.all([
-                    fetch(`${API_BASE}/api/strategy/open-inventory/${selectedTicker}`),
-                    fetch(`${API_BASE}/api/market/quotes?symbols=NSE:${selectedTicker}`)
+                    fetch(API_URLS.OPEN_INVENTORY + selectedTicker),
+                    fetch(API_URLS.QUOTES+`NSE:${selectedTicker}`)
                 ]);
 
                 const invData = await invRes.json();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TransactionModal } from '../components/modals/TransactionModal';
 import { uiTheme } from '../theme/uiTheme';
 import { formatDate } from '../utils';
+import { API_URLS } from '../utils/apiUrls';
 
 export const HistoryPage = () => {
   const [transactions, setTransactions] = useState([]);
@@ -18,7 +19,7 @@ export const HistoryPage = () => {
 
   const fetchTransactions = async (page = 1) => {
     try {
-      const res = await fetch(`${API_BASE}/api/transactions?page=${page}&limit=10&ticker=${filterTicker}`);
+      const res = await fetch(API_URLS.TRANSACTIONS + `?page=${page}&limit=10&ticker=${filterTicker}`);
       const {data, pagination} = await res.json();
 
       setTransactions(data);
@@ -35,15 +36,15 @@ export const HistoryPage = () => {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Delete this transaction?")) return;
-    await fetch(`${API_BASE}/api/transactions/${id}`, { method: 'DELETE' });
+    await fetch(`${API_URLS.TRANSACTIONS}/${id}`, { method: 'DELETE' });
     fetchTransactions();
   };
 
   const handleSave = async (formData: any) => {
     const isEditing = !!formData.transaction_id;
     const url = isEditing
-      ? `${API_BASE}/api/transactions/${formData.transaction_id}`
-      : `${API_BASE}/api/transactions`;
+      ? `${API_URLS.TRANSACTIONS}/${formData.transaction_id}`
+      : `${API_URLS.TRANSACTIONS}`;
 
     const method = isEditing ? 'PUT' : 'POST';
 

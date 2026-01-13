@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { uiTheme } from '../theme/uiTheme';
 import { formatDate } from '../utils';
+import { API_URLS } from '../utils/apiUrls';
 
 export const LotExplorer = () => {
   const [lots, setLots] = useState([]);
@@ -13,7 +14,7 @@ export const LotExplorer = () => {
   }, []);
 
   const fetchOpenLots = async () => {
-    const res = await fetch('/api/transactions/open-lots');
+    const res = await fetch(API_URLS.OPEN_LOTS);
     const data = await res.json();
     setLots(data);
     // After getting lots, fetch live quotes for these tickers
