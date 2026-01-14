@@ -118,6 +118,13 @@ export const uiTheme = {
     profitPositive: "text-green-600 font-black",
     profitNegative: "text-red-600 font-black",
     checkbox: "w-6 h-6 border-4 border-black cursor-pointer accent-black",
-  }
+  },
 
+  statusColors: {
+    success: 'bg-green-400',   // Target Met
+    warning: 'bg-yellow-400',  // Near Target
+    info: 'bg-blue-400',       // Holding
+    danger: 'bg-red-400',      // Loss
+    accent: 'bg-purple-400',   // Atomic Units
+  }
 };
