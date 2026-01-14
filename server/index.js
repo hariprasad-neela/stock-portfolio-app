@@ -8,6 +8,7 @@ import strategyRoutes from './strategyRoutes.js';
 import batchRoutes from './routes/batchRoutes.js';
 import marketRoutes from './routes/marketRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import appRoutes from './routes/appRoutes.js';
 import { kite } from './services/zerodhaService.js';
 import { getStocksList } from './controllers/stockController.js';
 import { getOpenTrades } from './controllers/transactionController.js';
@@ -41,10 +42,10 @@ app.use(express.json());
 
 // -----------------------------------------------------------------
 // 2. Use the Transaction Router
+app.use('/api', appRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/strategy', strategyRoutes);
 app.use('/api/batches', batchRoutes);
-app.use('/api/market', marketRoutes);
 // app.use('/api/data', dataRoutes);
 app.get('/api/stocks', getStocksList);
 app.get('/api/openTransactions', getOpenTrades);
