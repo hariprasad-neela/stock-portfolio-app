@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_URLS } from '../../utils/apiUrls';
+import { uiTheme } from '../../theme/uiTheme';
 
 export const ZerodhaManager = () => {
     const API_BASE = import.meta.env.VITE_API_URL || '';
@@ -27,7 +28,7 @@ export const ZerodhaManager = () => {
 
     const handleLogin = async () => {
         try {
-            const res = await fetch(`${API_BASE}/api/auth/zerodha-url`);
+            const res = await fetch(API_URLS.ZERODHA_URL);
             const { url } = await res.json();
 
             // Open Zerodha in a popup
@@ -55,7 +56,7 @@ export const ZerodhaManager = () => {
             {!isConnected && (
                 <button
                     onClick={handleLogin}
-                    className="bg-yellow-400 border-2 border-black px-4 py-2 font-black text-[10px] uppercase hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    className={uiTheme.initializeBtn}
                 >
                     Initialize Session
                 </button>

@@ -6,6 +6,7 @@ export const uiTheme = {
   // Navigation / Sidebar area
   navInner: "flex justify-between h-16 items-center px-6",
   navLink: "px-4 py-2 font-black uppercase tracking-widest text-[11px] hover:bg-gray-100 transition-all border-r border-black last:border-r-0 h-full flex items-center",
+  initializeBtn: "bg-yellow-400 border-2 border-black px-4 py-2 font-black text-[10px] uppercase hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
 
   // The "Brutal" Card
   card: "bg-white border-2 border-black rounded-none p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]",

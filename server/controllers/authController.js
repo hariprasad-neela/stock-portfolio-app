@@ -28,7 +28,7 @@ export const handleZerodhaCallback = async (req, res) => {
              DO UPDATE SET value = $1, updated_at = CURRENT_TIMESTAMP`,
             [accessToken]
         );
-
+        console.error("Zerodha access token set:", accessToken);
         res.send(`
             <script>
                 if (window.opener) {

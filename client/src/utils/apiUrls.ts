@@ -1,6 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export const API_URLS = {
+  ZERODHA_URL: `${API_BASE}/api/auth/zerodha-url`,
   MARKET_STATUS: `${API_BASE}/api/market/status`,
   TODAY_ORDERS: `${API_BASE}/api/market/todays-orders`,
   BATCH_DETAILS: `${API_BASE}/api/batches/batch/`,
