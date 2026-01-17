@@ -26,6 +26,6 @@ router.get('/market/todays-orders', getTodaysOrders);
 router.get('/batches/unbatched', getUnbatchedPairs);
 router.post('/batches/create', createBatch);
 router.get('/batches/batches', getBatches);
-router.put('/batches/:id', updateBatch);
-router.get('/batches/:id', getBatchById);
+router.put('/batches/batch/:id', updateBatch);
+router.get('/batches/batch/:id', getBatchById);
 export default router;
