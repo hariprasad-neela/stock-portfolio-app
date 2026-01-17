@@ -14,6 +14,6 @@ export const API_URLS = {
   QUOTES: `${API_BASE}/api/market/quotes?symbols=`,
   ACTIVE_TICKERS: `${API_BASE}/api/market/active-tickers`,
   TRANSACTIONS: `${API_BASE}/api/transactions`,
-  OPEN_LOTS: `${API_BASE}/api/transactions/open-lots`,
-  OPEN_TRANSACTIONS: `${API_BASE}/api/openTransactions`
+  // OPEN_LOTS: `${API_BASE}/api/transactions/open-lots`,
+  OPEN_LOTS: `${API_BASE}/api/openLots`
 }

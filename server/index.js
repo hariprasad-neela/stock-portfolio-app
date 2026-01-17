@@ -47,7 +47,7 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/strategy', strategyRoutes);
 // app.use('/api/data', dataRoutes);
 app.get('/api/stocks', getStocksList);
-app.get('/api/openTransactions', getOpenTrades);
+app.get('/api/openLots', getOpenTrades);
 
 
 // Mount the auth routes
