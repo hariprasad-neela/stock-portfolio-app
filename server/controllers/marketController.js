@@ -87,9 +87,10 @@ export const getHistoricalData = async (req, res) => {
         }
 
         const silverbees_instrument_token = 2068481;
+        const { from_date, to_date } = req.query;
 
         // Note: This requires the 'orders' permission in your Kite Connect App
-        const response = await fetch('https://api.kite.trade/instruments/historical/' + silverbees_instrument_token + '/15minute?from=2025-12-15+09:15:00&to=2025-12-15+15:30:00', {
+        const response = await fetch('https://api.kite.trade/instruments/historical/' + silverbees_instrument_token + '/15minute?from=' + from_date + '+09:15:00&to=' + to_date + '+15:30:00', {
             headers: {
                 'Authorization': `token ${process.env.ZERODHA_API_KEY}:${kite.access_token}`,
                 'X-Kite-Version': '3'
