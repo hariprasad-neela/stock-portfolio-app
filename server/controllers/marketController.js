@@ -78,3 +78,24 @@ export const getTodaysOrders = async (req, res) => {
         res.status(500).json({ error: `${err} Failed to fetch Zerodha orders` });
     }
 };
+
+export const getHistoricalData = async (req, res) => {
+    try {
+        // If there's no token at all, it's definitely disconnected
+        if (!kite.access_token) {
+            return res.json({ status: 'disconnected' });
+        }
+
+        // Note: This requires the 'orders' permission in your Kite Connect App
+        const response = await fetch('https://api.kite.trade/instruments/historical', {
+            headers: {
+                'Authorization': `token ${process.env.ZERODHA_API_KEY}:${kite.access_token}`,
+                'X-Kite-Version': '3'
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: `${err} Failed to fetch Historical Data` });
+    }
+};
