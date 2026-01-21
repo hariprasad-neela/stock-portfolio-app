@@ -3,7 +3,8 @@ import {
     getLivePrices,
     checkZerodhaStatus,
     getActiveTickers,
-    getTodaysOrders
+    getTodaysOrders,
+    getHistoricalData
 } from '../controllers/marketController.js';
 import { 
     getUnbatchedPairs,
@@ -21,6 +22,7 @@ router.get('/market/quotes', getLivePrices);
 router.get('/market/status', checkZerodhaStatus);
 router.get('/market/active-tickers', getActiveTickers);
 router.get('/market/todays-orders', getTodaysOrders);
+router.get('/market/historical-data', getHistoricalData);
 
 // Batch Routes
 router.get('/batches/unbatched', getUnbatchedPairs);
