@@ -96,7 +96,7 @@ export const getHistoricalData = async (req, res) => {
             }
         });
         const data = await response.json();
-        res.json({ error: `${data} Failed to fetch Historical Data` });
+        res.json(data);
     } catch (err) {
         res.status(500).json({ error: `${err} Failed to fetch Historical Data` });
     }
