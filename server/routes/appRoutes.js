@@ -20,7 +20,8 @@ import {
     updateTransaction,
     deleteTransaction,
     createTransaction,
-    getOpenInventory, 
+    getOpenInventory,
+    getTransactions,
 } from '../controllers/transactionController.js';
 
 const router = express.Router();
@@ -41,6 +42,7 @@ router.put('/batches/batch/:id', updateBatch);
 router.get('/batches/batch/:id', getBatchById);
 
 // Transaction Routes
+router.get('/transactions', getTransactions);
 router.post('/transactions', createTransaction);
 router.get('/transactions/synced-status', getSyncedExternalIds);
 router.put('/transactions/:id', updateTransaction); 
