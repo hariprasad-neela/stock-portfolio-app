@@ -21,7 +21,6 @@ import {
     deleteTransaction,
     createTransaction,
     getOpenInventory,
-    getTransactions,
 } from '../controllers/transactionController.js';
 
 const router = express.Router();
@@ -42,16 +41,12 @@ router.put('/batches/batch/:id', updateBatch);
 router.get('/batches/batch/:id', getBatchById);
 
 // Transaction Routes
-router.get('/transactions', getTransactions);
+router.get('/transactions', getLedger);
 router.post('/transactions', createTransaction);
 router.get('/transactions/synced-status', getSyncedExternalIds);
 router.put('/transactions/:id', updateTransaction); 
 router.delete('/transactions/:id', deleteTransaction);
 router.get('/transactions/:id', getTransactionById);
 router.get('/open-inventory/:ticker', getOpenInventory);
-
-// GET all transactions for the ledger
-router.get('/', getLedger);
-
 
 export default router;
