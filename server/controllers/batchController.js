@@ -65,8 +65,8 @@ export const getBatches = async (req, res) => {
       pagination: {
         totalRecords,
         totalPages: Math.ceil(totalRecords / limit) || 1,
-        currentPage: page,
-        limit: limit
+        currentPage: parseInt(page),
+        limit: parseInt(limit)
       }
     });
   } catch (err) {
