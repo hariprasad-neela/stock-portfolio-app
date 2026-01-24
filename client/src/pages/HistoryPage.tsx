@@ -11,11 +11,10 @@ export const HistoryPage = () => {
   const [modalMode, setModalMode] = useState("add");
   const [editingData, setEditingData] = useState<any>(null);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
-  const API_BASE = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
-    fetchTransactions(1);
-  }, [pagination.currentPage, filterTicker]);
+    fetchTransactions(pagination.currentPage);
+  }, [filterTicker]);
 
   const fetchTransactions = async (page = 1) => {
     try {
