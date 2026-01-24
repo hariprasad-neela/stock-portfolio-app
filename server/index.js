@@ -1,5 +1,6 @@
 // server/index.js
 import express from 'express';
+import { requestLogger } from './middleware/logger.js';
 import cors from 'cors';
 //require('dotenv').config();
 import pool from './db.js';
@@ -37,6 +38,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+app.use(requestLogger); // Global Interceptor
 
 // -----------------------------------------------------------------
 // 2. Use the Transaction Router
