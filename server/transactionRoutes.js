@@ -1,19 +1,6 @@
 import express from 'express';
 import pool from './db.js';
 const router = express.Router();
-import { getTransactionById, getSyncedExternalIds } from './controllers/transactionController.js';
-
-// Import the controller functions
-import { 
-    bulkSell,
-    getOpenInventory, 
-    getLedger,
-    updateTransaction,
-    deleteTransaction,
-    addTransaction,
-    createTransaction
-    // ... other imports like getTransactions, createTransaction
-} from './controllers/transactionController.js';
 
 /**
  * Helper function to find a stock by its ticker (or insert it if it doesn't exist).
@@ -133,14 +120,6 @@ router.post('/old', async (req, res) => {
     }
 });
 
-router.post('/', createTransaction);
-router.get('/synced-status', getSyncedExternalIds);
-router.put('/:id', updateTransaction); 
-router.delete('/:id', deleteTransaction);
-router.get('/:id', getTransactionById);
-
-// GET all transactions for the ledger
-router.get('/', getLedger);
 // Old GET all transactions route (for reference)
 router.get('/old', async (req, res) => {
     try {
@@ -165,10 +144,5 @@ router.get('/old', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch transaction history' });
     }
 });
-
-// Define the route for bulk selling
-router.post('/bulk-sell', bulkSell);
-
-router.get('/open-inventory/:ticker', getOpenInventory);
 
 export default router;

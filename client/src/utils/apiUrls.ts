@@ -9,11 +9,11 @@ export const API_URLS = {
   UNBATCHED: `${API_BASE}/api/batches/unbatched`,
   CREATE_BATCH: `${API_BASE}/api/batches/create`,
   STOCKS: `${API_BASE}/api/stocks`,
-  SYNCED_STATUS: `${API_BASE}/api/transactions/synced-status`,
   OPEN_INVENTORY: `${API_BASE}/api/strategy/open-inventory/`,
   QUOTES: `${API_BASE}/api/market/quotes?symbols=`,
   ACTIVE_TICKERS: `${API_BASE}/api/market/active-tickers`,
   TRANSACTIONS: `${API_BASE}/api/transactions`,
+  SYNCED_STATUS: `${API_BASE}/api/transactions/synced-status`,
   // OPEN_LOTS: `${API_BASE}/api/transactions/open-lots`,
   OPEN_LOTS: `${API_BASE}/api/openLots`
 }
