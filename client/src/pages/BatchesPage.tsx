@@ -83,7 +83,7 @@ export const BatchesPage = () => {
 
   useEffect(() => {
     fetchTransactions(1);
-  }, [pagination.currentPage, filterTicker]);
+  }, [filterTicker]);
 
   const fetchTransactions = async (page = 1) => {
     try {

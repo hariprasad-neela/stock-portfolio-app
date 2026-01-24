@@ -13,7 +13,7 @@ export const HistoryPage = () => {
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
 
   useEffect(() => {
-    fetchTransactions(pagination.currentPage);
+    fetchTransactions(1);
   }, [filterTicker]);
 
   const fetchTransactions = async (page = 1) => {
