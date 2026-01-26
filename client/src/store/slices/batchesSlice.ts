@@ -15,7 +15,7 @@ export const fetchUnbatchedPairs = createAsyncThunk(
 
 export const createBatch = createAsyncThunk(
   'batches/createBatch',
-  async (payload: { batch_name: string; batch_date: string; transaction_ids: string[] }, { rejectWithValue }) => {
+  async (payload: { batch_name: string; batch_date: string; transaction_ids: string[]; profit: number }, { rejectWithValue }) => {
     try {
       const response = await axios.post(API_URLS.CREATE_BATCH, payload);
       return response.data;
