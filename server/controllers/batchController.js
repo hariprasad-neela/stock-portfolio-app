@@ -41,7 +41,8 @@ export const getBatches = async (req, res) => {
                 batch_name, 
                 batch_date, 
                 total_units,     
-                total_days_held, 
+                total_days_held,
+                profit, 
                 count(*) OVER() AS total_count
             FROM batches
             WHERE 1=1

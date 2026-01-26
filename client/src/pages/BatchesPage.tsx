@@ -225,6 +225,10 @@ export const BatchesPage = () => {
                 <span className="text-[10px] font-black text-gray-400 uppercase">Units Traded</span>
                 <span className="font-bold">{batch.total_units}</span>
               </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-gray-400 uppercase">Profit</span>
+                <span className="font-bold">{batch.profit}</span>
+              </div>
               <div className="flex flex-col text-right">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Avg. Duration</span>
                 <span className="font-bold">{Math.round(batch.total_days_held / batch.total_units)} Days</span>
