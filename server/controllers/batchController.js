@@ -92,7 +92,7 @@ const calculateBatchStats = async (client, transactionIds) => {
 };
 
 export const createBatch = async (req, res) => {
-  const { batch_name, batch_date, transaction_ids } = req.body;
+  const { batch_name, batch_date, transaction_ids, profit } = req.body;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -101,8 +101,8 @@ export const createBatch = async (req, res) => {
     const stats = await calculateBatchStats(client, transaction_ids);
 
     const batchResult = await client.query(
-      'INSERT INTO batches (batch_name, batch_date, total_units, total_days_held) VALUES ($1, $2, $3, $4) RETURNING batch_id',
-      [batch_name, batch_date, stats.units, stats.days_held]
+      'INSERT INTO batches (batch_name, batch_date, total_units, total_days_held, profit) VALUES ($1, $2, $3, $4) RETURNING batch_id',
+      [batch_name, batch_date, stats.units, stats.days_held, profit]
     );
     const newBatchId = batchResult.rows[0].batch_id;
 
@@ -121,7 +121,7 @@ export const createBatch = async (req, res) => {
 
 export const updateBatch = async (req, res) => {
   const { id } = req.params;
-  const { batch_name, batch_date, transaction_ids } = req.body;
+  const { batch_name, batch_date, transaction_ids, profit } = req.body;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -133,8 +133,8 @@ export const updateBatch = async (req, res) => {
 
     // 2. Update Batch metadata
     await client.query(
-      'UPDATE batches SET batch_name = $1, batch_date = $2, total_units = $3, total_days_held = $4 WHERE batch_id = $5',
-      [batch_name, batch_date, stats.units, stats.days_held, id]
+      'UPDATE batches SET batch_name = $1, batch_date = $2, total_units = $3, total_days_held = $4, profit = $5 WHERE batch_id = $6',
+      [batch_name, batch_date, stats.units, stats.days_held, profit, id]
     );
 
     // 3. Re-assign new selection

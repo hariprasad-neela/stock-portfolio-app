@@ -1,0 +1,713 @@
+{
+    "NSE:ALPHAETF": {
+        "instrument_token": 5027841,
+        "timestamp": "2026-01-23T17:26:47.000Z",
+        "last_trade_time": "2026-01-23T15:29:58.000Z",
+        "last_price": 24.04,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 19.59,
+        "upper_circuit_limit": 29.37,
+        "ohlc": {
+            "open": 24.64,
+            "high": 24.64,
+            "low": 24.02,
+            "close": 24.42
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    },
+    "NSE:ALPL30IETF": {
+        "instrument_token": 5720065,
+        "timestamp": "2026-01-23T17:26:47.000Z",
+        "last_trade_time": "2026-01-23T15:29:58.000Z",
+        "last_price": 27.14,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 21.9,
+        "upper_circuit_limit": 32.84,
+        "ohlc": {
+            "open": 27.39,
+            "high": 27.53,
+            "low": 27.09,
+            "close": 27.39
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    },
+    "NSE:CPSEETF": {
+        "instrument_token": 595969,
+        "timestamp": "2026-01-23T17:26:45.000Z",
+        "last_trade_time": "2026-01-23T15:57:06.000Z",
+        "last_price": 92.2,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 74.65,
+        "upper_circuit_limit": 111.97,
+        "ohlc": {
+            "open": 93.06,
+            "high": 93.43,
+            "low": 91.07,
+            "close": 93.41
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    },
+    "NSE:FMCGIETF": {
+        "instrument_token": 1358337,
+        "timestamp": "2026-01-23T17:26:45.000Z",
+        "last_trade_time": "2026-01-23T15:59:18.000Z",
+        "last_price": 55.44,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 44.44,
+        "upper_circuit_limit": 66.64,
+        "ohlc": {
+            "open": 55.64,
+            "high": 55.95,
+            "low": 54,
+            "close": 55.63
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    },
+    "NSE:GOLDBEES": {
+        "instrument_token": 3693569,
+        "timestamp": "2026-01-23T17:26:46.000Z",
+        "last_trade_time": "2026-01-23T15:59:49.000Z",
+        "last_price": 127.49,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 99.66,
+        "upper_circuit_limit": 149.48,
+        "ohlc": {
+            "open": 129.1,
+            "high": 132.48,
+            "low": 126,
+            "close": 124.34
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    },
+    "NSE:MOM30IETF": {
+        "instrument_token": 2709761,
+        "timestamp": "2026-01-23T17:26:46.000Z",
+        "last_trade_time": "2026-01-23T15:29:58.000Z",
+        "last_price": 30.72,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 24.91,
+        "upper_circuit_limit": 37.35,
+        "ohlc": {
+            "open": 31.37,
+            "high": 31.37,
+            "low": 30.64,
+            "close": 31.09
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    },
+    "NSE:NIFTYQLITY": {
+        "instrument_token": 2736641,
+        "timestamp": "2026-01-23T17:18:02.000Z",
+        "last_trade_time": "2026-01-23T15:54:06.000Z",
+        "last_price": 21.79,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 17.52,
+        "upper_circuit_limit": 26.28,
+        "ohlc": {
+            "open": 22.02,
+            "high": 22.06,
+            "low": 21.69,
+            "close": 21.92
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    },
+    "NSE:NV20IETF": {
+        "instrument_token": 4473601,
+        "timestamp": "2026-01-23T17:18:01.000Z",
+        "last_trade_time": "2026-01-23T15:29:57.000Z",
+        "last_price": 14.96,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 12.04,
+        "upper_circuit_limit": 18.04,
+        "ohlc": {
+            "open": 15.49,
+            "high": 15.49,
+            "low": 14.95,
+            "close": 15.04
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    },
+    "NSE:SILVERBEES": {
+        "instrument_token": 2068481,
+        "timestamp": "2026-01-23T17:26:45.000Z",
+        "last_trade_time": "2026-01-23T15:59:53.000Z",
+        "last_price": 292.8,
+        "last_quantity": 0,
+        "buy_quantity": 0,
+        "sell_quantity": 0,
+        "volume": 0,
+        "average_price": 0,
+        "oi": 0,
+        "oi_day_high": 0,
+        "oi_day_low": 0,
+        "net_change": 0,
+        "lower_circuit_limit": 223.75,
+        "upper_circuit_limit": 335.61,
+        "ohlc": {
+            "open": 295.65,
+            "high": 307.78,
+            "low": 289,
+            "close": 276.27
+        },
+        "depth": {
+            "buy": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ],
+            "sell": [
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                },
+                {
+                    "price": 0,
+                    "quantity": 0,
+                    "orders": 0
+                }
+            ]
+        }
+    }
+}

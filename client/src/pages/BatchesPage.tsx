@@ -17,7 +17,6 @@ export const BatchesPage = () => {
   const [batches, setBatches] = useState([]);
   const [filterTicker, setFilterTicker] = useState('');
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
-  const API_BASE = import.meta.env.VITE_API_URL || '';
 
   const handleCreateBatch = async () => {
     // 1. Validation check
@@ -29,9 +28,14 @@ export const BatchesPage = () => {
     try {
       // 2. Dispatch the thunk
       // .unwrap() allows us to use standard try/catch logic on the thunk result
+      const profit = unbatchedPairs
+        .filter(p => selectedIds.includes(p.buy_id))
+        .reduce((sum, p) => sum + Number(p.realized_pnl), 0);
+
       await dispatch(createBatch({
         batch_name: batchName,
         batch_date: batchDate,
+        profit: profit,
         transaction_ids: selectedIds
       })).unwrap();
 
