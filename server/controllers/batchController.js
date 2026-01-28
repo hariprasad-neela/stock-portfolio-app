@@ -75,20 +75,29 @@ export const getBatches = async (req, res) => {
   }
 };
 
-// Helper to calculate Batch Stats
+// Helper to calculate Batch Stats with Profit
 const calculateBatchStats = async (client, transactionIds) => {
   const statsQuery = `
         SELECT 
-            SUM(sel.quantity) as units,
-            SUM(sel.quantity * (sel.date - b.date)) as weighted_days
+            SUM(sel.quantity) as total_units,
+            SUM(sel.quantity * (sel.date - b.date)) as total_weighted_days,
+            SUM(sel.quantity * (sel.price - b.price)) as total_profit
         FROM transactions sel
         JOIN transactions b ON sel.parent_buy_id = b.transaction_id
         WHERE sel.transaction_id = ANY($1::uuid[])
     `;
+    
   const result = await client.query(statsQuery, [transactionIds]);
+  const row = result.rows[0];
+
+  const units = parseFloat(row.total_units || 0);
+  
   return {
-    units: parseFloat(result.rows[0].units || 0),
-    days_held: parseInt(result.rows[0].weighted_days || 0)
+    units: units,
+    // Average days held across the batch
+    days_held: units > 0 ? Math.round(parseInt(row.total_weighted_days) / units) : 0,
+    // Total profit for the ₹150 threshold check
+    profit: parseFloat(row.total_profit || 0)
   };
 };
 
@@ -102,7 +111,7 @@ export const createBatch = async (req, res) => {
     const stats = await calculateBatchStats(client, transaction_ids);
 
     const batchResult = await client.query(
-      'INSERT INTO batches (batch_name, batch_date, total_units, total_days_held, profit) VALUES ($1, $2, $3, $4) RETURNING batch_id',
+      'INSERT INTO batches (batch_name, batch_date, total_units, total_days_held, profit) VALUES ($1, $2, $3, $4, $5) RETURNING batch_id',
       [batch_name, batch_date, stats.units, stats.days_held, profit]
     );
     const newBatchId = batchResult.rows[0].batch_id;
@@ -122,7 +131,7 @@ export const createBatch = async (req, res) => {
 
 export const updateBatch = async (req, res) => {
   const { id } = req.params;
-  const { batch_name, batch_date, transaction_ids, profit } = req.body;
+  const { batch_name, batch_date, transaction_ids } = req.body;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -135,7 +144,7 @@ export const updateBatch = async (req, res) => {
     // 2. Update Batch metadata
     await client.query(
       'UPDATE batches SET batch_name = $1, batch_date = $2, total_units = $3, total_days_held = $4, profit = $5 WHERE batch_id = $6',
-      [batch_name, batch_date, stats.units, stats.days_held, profit, id]
+      [batch_name, batch_date, stats.units, stats.days_held, stats.profit, id]
     );
 
     // 3. Re-assign new selection
