@@ -17,6 +17,7 @@ export const BatchesPage = () => {
   const [batches, setBatches] = useState([]);
   const [filterTicker, setFilterTicker] = useState('');
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
+  const [globalSummary, setGlobalSummary] = useState({ totalProfit: 0, totalUnits: 0, totalBatches: 0 });
 
   const handleCreateBatch = async () => {
     // 1. Validation check
@@ -92,15 +93,11 @@ export const BatchesPage = () => {
   const fetchTransactions = async (page = 1) => {
     try {
       const res = await fetch(`${API_URLS.BATCHES}?page=${page}&limit=10&ticker=${filterTicker}`);
-      const { data, pagination } = await res.json();
+      const { data, pagination, summary } = await res.json();
 
       setBatches(data);
-      // Match these keys exactly to your backend response
-      setPagination({
-        currentPage: pagination.currentPage,
-        totalPages: pagination.totalPages,
-        totalRecords: pagination.totalRecords
-      });
+      setGlobalSummary(summary); // Set the global stats here
+      setPagination(pagination);
     } catch (err) {
       console.error("Pagination fetch failed", err);
     }
@@ -115,6 +112,36 @@ export const BatchesPage = () => {
   return (
     <div className={uiTheme.layout.container}>
       <h1 className={uiTheme.text.h1}>Batching Room</h1>
+
+      {/* SUMMARY SECTION */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {/* TOTAL BATCHES */}
+        <div className="bg-purple-400 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <p className="font-black text-xs uppercase mb-1 text-black/60">Executed Batches</p>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-black">{globalSummary.totalBatches}</span>
+            <span className="text-xl pb-1">📦</span>
+          </div>
+        </div>
+
+        {/* TOTAL ATOMIC UNITS */}
+        <div className="bg-blue-400 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <p className="font-black text-xs uppercase mb-1 text-black/60">Total Atomic Units</p>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-black">{globalSummary.totalUnits}</span>
+            <span className="text-xl pb-1">⚛️</span>
+          </div>
+        </div>
+
+        {/* TOTAL PROFIT */}
+        <div className="bg-green-400 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <p className="font-black text-xs uppercase mb-1 text-black/60">Realized Profit</p>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-black">₹{globalSummary.totalProfit.toLocaleString('en-IN')}</span>
+            <span className="text-xl pb-1">💰</span>
+          </div>
+        </div>
+      </div>
 
       <h2 className={uiTheme.text.h2}>Unbatched Pairs</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -227,7 +254,7 @@ export const BatchesPage = () => {
               </div>
               <div className="flex flex-col text-center">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Profit</span>
-                <span className="font-bold">{Number(batch.profit).toLocaleString()}</span>
+                <span className="font-bold">₹{batch.profit?.toFixed(2).toLocaleString('en-IN') || 0}</span>
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Avg. Duration</span>
