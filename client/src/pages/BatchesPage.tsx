@@ -220,14 +220,14 @@ export const BatchesPage = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 border-t-2 border-black pt-3">
+            <div className="grid grid-cols-3 gap-2 border-t-2 border-black pt-3">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Units Traded</span>
                 <span className="font-bold">{batch.total_units}</span>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col text-center">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Profit</span>
-                <span className="font-bold">{batch.profit}</span>
+                <span className="font-bold">{Number(batch.profit).toLocaleString()}</span>
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Avg. Duration</span>
