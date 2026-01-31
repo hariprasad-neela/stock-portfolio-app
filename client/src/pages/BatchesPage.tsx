@@ -137,7 +137,7 @@ export const BatchesPage = () => {
         <div className="bg-green-400 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <p className="font-black text-xs uppercase mb-1 text-black/60">Realized Profit</p>
           <div className="flex items-end gap-2">
-            <span className="text-4xl font-black">₹{globalSummary.totalProfit.toLocaleString('en-IN')}</span>
+            <span className="text-4xl font-black">₹{globalSummary.totalProfit?.toFixed(2)?.toLocaleString('en-IN')}</span>
             <span className="text-xl pb-1">💰</span>
           </div>
         </div>
@@ -254,7 +254,7 @@ export const BatchesPage = () => {
               </div>
               <div className="flex flex-col text-center">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Profit</span>
-                <span className="font-bold">₹{batch.profit?.toFixed(2).toLocaleString('en-IN') || 0}</span>
+                <span className="font-bold">₹{batch.profit?.toLocaleString('en-IN') || 0}</span>
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Avg. Duration</span>
