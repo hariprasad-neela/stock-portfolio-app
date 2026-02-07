@@ -6,6 +6,7 @@ import { formatDate } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import { API_URLS } from '../utils/apiUrls';
 import { formatRupee } from '../utils';
+import { format } from 'node:path/win32';
 
 export const BatchesPage = () => {
   const dispatch = useDispatch();
@@ -134,11 +135,11 @@ export const BatchesPage = () => {
           </div>
         </div>
 
-        {/* TOTAL PROFIT */}
+        {/* TOTAL    */}
         <div className="bg-green-400 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
           <p className="font-black text-xs uppercase mb-1 text-black/60">Realized Profit</p>
           <div className="flex items-end gap-2">
-            <span className="text-4xl font-black">₹{globalSummary.totalProfit?.toFixed(2)?.toLocaleString('en-IN')}</span>
+            <span className="text-4xl font-black">{formatRupee(globalSummary.totalProfit) }</span>
             <span className="text-xl pb-1">💰</span>
           </div>
         </div>

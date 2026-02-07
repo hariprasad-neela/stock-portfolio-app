@@ -14,8 +14,11 @@ export const formatRupee = (amount: number | null | undefined) => {
         return '₹0.00';
     }
     
+    // Round to 2 decimal places to ensure precision
+    const roundedAmount = Math.round(amount * 100) / 100;
+    
     // Format using Indian locale with 2 decimal places
-    return amount.toLocaleString('en-IN', {
+    return roundedAmount.toLocaleString('en-IN', {
         style: 'currency',
         currency: 'INR',
         minimumFractionDigits: 2,
