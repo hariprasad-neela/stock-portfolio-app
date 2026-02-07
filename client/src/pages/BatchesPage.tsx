@@ -5,6 +5,7 @@ import { uiTheme } from '../theme/uiTheme';
 import { formatDate } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import { API_URLS } from '../utils/apiUrls';
+import { formatRupee } from '../utils';
 
 export const BatchesPage = () => {
   const dispatch = useDispatch();
@@ -215,7 +216,7 @@ export const BatchesPage = () => {
             <div className="flex justify-between font-black text-xl mt-2">
               <span>Net P&L:</span>
               <span className={totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}>
-                ₹{totalPnL.toLocaleString()}
+                {formatRupee(totalPnL)}
               </span>
             </div>
           </div>
@@ -254,7 +255,7 @@ export const BatchesPage = () => {
               </div>
               <div className="flex flex-col text-center">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Profit</span>
-                <span className="font-bold">₹{batch.profit?.toLocaleString('en-IN') || 0}</span>
+                <span className="font-bold">{formatRupee(batch.profit)}</span>
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-[10px] font-black text-gray-400 uppercase">Avg. Duration</span>
