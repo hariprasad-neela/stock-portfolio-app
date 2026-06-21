@@ -1,11 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import { getUnbatchedPairs, createBatch, getBatches, updateBatch, getBatchById } from '../controllers/batchController.js';
+import { getCandles } from '../controllers/candleController.js';
 
-router.get('/unbatched', getUnbatchedPairs);
-router.post('/create', createBatch);
-router.get('/batches', getBatches);
-router.put('/batch/:id', updateBatch);
-router.get('/batch/:id', getBatchById);
+router.get('/candles', getCandles);
 
 export default router;
