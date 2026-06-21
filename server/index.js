@@ -8,6 +8,7 @@ import transactionRoutes from './transactionRoutes.js'; // <-- 1. Import the rou
 import strategyRoutes from './strategyRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import appRoutes from './routes/appRoutes.js';
+import candleRoutes from './routes/candleRoutes.js';
 import { kite } from './services/zerodhaService.js';
 import { getStocksList } from './controllers/stockController.js';
 import { getOpenTrades } from './controllers/transactionController.js';
@@ -45,6 +46,7 @@ app.use(requestLogger); // Global Interceptor
 app.use('/api', appRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/strategy', strategyRoutes);
+app.use('/api/candles', candleRoutes);
 // app.use('/api/data', dataRoutes);
 app.get('/api/stocks', getStocksList);
 app.get('/api/openLots', getOpenTrades);
