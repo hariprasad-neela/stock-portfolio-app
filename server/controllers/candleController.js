@@ -3,7 +3,7 @@ import pool from '../db.js';
 export const getCandles = async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT *FROM candle_data WHERE STOCK='YESBANK' ORDER BY DATE ASC"
+            "SELECT *FROM candle_data WHERE \"STOCK\"='YESBANK' ORDER BY \"DATE\" ASC"
         );
         // Extracting just the strings into an array
         const tickers = result.rows.map(row => row.ticker);
