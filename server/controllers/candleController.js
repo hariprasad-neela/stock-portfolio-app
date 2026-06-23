@@ -6,7 +6,7 @@ export const getCandles = async (req, res) => {
             "SELECT *FROM candle_data WHERE \"STOCK\"='YESBANK' ORDER BY \"DATE\" ASC"
         );
         // Extracting just the strings into an array
-        const tickers = result.rows.map(row => row.ticker);
+        const tickers = result.rows.map(row => row);
         res.json(tickers);
     } catch (err) {
         console.error("Error fetching Candle data --------:", err);
