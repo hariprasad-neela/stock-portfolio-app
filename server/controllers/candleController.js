@@ -10,6 +10,6 @@ export const getCandles = async (req, res) => {
         res.json(tickers);
     } catch (err) {
         console.error("Error fetching Candle data --------:", err);
-        res.status(500).json({ error: "Failed to fetch candle data" });
+        res.status(500).json({ error: "Failed to fetch candle data" + err});
     }
 };
