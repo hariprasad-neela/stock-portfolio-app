@@ -17,6 +17,7 @@ export const Navbar = () => {
           <NavLink to="/batches" className={uiTheme.nav.desktopLink}>Batches</NavLink>
           <NavLink to="/orders" className={uiTheme.nav.desktopLink}>Orders</NavLink>
           <NavLink to="/lots" className={uiTheme.nav.desktopLink}>Lots</NavLink>
+          <NavLink to="/candles" className={uiTheme.nav.desktopLink}>Candles</NavLink>
         </div>
 
         {/* Mobile Toggle */}
@@ -33,6 +34,7 @@ export const Navbar = () => {
           <NavLink to="/batches" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>Batches</NavLink>
           <NavLink to="/orders" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>Orders</NavLink>
           <NavLink to="/lots" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>Lots</NavLink>
+          <NavLink to="/candles" onClick={() => setIsOpen(false)} className={uiTheme.nav.mobileLink}>Candles</NavLink>
         </div>
       )}
     </nav>
