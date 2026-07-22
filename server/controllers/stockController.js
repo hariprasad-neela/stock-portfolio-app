@@ -8,6 +8,6 @@ export const getStocksList = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error fetching stock list" });
+    res.status(500).json({ error: "Server error fetching stock list "+err });
   }
 };
