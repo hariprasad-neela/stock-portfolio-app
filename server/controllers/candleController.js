@@ -1,5 +1,5 @@
 import pool from '../db.js';
-const data = require("../../Candle%20Data/YESBANK.json");
+// const data = require("../../Candle%20Data/YESBANK.json");
 
 export const getCandles = async (req, res) => {
     try {
@@ -10,7 +10,7 @@ export const getCandles = async (req, res) => {
         
         // Extracting just the strings into an array
         const tickers = result.rows.map(row => row);
-        res.json(data);
+        res.json(tickers);
     } catch (err) 
         console.error("Error fetching Candle data --------:", err);
         res.status(500).json({ error:  err});
