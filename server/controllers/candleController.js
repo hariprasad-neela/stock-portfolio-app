@@ -5,7 +5,7 @@ export const getCandles = async (req, res) => {
     try {
         const { ticker } = req.params;
 
-        const query = "SELECT *FROM candle_data WHERE \"STOCK\"=$1 ORDER BY \"DATE\" ASC"
+        const query = "SELECT * FROM candle_data WHERE \"STOCK\"=$1 ORDER BY \"DATE\" ASC"
         const result = await pool.query(query, [ticker]);
         
         // Extracting just the strings into an array
