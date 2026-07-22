@@ -11,7 +11,7 @@ export const getCandles = async (req, res) => {
         // Extracting just the strings into an array
         const tickers = result.rows.map(row => row);
         res.json(tickers);
-    } catch (err) 
+    } catch (err) {
         console.error("Error fetching Candle data --------:", err);
         res.status(500).json({ error:  err});
     }
